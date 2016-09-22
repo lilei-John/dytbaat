@@ -1,31 +1,29 @@
+//
+//  main.cpp
+//  PortAudioTesting
+//
+//  Created by Haukur Kristinsson on 21/09/2016.
+//  Copyright © 2016 Haukur Kristinsson. All rights reserved.
+//
+
+#include <stdio.h>
 #include <iostream>
-#include "Dog.h"
-#include "Cat.h"
+#include "Sine.hpp"
 
 using namespace std;
 
-int main() {
 
-    string name, Sound, catOrDog;
-    cout << "Do you own a cat or a dog? ";
-    cin >> catOrDog;
-    if (catOrDog == "Dog" || catOrDog == "dog") {
-        cout << "What is the name of your dog? ";
-        cin >> name;
-        cout << "How does your dog bark? ";
-        cin >> Sound;
-        Dog myDawg(name, Sound);
-        cout << myDawg.bark() << endl;
-    }
-    else if (catOrDog == "Cat" || catOrDog == "cat") {
-        cout << "What is the name of your cat? ";
-        cin >> name;
-        cout << "How does your cat meow? ";
-        cin >> Sound;
-        Cat myCat(name, Sound);
-        cout << myCat.meow() << endl;
-
-    }
-
+int main(void)
+{
+    Sine sine;
+    
+    string dtmfNum = "";
+    cout << "Please enter DTMF nubmer: " << endl;
+    cin >> dtmfNum;
+    
+    sine.setDtmfNum(dtmfNum);
+    sine.playDtmf();
+    
     return 0;
+
 }
