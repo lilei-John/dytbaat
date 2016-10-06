@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(Portaudio REQUIRED)
 
-set(SOURCE_FILES main.cpp Sine.hpp Sine.cpp)
+set(SOURCE_FILES)
 
 include_directories(${PORTAUDIO_INCLUDE_DIR})
 
