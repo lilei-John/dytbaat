@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(Portaudio REQUIRED)
 
-set(SOURCE_FILES)
+set(SOURCE_FILES CommunicationService.cpp CommunicationService.h DataLinkLayer.h TransmissionLayer.h)
 
 include_directories(${PORTAUDIO_INCLUDE_DIR})
 
