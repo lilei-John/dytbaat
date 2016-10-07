@@ -3,16 +3,15 @@
 //
 
 #include "CommunicationService.h"
-#include <math.h>
 
 TransmissionLayer::TransmissionLayer() {
 
 }
 
-char TransmissionLayer::samplesToChar(float *samples) {
+char TransmissionLayer::samplesToChar(std::vector<float> &samples) {
 
     int sampleRate = SAMPLE_RATE;
-    int blockSize = FRAMES_PER_BUFFER;
+    int blockSize = (int)samples.size();
     int freq[8] = {697, 770, 852, 941, 1209, 1336, 1477, 1633};
     float amp[4];
 
@@ -26,7 +25,7 @@ char TransmissionLayer::samplesToChar(float *samples) {
         double Q1 = 0;
         double Q2 = 0;
 
-        for (int j = 0; j < FRAMES_PER_BUFFER; j++) {
+        for (int j = 0; j < blockSize; j++) {
             Q0 = coeff * Q1 - Q2 + samples[j];
             Q2 = Q1;
             Q1 = Q0;
@@ -62,20 +61,18 @@ char TransmissionLayer::samplesToChar(float *samples) {
             ampCol = aCol[i];
         }
     }
-
     return ampRowCol[highRow][highCol];;
 
 }
 
-void TransmissionLayer::charToSamples(char byte, float *samples, int numberOfSamples) {
+void TransmissionLayer::charToSamples(char byte, std::vector<float> &samples) {
 
     std::pair<int, int> rowCol = charToFreq(byte);
 
-    for( int i = 0; i < numberOfSamples; i++ ) {
-        samples[i] = (float) (sin( (double)i * rowCol.first * 2. * M_PI / SAMPLE_RATE)
-                            + sin( (double)i * rowCol.second * 2. * M_PI / SAMPLE_RATE))/2;
+    for( int i = 0; i < SAMPLES_PER_TONE; i++ ) {
+        samples.push_back((float) (sin( (double)i * rowCol.first * 2. * M_PI / SAMPLE_RATE)
+                            + sin( (double)i * rowCol.second * 2. * M_PI / SAMPLE_RATE))/2);
         }
-
 
 }
 
@@ -101,9 +98,17 @@ std::pair<int, int> TransmissionLayer::charToFreq(char byte) {
             }
         }
     }
+    return rowCol;
 }
 
+void TransmissionLayer::frameToSamples(std::vector<float> &samples, std::vector<char> &frame) {
 
+    samples.clear();
+    for (int i = 0; i < frame.size(); ++i) {
+        charToSamples(frame[i],samples);
+        std::cout << frame[i] << std::endl;
+    }
+}
 
 
 

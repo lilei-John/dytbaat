@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <array>
+#include "AudioLibrary.h"
+#include <vector>
 
 class TransmissionLayer{
 public:
@@ -9,11 +11,12 @@ public:
     //CommService interface
 
     //Functions
-    char samplesToChar(float *samples);
-    void charToSamples(char, float *samples, int);
+    char samplesToChar(std::vector<float> &samples);
+    void charToSamples(char, std::vector<float> &samples);
     std::pair<int,int> charToFreq(char);
+    void frameToSamples(std::vector<float> &samples, std::vector<char> &frame);
 
     // Vector<char> til og fra datalinklag
 private:
-
+    AudioLibrary audio;
 };

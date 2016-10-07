@@ -2,6 +2,7 @@
 
 #define FRAMES_PER_BUFFER (500)
 #define SAMPLE_RATE (44100)
+#define SAMPLES_PER_TONE (500)
 
 #ifndef M_PI
 #define M_PI  (3.14159265)
