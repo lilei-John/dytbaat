@@ -10,6 +10,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <queue>
+#include "CommunicationService.h"
 
 #define NUM_SECONDS   (10)
 #define SAMPLE_RATE   (44100)
@@ -37,9 +38,9 @@ public:
     bool stop();
     void setDtmfNum(std::string newNum);
     void setDtmfColRow(int i);
-    bool playDtmf(std::string newNum);
+    bool playDtmf(std::vector<float> &samples);
     bool recordDtmf();
-    void getFrame(float frame[FRAMES_PER_BUFFER]);
+    void getFrame(std::vector<float> &frame);
     bool frameReady();
 
 private:
@@ -50,6 +51,7 @@ private:
     int maxFrameIndex;
     std::queue <float> recSample;
     bool safeGuard = false;
+    std::vector<float> outSamples;
 
     int paPlayCallbackMethod(const void *inputBuffer, void *outputBuffer,
                              unsigned long framesPerBuffer,

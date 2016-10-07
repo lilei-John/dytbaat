@@ -240,7 +240,7 @@ void AudioLibrary::setDtmfColRow(int i){
 
 }
 
-bool AudioLibrary::playDtmf(std::string newNum) {
+bool AudioLibrary::playDtmf(std::vector<float> &samples) {
 
 
     PaError err;
@@ -248,8 +248,9 @@ bool AudioLibrary::playDtmf(std::string newNum) {
     err = Pa_Initialize();
     if( err != paNoError ) goto error;
 
-    dtmfNum = newNum;
-    initSineWaveTable();
+    outSamples = samples;
+    //dtmfNum = newNum;
+    //initSineWaveTable();
 
     if (open(Pa_GetDefaultOutputDevice()))
     {
@@ -320,16 +321,19 @@ int AudioLibrary::paPlayCallbackMethod(const void *inputBuffer, void *outputBuff
     (void) statusFlags;
     (void) inputBuffer;
 
-    for( i=0; i<framesPerBuffer; i++ )
-    {
-        *out++ = sine[left_phase];  /* left */
-        *out++ = sine[right_phase];  /* right */
-        left_phase += 1;
-        if( left_phase >= TABLE_SIZE ) left_phase -= TABLE_SIZE;
-        right_phase += 1; /* higher pitch so we can distinguish left and right. */
-        if( right_phase >= TABLE_SIZE ) right_phase -= TABLE_SIZE;
-    }
-
+    if(left_phase < outSamples.size()){
+        for( i=0; i<framesPerBuffer; i++ )
+        {
+            *out++ = outSamples[left_phase];
+            *out++ = outSamples[right_phase];  /* right */
+            //*out++ = sine[left_phase];  /* left */
+            //*out++ = sine[right_phase];  /* right */
+            left_phase += 1;
+            if( left_phase >= TABLE_SIZE ) left_phase -= TABLE_SIZE;
+            right_phase += 1; /* higher pitch so we can distinguish left and right. */
+            if( right_phase >= TABLE_SIZE ) right_phase -= TABLE_SIZE;
+        }
+    } else return paComplete;
     return paContinue;
 
 }
@@ -445,10 +449,6 @@ int AudioLibrary::paRecordCallback( const void *inputBuffer, void *outputBuffer,
 void AudioLibrary::paStreamFinishedMethod()
 {
     printf( "Stream Completed: %s\n", message );
-    for (int i = 0; i <= recSample.size(); i++) {
-        //cout << recSample.front() << endl;
-        //recSample.pop();
-    }
 }
 
 /*
@@ -460,14 +460,15 @@ void AudioLibrary::paStreamFinished(void* userData)
 }
 
 
-void AudioLibrary::getFrame(float frame[FRAMES_PER_BUFFER]) {
+void AudioLibrary::getFrame(std::vector<float> &frame) {
     while (safeGuard) {
 
     }
+    frame.clear();
     safeGuard = true;
-    if (recSample.size() > FRAMES_PER_BUFFER) {
-        for (int i = 0; i < FRAMES_PER_BUFFER; i++) {
-            frame[i] = recSample.front();
+    if (recSample.size() > SAMPLES_PER_TONE) {
+        for (int i = 0; i < SAMPLES_PER_TONE; i++) {
+            frame.push_back(recSample.front());
             recSample.pop();
         }
     }
@@ -476,7 +477,7 @@ void AudioLibrary::getFrame(float frame[FRAMES_PER_BUFFER]) {
 
 
 bool AudioLibrary::frameReady() {
-    if (recSample.size() > FRAMES_PER_BUFFER) {
+    if (recSample.size() > SAMPLES_PER_TONE) {
         return true;
     }
     return false;

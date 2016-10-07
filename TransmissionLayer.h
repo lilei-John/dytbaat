@@ -4,6 +4,7 @@
 #include <array>
 #include "AudioLibrary.h"
 #include <vector>
+#include <queue>
 
 class TransmissionLayer{
 public:
@@ -18,5 +19,4 @@ public:
 
     // Vector<char> til og fra datalinklag
 private:
-    AudioLibrary audio;
 };
