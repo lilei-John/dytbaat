@@ -4,6 +4,7 @@
 
 class DataLinkLayer{
 public:
+    DataLinkLayer();
     //CommService interface
 
     //Stream til og fra app
