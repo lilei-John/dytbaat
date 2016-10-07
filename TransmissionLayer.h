@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 
 class TransmissionLayer{
 public:
@@ -8,8 +9,9 @@ public:
     //CommService interface
 
     //Functions
-    double calculateFreq(int, float samples[FRAMES_PER_BUFFER]);
-
+    char samplesToChar(float *samples);
+    void charToSamples(char, float *samples, int);
+    std::pair<int,int> charToFreq(char);
 
     // Vector<char> til og fra datalinklag
 private:
