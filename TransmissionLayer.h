@@ -4,6 +4,7 @@
 
 class TransmissionLayer{
 public:
+    TransmissionLayer();
     //CommService interface
 
     // Vector<char> til og fra datalinklag

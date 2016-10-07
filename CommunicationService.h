@@ -6,7 +6,7 @@
 class CommunicationService{
 public:
     //App interface
-    CommunicationService(DataLinkLayer, TransmissionLayer);
+    CommunicationService(DataLinkLayer dll, TransmissionLayer tml);
 
 private:
     DataLinkLayer dataLinkLayer;
