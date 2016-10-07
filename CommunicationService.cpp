@@ -4,7 +4,7 @@
 
 #include "CommunicationService.h"
 
-CommunicationService::CommunicationService(DataLinkLayer dll, TransmissionLayer tml) {
+CommunicationService::CommunicationService(DataLinkLayer, TransmissionLayer) {
 
 }
 
