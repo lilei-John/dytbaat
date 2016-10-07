@@ -8,7 +8,7 @@ public:
     //CommService interface
 
     //Functions
-    float calculateFreq(int, float samples[FRAMES_PER_BUFFER]);
+    double calculateFreq(int, float samples[FRAMES_PER_BUFFER]);
 
 
     // Vector<char> til og fra datalinklag

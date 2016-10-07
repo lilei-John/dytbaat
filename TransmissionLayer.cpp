@@ -3,22 +3,23 @@
 //
 
 #include "CommunicationService.h"
+#include <math.h>
 
 TransmissionLayer::TransmissionLayer() {
 
 }
 
-float TransmissionLayer::calculateFreq(int freq, float samples[FRAMES_PER_BUFFER]) {
+double TransmissionLayer::calculateFreq(int freq, float *samples) {
     int sampleRate = SAMPLE_RATE;
     int blockSize = FRAMES_PER_BUFFER;
-    float k = 0.5 + ((blockSize*freq)/(sampleRate));
-    float w = (2 * M_PI / blockSize) * k;
-    float cosine = cos(w);
-    float sine = sin(w);
-    float coeff = 2 * cosine;
-    float Q0 = 0;
-    float Q1 = 0;
-    float Q2 = 0;
+    double k = 0.5 + ((blockSize*freq)/(sampleRate));
+    double w = (2 * M_PI / blockSize) * k;
+    double cosine = cos(w);
+    double sine = sin(w);
+    double coeff = 2 * cosine;
+    double Q0 = 0;
+    double Q1 = 0;
+    double Q2 = 0;
 
     for (int i = 0; i < FRAMES_PER_BUFFER; i++) {
         Q0 = coeff * Q1 - Q2 + samples[i];
@@ -26,9 +27,9 @@ float TransmissionLayer::calculateFreq(int freq, float samples[FRAMES_PER_BUFFER
         Q1 = Q0;
     }
 
-    float real = Q1 - Q2 * cosine;
-    float imag = Q2 * sine;
-    float magnitude = sqrtf((real*real)+(imag*imag));
+    double real = Q1 - Q2 * cosine;
+    double imag = Q2 * sine;
+    double magnitude = sqrtf((real*real)+(imag*imag));
 
     return magnitude;
 
