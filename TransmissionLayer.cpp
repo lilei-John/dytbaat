@@ -104,9 +104,22 @@ std::pair<int, int> TransmissionLayer::charToFreq(char byte) {
 void TransmissionLayer::frameToSamples(std::vector<float> &samples, std::vector<char> &frame) {
 
     samples.clear();
+    std::vector<char> nibbleFrame;
+    byteFrameToNibbleframe(frame, nibbleFrame);
     for (int i = 0; i < frame.size(); ++i) {
         charToSamples(frame[i],samples);
-        std::cout << frame[i] << std::endl;
+    }
+}
+
+void TransmissionLayer::byteFrameToNibbleframe(std::vector<char> &byteframe, std::vector<char> &nibbleFrame) {
+    for (int i = 0; i < byteframe.size(); ++i) {
+        char lowNibble = byteframe[i];
+        lowNibble = lowNibble & 0b00001111;
+        char highNibble = byteframe[i];
+        highNibble = highNibble >> 4;
+        highNibble = highNibble & 0b00001111;
+        nibbleFrame.push_back(lowNibble);
+        nibbleFrame.push_back(highNibble);
     }
 }
 

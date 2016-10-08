@@ -16,6 +16,7 @@ public:
     void charToSamples(char, std::vector<float> &samples);
     std::pair<int,int> charToFreq(char);
     void frameToSamples(std::vector<float> &samples, std::vector<char> &frame);
+    void byteFrameToNibbleframe(std::vector<char> &byteframe, std::vector<char> &nibbleFrame);
 
     // Vector<char> til og fra datalinklag
 private:
