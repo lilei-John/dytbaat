@@ -8,7 +8,7 @@ TransmissionLayer::TransmissionLayer() {
 
 }
 
-char TransmissionLayer::samplesToChar(std::vector<float> &samples) {
+unsigned char TransmissionLayer::samplesToNibble(std::vector<float> &samples) {
 
     int sampleRate = SAMPLE_RATE;
     int blockSize = (int)samples.size();
@@ -44,12 +44,6 @@ char TransmissionLayer::samplesToChar(std::vector<float> &samples) {
 
     float aRow[4] = {amp[0], amp[1],amp[2],amp[3],};
     float aCol[4] = {amp[4], amp[5],amp[6],amp[7],};
-    char ampRowCol[4][4] = {
-            {'1', '2', '3', 'a'},
-            {'4','5', '6', 'b'},
-            {'7','8', '9', 'c'},
-            {'*','0', '#', 'd'}
-    };
 
     for (int i = 0; i < 4; i++) {
         if (aRow[i] > ampRow) {
@@ -65,7 +59,7 @@ char TransmissionLayer::samplesToChar(std::vector<float> &samples) {
 
 }
 
-void TransmissionLayer::charToSamples(char byte, std::vector<float> &samples) {
+void TransmissionLayer::nibbleToSamples(unsigned char byte, std::vector<float> &samples) {
 
     std::pair<int, int> rowCol = charToFreq(byte);
 
@@ -76,15 +70,9 @@ void TransmissionLayer::charToSamples(char byte, std::vector<float> &samples) {
 
 }
 
-std::pair<int, int> TransmissionLayer::charToFreq(char byte) {
+std::pair<int, int> TransmissionLayer::charToFreq(unsigned char byte) {
 
     std::pair<int, int> rowCol;
-    char ampRowCol[4][4] = {
-            {'1','2', '3', 'a'},
-            {'4','5', '6', 'b'},
-            {'7','8', '9', 'c'},
-            {'*','0', '#', 'd'}
-    };
 
     int row[] = {697, 770, 852, 941};
     int col[] = {1209, 1336, 1477, 1633};
@@ -101,25 +89,36 @@ std::pair<int, int> TransmissionLayer::charToFreq(char byte) {
     return rowCol;
 }
 
-void TransmissionLayer::frameToSamples(std::vector<float> &samples, std::vector<char> &frame) {
+void TransmissionLayer::frameToSamples(std::vector<float> &samples, std::vector<unsigned char> &frame) {
 
     samples.clear();
-    std::vector<char> nibbleFrame;
-    byteFrameToNibbleframe(frame, nibbleFrame);
-    for (int i = 0; i < frame.size(); ++i) {
-        charToSamples(frame[i],samples);
+    std::vector<unsigned char> nibbleFrame;
+    byteFrameToNibbleFrame(frame, nibbleFrame);
+    for (int i = 0; i < nibbleFrame.size(); ++i) {
+        nibbleToSamples(nibbleFrame[i],samples);
     }
 }
 
-void TransmissionLayer::byteFrameToNibbleframe(std::vector<char> &byteframe, std::vector<char> &nibbleFrame) {
-    for (int i = 0; i < byteframe.size(); ++i) {
-        char lowNibble = byteframe[i];
+void TransmissionLayer::byteFrameToNibbleFrame(std::vector<unsigned char> &byteFrame,
+                                               std::vector<unsigned char> &nibbleFrame) {
+    for (int i = 0; i < byteFrame.size(); ++i) {
+        unsigned char lowNibble = byteFrame[i];
         lowNibble = lowNibble & 0b00001111;
-        char highNibble = byteframe[i];
+        unsigned char highNibble = byteFrame[i];
         highNibble = highNibble >> 4;
         highNibble = highNibble & 0b00001111;
-        nibbleFrame.push_back(lowNibble);
         nibbleFrame.push_back(highNibble);
+        nibbleFrame.push_back(lowNibble);
+    }
+}
+
+void TransmissionLayer::nibbleFrameToByteFrame(std::vector<unsigned char> &nibbleFrame,
+                                               std::vector<unsigned char> &byteFrame) {
+    for (int i = 0; i < nibbleFrame.size(); i+=2) {
+        unsigned char highNibble = nibbleFrame[i];
+        unsigned char lowNibble = nibbleFrame[i+1];
+        highNibble = highNibble << 4;
+        byteFrame.push_back(highNibble | lowNibble);
     }
 }
 
