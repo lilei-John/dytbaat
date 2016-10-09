@@ -1,11 +1,11 @@
+#pragma once
 
-#ifndef DYTBAAT_AUCOUSTICTL_H
-#define DYTBAAT_AUCOUSTICTL_H
+#include "../TransmissionLayer.h"
 
-
-class AucousticTL {
+class AucousticTL : public TransmissionLayer{
+public:
+    AucousticTL();
+    ~AucousticTL();
+private:
 
 };
-
-
-#endif //DYTBAAT_AUCOUSTICTL_H

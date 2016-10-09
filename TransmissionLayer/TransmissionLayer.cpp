@@ -4,6 +4,6 @@
 
 #include "../CommunicationService.h"
 
-TransmissionLayerMasterMind::TransmissionLayerMasterMind() {
+TransmissionLayer::TransmissionLayer() {
 
 }

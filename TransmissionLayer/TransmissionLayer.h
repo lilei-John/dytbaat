@@ -2,9 +2,9 @@
 
 #include <vector>
 
-class TransmissionLayerMasterMind{
+class TransmissionLayer{
 public:
-    TransmissionLayerMasterMind();
+    TransmissionLayer();
     //CommService interface
 
     // Vector<char> til og fra datalinklag

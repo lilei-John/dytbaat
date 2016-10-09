@@ -1,14 +1,32 @@
-//
-// Created by Rasmus Haugaard on 08/10/2016.
-//
+#pragma once
 
-#ifndef DYTBAAT_PAWRAPPER_H
-#define DYTBAAT_PAWRAPPER_H
+#include <functional>
+#include <vector>
+#include "PaLifeHandler.h"
 
-
-class PaWrapper {
-
+struct PaCallbackData{
+    const void *inputBuffer;
+    void *outputBuffer;
+    unsigned long framesPerBuffer;
+    const PaStreamCallbackTimeInfo* timeInfo;
+    PaStreamCallbackFlags statusFlags;
 };
 
-
-#endif //DYTBAAT_PAWRAPPER_H
+class PaWrapper {
+public:
+    PaWrapper();
+    constexpr static double SAMPLE_RATE {44100};
+    bool open();
+    void setOnCallback(PaStreamCallbackResult(*onCB)(PaCallbackData));
+private:
+    PaLifeHandler paLifeHandler;
+    static int paCallback(const void *inputBuffer,
+                                      void *outputBuffer,
+                                      unsigned long framesPerBuffer,
+                                      const PaStreamCallbackTimeInfo* timeInfo,
+                                      PaStreamCallbackFlags statusFlags,
+                                      void *userData);
+    PaStreamCallbackResult callback(PaCallbackData);
+    PaStreamCallbackResult (*onCallback)(PaCallbackData) = nullptr;
+    PaStream *paStream = nullptr;
+};

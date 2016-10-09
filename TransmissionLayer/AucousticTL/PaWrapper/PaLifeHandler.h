@@ -3,7 +3,8 @@
  * */
 
 #pragma once
-#include "Portaudio.h"
+#include "portaudio.h"
+#include <string>
 
 class PaLifeHandler {
 public:
@@ -13,11 +14,14 @@ public:
             Pa_Terminate();
         }
     }
-    bool initSuccess() const {
+    const bool initSuccess(){
         return paError == paNoError;
     }
-    PaError getPaError() const {
+    const PaError getPaError(){
         return paError;
+    }
+    const std::string getPaErrorText(){
+        return Pa_GetErrorText(paError);
     }
 private:
     PaError paError;
