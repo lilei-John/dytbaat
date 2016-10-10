@@ -56,7 +56,7 @@ unsigned char TransmissionLayer::samplesToNibble(std::vector<float> &samples) {
             ampCol = aCol[i];
         }
     }
-    return ampRowCol[highRow][highCol];;
+    return DTMFValues[highRow][highCol];;
 
 }
 
@@ -80,7 +80,7 @@ std::pair<int, int> TransmissionLayer::charToFreq(unsigned char byte) {
 
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
-            if(ampRowCol[i][j] == byte) {
+            if(DTMFValues[i][j] == byte) {
                 rowCol.first = row[i];
                 rowCol.second = col[j];
                 return rowCol;
