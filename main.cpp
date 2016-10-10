@@ -17,8 +17,9 @@ int main(void)
 
 
     tml.frameToSamples(samples,frame);
-    if (tml.samplesToNibble(samples) == 0b00001000) {
 
+    if (tml.samplesToNibble(samples) == 0b00001001) {
+        cout << "Success!"<< endl;
     }
     cout << tml.samplesToNibble(samples) << endl;
     cout << samples.size() << endl;

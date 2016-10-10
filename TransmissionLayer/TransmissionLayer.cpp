@@ -3,6 +3,7 @@
 //
 
 #include "../CommunicationService.h"
+#include "math.h"
 
 TransmissionLayer::TransmissionLayer() {
 
