@@ -4,25 +4,19 @@
 
 using namespace std;
 
-double PI = M_PI;
-double f = 697;
-double amp = .06;
-double sr = PaWrapper::SAMPLE_RATE;
-
+double sr = 44100;
+double f = 880;
 double t = 0;
 
-PaStreamCallbackResult callback(PaCallbackData paCBData){
-    float *out = (float*) paCBData.outputBuffer;
-    for (double i = 0; i < paCBData.framesPerBuffer; i++){
-        *out++ = (float)(amp * sin(t++/sr * f * 2 * PI));
+void callback(PaCallbackData cbd){
+    float *out = (float*) cbd.outputBuffer;
+    for (double i = 0; i < cbd.framesPerBuffer; i++){
+        *out++ = (float) sin(t++ / sr * f * 2 * M_PI);
     }
-    return paContinue;
 }
 
 int main(){
-    PaWrapper paWrapper;
-    paWrapper.setOnCallback(&callback);
-    paWrapper.open();
+    PaWrapper paWrapper(sr, &callback);
     cin.get(); //Keeps playing sinusoidal wave, until user aborts.
     return 0;
 }

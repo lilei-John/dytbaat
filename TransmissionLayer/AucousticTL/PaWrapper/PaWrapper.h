@@ -1,32 +1,26 @@
+/*
+ * This class wraps Portaudio in an easy to use interface.
+ * */
+
 #pragma once
 
-#include <functional>
-#include <vector>
 #include "PaLifeHandler.h"
-
-struct PaCallbackData{
-    const void *inputBuffer;
-    void *outputBuffer;
-    unsigned long framesPerBuffer;
-    const PaStreamCallbackTimeInfo* timeInfo;
-    PaStreamCallbackFlags statusFlags;
-};
+#include "PaCallBackData.h"
 
 class PaWrapper {
 public:
-    PaWrapper();
-    constexpr static double SAMPLE_RATE {44100};
-    bool open();
-    void setOnCallback(PaStreamCallbackResult(*onCB)(PaCallbackData));
+    PaWrapper(double sampleRate, void(*onCB)(PaCallbackData));
 private:
+    double sampleRate;
     PaLifeHandler paLifeHandler;
+    PaStream *paStream;
+    void (*userCallback)(PaCallbackData);
     static int paCallback(const void *inputBuffer,
-                                      void *outputBuffer,
-                                      unsigned long framesPerBuffer,
-                                      const PaStreamCallbackTimeInfo* timeInfo,
-                                      PaStreamCallbackFlags statusFlags,
-                                      void *userData);
+                          void *outputBuffer,
+                          unsigned long framesPerBuffer,
+                          const PaStreamCallbackTimeInfo* timeInfo,
+                          PaStreamCallbackFlags statusFlags,
+                          void *objectLink);
     PaStreamCallbackResult callback(PaCallbackData);
-    PaStreamCallbackResult (*onCallback)(PaCallbackData) = nullptr;
-    PaStream *paStream = nullptr;
+    void open();
 };

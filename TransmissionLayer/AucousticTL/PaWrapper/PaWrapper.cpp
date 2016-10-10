@@ -1,16 +1,17 @@
 #include <string>
-#include <iostream>
 #include "PaWrapper.h"
 
 using namespace std;
 
-PaWrapper::PaWrapper() {
+PaWrapper::PaWrapper(double sr, void(*onCB)(PaCallbackData)) : sampleRate(sr){
     if(!paLifeHandler.initSuccess()) {
         throw paLifeHandler.getPaErrorText();
     }
+    userCallback = onCB;
+    open();
 }
 
-bool PaWrapper::open(){
+void PaWrapper::open(){
     PaStreamParameters outputParameters;
     outputParameters.device = Pa_GetDefaultOutputDevice();
     outputParameters.channelCount = 1;
@@ -26,7 +27,7 @@ bool PaWrapper::open(){
             &paStream,
             &inputParameters,
             &outputParameters,
-            SAMPLE_RATE,
+            sampleRate,
             paFramesPerBufferUnspecified,
             paNoFlag,
             &PaWrapper::paCallback,
@@ -35,28 +36,19 @@ bool PaWrapper::open(){
     if (err != paNoError) throw (Pa_GetErrorText(err));
     err = Pa_StartStream(paStream);
     if (err != paNoError) throw (Pa_GetErrorText(err));
-    return true;
 }
 
 int PaWrapper::paCallback(const void *inputBuffer, void *outputBuffer,
-                                             unsigned long framesPerBuffer,
-                                             const PaStreamCallbackTimeInfo *timeInfo,
-                                             PaStreamCallbackFlags statusFlags, void *userData) {
-    PaCallbackData paCBData;
-    paCBData.inputBuffer = inputBuffer;
-    paCBData.outputBuffer = outputBuffer;
-    paCBData.framesPerBuffer = framesPerBuffer;
-    paCBData.timeInfo = timeInfo;
-    paCBData.statusFlags = statusFlags;
-
-    return ((PaWrapper*)userData)->callback(paCBData);
+                          unsigned long framesPerBuffer,
+                          const PaStreamCallbackTimeInfo *timeInfo,
+                          PaStreamCallbackFlags statusFlags, void *objectLink) {
+    return ((PaWrapper*)objectLink)->callback(
+            PaCallbackData{inputBuffer, outputBuffer, framesPerBuffer, timeInfo, statusFlags}
+    );
 }
 
 PaStreamCallbackResult PaWrapper::callback(PaCallbackData paCBData) {
-    if (onCallback == nullptr) return paComplete;
-    return (*onCallback)(paCBData);
-}
-
-void PaWrapper::setOnCallback(PaStreamCallbackResult(*onCB)(PaCallbackData)) {
-    onCallback = onCB;
+    if (userCallback == nullptr) return paComplete;
+    (*userCallback)(paCBData);
+    return paContinue;
 }

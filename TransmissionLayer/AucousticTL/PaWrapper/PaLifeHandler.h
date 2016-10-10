@@ -1,5 +1,5 @@
 /*
- * This class refactors the Portaudio initialization and cleans up in the destructor.
+ * This class refactors the Portaudio initialization and cleans up the Portaudio instance in the destructor.
  * */
 
 #pragma once
