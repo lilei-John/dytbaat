@@ -103,10 +103,10 @@ void TransmissionLayer::byteFrameToNibbleFrame(std::vector<unsigned char> &byteF
                                                std::vector<unsigned char> &nibbleFrame) {
     for (int i = 0; i < byteFrame.size(); ++i) {
         unsigned char lowNibble = byteFrame[i];
-        lowNibble = lowNibble & 0b00001111;
+        lowNibble = lowNibble &(unsigned char) 0b00001111;
         unsigned char highNibble = byteFrame[i];
         highNibble = highNibble >> 4;
-        highNibble = highNibble & 0b00001111;
+        highNibble = highNibble &(unsigned char) 0b00001111;
         nibbleFrame.push_back(highNibble);
         nibbleFrame.push_back(lowNibble);
     }
