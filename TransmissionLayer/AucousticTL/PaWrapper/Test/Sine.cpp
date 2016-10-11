@@ -5,7 +5,7 @@
 using namespace std;
 
 double sr = 44100;
-double f = 880;
+double f = 440;
 double t = 0;
 
 void callback(PaCallbackData cbd){
