@@ -3,6 +3,7 @@
 #include "../TransmissionLayer.h"
 #include "PaWrapper/PaWrapper.h"
 #include "FrameReceiver/FrameReceiver.h"
+#include "Sync/Sync.h"
 #include <queue>
 
 const enum ATLState{
@@ -26,6 +27,6 @@ private:
     unsigned char getNextNipple(int sampleCount);
 
     PaWrapper paWrapper;
-    Sync sync;
+    Sync sync = Sync(SAMPLES_PER_TONE / SAMPLES_PER_SEARCH);
     FrameReceiver frameReceiver;
 };
