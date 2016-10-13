@@ -8,7 +8,7 @@
 #include <vector>
 #include <math.h>
 
-std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
+std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
 
     int blockSize = (int)samples.size();
     std::vector<std::pair<int, float>> returnAmpFreq;

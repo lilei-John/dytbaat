@@ -1,16 +1,17 @@
-//
-// Created by Rasmus Haugaard on 13/10/2016.
-//
+#pragma once
 
-#ifndef DYTBAAT_DTMFANALYSIS_H
-#define DYTBAAT_DTMFANALYSIS_H
-
-
+#include "../DtmfSpec/DtmfSpec.h"
+#include <vector>
 
 class DtmfAnalysis {
-
+public:
+    DtmfAnalysis(const std::vector<float> &samples, DtmfSpec dtmfSpec, int sampleRate);
+    unsigned char getNipple();
+    float getCertainty();
+private:
+    std::vector<std::pair<int, float>> rowFreqAmp;
+    std::vector<std::pair<int, float>> colFreqAmp;
+    unsigned char nipple;
+    float certainty;
 };
 
-
-
-#endif //DYTBAAT_DTMFANALYSIS_H
