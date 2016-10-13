@@ -8,12 +8,13 @@
 #include <vector>
 #include <math.h>
 
-std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
+
+inline std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
 
     int blockSize = (int)samples.size();
     std::vector<std::pair<int, float>> returnAmpFreq;
 
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < samples.size(); ++i) {
         double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
         double w = (2 * M_PI / blockSize) * k;
         double cosine = cos(w);
@@ -39,8 +40,9 @@ std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samp
     return returnAmpFreq;
 }
 
-void byteFrameToNibbleFrame(std::vector<unsigned char> &byteFrame,
-                                               std::vector<unsigned char> &nibbleFrame) {
+inline std::vector<unsigned char> byteFrameToNibbleFrame(std::vector<unsigned char> byteFrame) {
+
+    std::vector<unsigned char> nibbleFrame;
     for (int i = 0; i < byteFrame.size(); ++i) {
         unsigned char lowNibble = byteFrame[i];
         lowNibble = lowNibble &(unsigned char) 0b00001111;
@@ -50,14 +52,17 @@ void byteFrameToNibbleFrame(std::vector<unsigned char> &byteFrame,
         nibbleFrame.push_back(highNibble);
         nibbleFrame.push_back(lowNibble);
     }
+    return nibbleFrame;
 }
 
-void nibbleFrameToByteFrame(std::vector<unsigned char> &nibbleFrame,
-                                               std::vector<unsigned char> &byteFrame) {
+inline std::vector<unsigned char> nibbleFrameToByteFrame(std::vector<unsigned char> &nibbleFrame) {
+
+    std::vector<unsigned char> byteFrame;
     for (int i = 0; i < nibbleFrame.size(); i+=2) {
         unsigned char highNibble = nibbleFrame[i];
         unsigned char lowNibble = nibbleFrame[i+1];
         highNibble = highNibble << 4;
         byteFrame.push_back(highNibble | lowNibble);
     }
+    return byteFrame;
 }
