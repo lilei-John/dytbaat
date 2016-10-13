@@ -17,9 +17,15 @@ std::vector<float> FreqGeneration::freqToSamples(std::pair<int, int> rowCol, int
 
 }
 
-std::vector<float> FreqGeneration::nibbleFrameToSamples(std::vector<unsigned char> &frame, int sampleRate, int samplesPerTone) {
+std::vector<float> FreqGeneration::byteFrameToSamples(std::vector<unsigned char> frame, int sampleRate, int samplesPerTone) {
 
+    std::vector<float> samples;
+    frame = byteFrameToNibbleFrame(frame);
     for (unsigned char n : frame) {
-
+        if (n == 0b1000) {
+            std::cout << "0b1000" << std::endl;
+        }
     }
+    return samples;
 }
+

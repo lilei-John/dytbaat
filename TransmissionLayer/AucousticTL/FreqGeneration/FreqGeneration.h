@@ -7,14 +7,18 @@
 
 #include <utility>
 #include <vector>
+#include "../helperFunctions.h"
+#include <iostream>
 
 
 class FreqGeneration {
 public:
     std::vector<float> freqToSamples(std::pair<int, int>, int sampleRate, int samplesPerTone);
-    std::vector<float> nibbleFrameToSamples(std::vector<unsigned char> &frame, int sampleRate, int samplesPerTone);
+    std::vector<float> byteFrameToSamples(std::vector<unsigned char> frame, int sampleRate, int samplesPerTone);
 
 private:
+public:
+
 };
 
 

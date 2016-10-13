@@ -1,4 +1,4 @@
-add_library(AucousticTL AcousticTL.h AcousticTL.cpp FreqGeneration/FreqGeneration.cpp FreqGeneration/FreqGeneration.h)
+add_library(AucousticTL AcousticTL.h AcousticTL.cpp FreqGeneration/FreqGeneration.cpp FreqGeneration/FreqGeneration.h helperFunctions.h)
 
 add_subdirectory(PaWrapper)
 add_subdirectory(Sync)
