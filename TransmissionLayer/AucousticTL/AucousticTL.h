@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../TransmissionLayer.h"
+#include "helperFunctions.h"
+#include "DtmfSpec.h"
 
 class AucousticTL : public TransmissionLayer{
 public:

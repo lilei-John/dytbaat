@@ -1,4 +1,4 @@
-set(ATLSources AucousticTL.h AucousticTL.cpp DtmfSpec.cpp DtmfSpec.h Test/DtmfSpecTest.cpp)
+set(ATLSources AucousticTL.h AucousticTL.cpp DtmfSpec.cpp DtmfSpec.h Test/DtmfSpecTest.cpp helperFunctions.h)
 add_library(AucousticTL ${ATLSources})
 
 add_subdirectory(PaWrapper)

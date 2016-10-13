@@ -7,7 +7,6 @@
 
 #include <utility>
 #include <vector>
-#include "AucousticTL.h"
 #include <math.h>
 
 
@@ -18,11 +17,7 @@ public:
     unsigned char freqsToNibble(std::pair<int, int>);
     const std::vector<int> getFreqRow();
     const std::vector<int> getFreqCol();
-    const std::vector<int> getDTMFFreq() const;
-
-    std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, std::vector<int> freqs, int sampleRate);
-
-
+    const std::vector<int> getDTMFFreq();
 
 private:
     unsigned char DTMFValues[4][4] = {
