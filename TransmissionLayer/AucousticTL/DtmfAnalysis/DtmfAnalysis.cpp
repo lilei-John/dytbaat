@@ -1,6 +1,7 @@
 #include "DtmfAnalysis.h"
 #include "../helperFunctions.h"
 #include <algorithm>
+#include <iostream>
 
 using namespace std;
 
@@ -15,6 +16,7 @@ float calcCertainty(vector<pair<int, float>> v){
 DtmfAnalysis::DtmfAnalysis(const vector<float> &samples, DtmfSpec dtmfSpec, int sampleRate) {
     rowFreqAmp = goertzelFilter(samples, dtmfSpec.getFreqRow(), sampleRate);
     colFreqAmp = goertzelFilter(samples, dtmfSpec.getFreqCol(), sampleRate);
+
     sort(rowFreqAmp.begin(), rowFreqAmp.end(), freqAmpSort);
     sort(colFreqAmp.begin(), colFreqAmp.end(), freqAmpSort);
 

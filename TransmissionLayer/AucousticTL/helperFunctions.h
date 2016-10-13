@@ -8,13 +8,11 @@
 #include <vector>
 #include <math.h>
 
-
-inline std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
-
+inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
     int blockSize = (int)samples.size();
     std::vector<std::pair<int, float>> returnAmpFreq;
 
-    for (int i = 0; i < samples.size(); ++i) {
+    for (int i = 0; i < freqs.size(); ++i) {
         double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
         double w = (2 * M_PI / blockSize) * k;
         double cosine = cos(w);
@@ -33,8 +31,12 @@ inline std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &sam
         double real = Q1 - Q2 * cosine;
         double imag = Q2 * sine;
 
-        returnAmpFreq[i].first = freqs[i];
-        returnAmpFreq[i].second = sqrtf((float)((real*real)+(imag*imag)));
+        returnAmpFreq.push_back(
+                std::make_pair(
+                        freqs[i],
+                        sqrtf((float)((real*real)+(imag*imag)))
+                )
+        );
     }
 
     return returnAmpFreq;
