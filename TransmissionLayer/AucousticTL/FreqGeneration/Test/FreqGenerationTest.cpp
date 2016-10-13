@@ -13,11 +13,10 @@ int main() {
 
     FreqGeneration freqGen;
     pair<int, int> freqs(697, 1477);
-    vector<float> samples = freqGen.freqToSamples(freqs, 44100, 5000);
-    vector<unsigned char> frame = {0b10001000, 0b10001000, 0b10001000, 0b10001000};
+    vector<unsigned char> frame = {0b10001000, 0b10001000, 0b10001000, 0b10001000, 0b10001000};
 
-    freqGen.byteFrameToSamples(frame, 44100, 5000);
-
+    vector<float> samples = freqGen.byteFrameToSamples(frame, 44100, 5000);
+    cout << samples.size() << endl;
 
 
     return 0;
