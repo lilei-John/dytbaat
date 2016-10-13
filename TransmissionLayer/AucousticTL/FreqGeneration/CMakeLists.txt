@@ -1,0 +1,4 @@
+add_library(FreqGeneration FreqGeneration.cpp FreqGeneration.h)
+
+add_executable(FreqGenerationTest Test/FreqGenerationTest.cpp)
+target_link_libraries(FreqGenerationTest FreqGeneration)
