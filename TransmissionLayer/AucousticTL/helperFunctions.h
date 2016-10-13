@@ -2,12 +2,11 @@
 // Created by Haukur Kristinsson on 13/10/2016.
 //
 
+#pragma once
+
 #include <utility>
 #include <vector>
 #include <math.h>
-
-#ifndef DYTBAAT_HELPERFUNCTIONS_H
-#define DYTBAAT_HELPERFUNCTIONS_H
 
 std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, std::vector<int> freqs, int sampleRate) {
 
@@ -62,9 +61,3 @@ void nibbleFrameToByteFrame(std::vector<unsigned char> &nibbleFrame,
         byteFrame.push_back(highNibble | lowNibble);
     }
 }
-
-
-
-
-
-#endif //DYTBAAT_HELPERFUNCTIONS_H

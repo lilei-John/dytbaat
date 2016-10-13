@@ -3,7 +3,8 @@
 //
 
 #include <iostream>
-#include "../AucousticTL.h"
+#include <vector>
+#include "../DtmfSpec.h"
 
 using namespace std;
 
