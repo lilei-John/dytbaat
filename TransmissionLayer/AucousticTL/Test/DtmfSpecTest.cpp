@@ -7,21 +7,8 @@
 
 using namespace std;
 
-/*vector<float> samples;
-DtmfSpec dtmf;
-AucousticTL atl;
+vector<float> samples;
 
- void callback(PaCallbackData cbd){
-    float *in = (float*) cbd.inputBuffer;
-    for (int i = 0; i < cbd.framesPerBuffer; i++) {
-        samples[i] = *in++;
-    }
-    vector<pair<int, float>> goertzel = dtmf.goertzelFilter(samples, dtmf.getDTMFFreq(), atl.getSampleRate());
-    for (int j = 0; j < goertzel.size(); ++j) {
-        cout << "Frequencie: " << goertzel[j].first << " | Amplitude: " << goertzel[j].second << endl;
-    }
-
-}*/
 
 int main() {
 

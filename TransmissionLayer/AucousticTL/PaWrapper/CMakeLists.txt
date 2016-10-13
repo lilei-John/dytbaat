@@ -10,4 +10,4 @@ add_executable(PAWOutputTest Test/Sine.cpp)
 target_link_libraries(PAWOutputTest PaWrapper)
 
 add_executable(PAWInputTest Test/Mic.cpp)
-target_link_libraries(PAWOutputTest PaWrapper)
+target_link_libraries(PAWInputTest PaWrapper)

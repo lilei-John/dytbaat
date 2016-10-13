@@ -40,6 +40,28 @@ std::vector<std::pair<int, float>> goertzelFilter(std::vector<float> &samples, s
     return returnAmpFreq;
 }
 
+void byteFrameToNibbleFrame(std::vector<unsigned char> &byteFrame,
+                                               std::vector<unsigned char> &nibbleFrame) {
+    for (int i = 0; i < byteFrame.size(); ++i) {
+        unsigned char lowNibble = byteFrame[i];
+        lowNibble = lowNibble &(unsigned char) 0b00001111;
+        unsigned char highNibble = byteFrame[i];
+        highNibble = highNibble >> 4;
+        highNibble = highNibble &(unsigned char) 0b00001111;
+        nibbleFrame.push_back(highNibble);
+        nibbleFrame.push_back(lowNibble);
+    }
+}
+
+void nibbleFrameToByteFrame(std::vector<unsigned char> &nibbleFrame,
+                                               std::vector<unsigned char> &byteFrame) {
+    for (int i = 0; i < nibbleFrame.size(); i+=2) {
+        unsigned char highNibble = nibbleFrame[i];
+        unsigned char lowNibble = nibbleFrame[i+1];
+        highNibble = highNibble << 4;
+        byteFrame.push_back(highNibble | lowNibble);
+    }
+}
 
 
 
