@@ -23,7 +23,7 @@ void Sync::receiveNipple(unsigned char nipple) {
 }
 
 bool Sync::startSequenceReceived() {
-    return startSequenceNipplesConfirmed == FrameProtocol::getStartSequence().length();
+    return startSequenceNipplesConfirmed == FrameProtocol::startSequence.size();
 }
 
 void Sync::reset() {
@@ -33,5 +33,5 @@ void Sync::reset() {
 }
 
 unsigned char Sync::nextExpectedStartSequenceNipple() {
-    FrameProtocol::getStartSequence()[confirmedStartSequenceNipples];
+    return FrameProtocol::startSequence[startSequenceNipplesConfirmed];
 }
