@@ -6,6 +6,7 @@ using namespace std;
 using namespace placeholders;
 
 AcousticTL::AcousticTL() :
+        frameReceiver(frameProtocol),
         paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1)),
         sampleRate(44100),
         samplesPerTone(5000),
@@ -16,6 +17,7 @@ AcousticTL::AcousticTL(
         const int sampleRate,
         const int samplesPerTone,
         const int samplesPerSearch) :
+        frameReceiver(frameProtocol),
         sampleRate(sampleRate),
         samplesPerTone(samplesPerTone),
         samplesPerSearch(samplesPerSearch),
@@ -31,8 +33,11 @@ void AcousticTL::callback(PaCallbackData pcd) {
             if (outgoingSamples.size() > 0){
                 *out++ = outgoingSamples.front();
                 outgoingSamples.pop();
+            }else{
+                *out++ = 0;
             }
         }
+        if (outgoingSamples.size() == 0) state = ATLState::idle;
         return;
     }
 

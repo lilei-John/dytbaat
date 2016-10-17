@@ -1,12 +1,10 @@
 #include "FrameReceiver.h"
-#include "../Escaping/Escaping.h"
-
-#include <vector>
-#include <queue>
 
 using namespace std;
 
-FrameReceiver::FrameReceiver() {}
+FrameReceiver::FrameReceiver(FrameProtocol f) :
+        frameProtocol(f)
+{}
 
 bool FrameReceiver::isWholeFrameReceived() {
     return wholeFrameReceived;
@@ -33,12 +31,12 @@ void FrameReceiver::receiveByte(unsigned char byte) {
         return;
     }
 
-    if (Escaping::isEscapeByte(byte)){
+    if (frameProtocol.isEscapeByte(byte)){
         shouldEscapeNexByte = true;
         return;
     }
 
-    if (Escaping::isStopByte(byte)){
+    if (frameProtocol.isStopByte(byte)){
         wholeFrameReceived = true;
         return;
     }

@@ -1,6 +1,5 @@
 #include "../PaWrapper.h"
 #include <iostream>
-#include <functional>
 #include "math.h"
 
 using namespace std;
@@ -23,7 +22,7 @@ public:
 
 int main(){
     Sine sine;
-    PaWrapper paWrapper(sine.sr, bind(&Sine::callback, sine, _1));
+    PaWrapper p(sine.sr, bind(&Sine::callback, sine, _1));
 
     cin.get(); //Keeps playing sinusoidal wave, until user aborts.
     return 0;

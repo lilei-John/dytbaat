@@ -7,7 +7,7 @@
 #include "FreqGeneration/FreqGeneration.h"
 #include <queue>
 
-const enum ATLState{
+enum ATLState{
     idle,
     transmitting,
     receiving
@@ -31,8 +31,9 @@ private:
 
     unsigned char getNextNipple(int sampleCount);
 
-    PaWrapper paWrapper;
-    Sync sync = Sync(samplesPerTone / samplesPerSearch);
+    FrameProtocol frameProtocol;
+    Sync sync = Sync(frameProtocol, samplesPerTone / samplesPerSearch);
     FrameReceiver frameReceiver;
     FreqGeneration freqGeneration;
+    PaWrapper paWrapper;
 };

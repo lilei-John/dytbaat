@@ -13,3 +13,15 @@ bool FrameProtocol::isStopByte(unsigned char byte) {
 bool FrameProtocol::isEscapeByte(unsigned char byte) {
     return byte == escapeByte;
 }
+
+const std::vector<unsigned char> &FrameProtocol::getStartBytes() const {
+    return startBytes;
+}
+
+unsigned char FrameProtocol::getStopByte() const {
+    return stopByte;
+}
+
+unsigned char FrameProtocol::getEscapeByte() const {
+    return escapeByte;
+}

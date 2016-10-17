@@ -4,7 +4,6 @@
 
 #pragma once
 #include "portaudio.h"
-
 #include <string>
 
 class PaLifeHandler {

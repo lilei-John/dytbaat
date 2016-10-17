@@ -1,10 +1,11 @@
 #include "Sync.h"
-#include "../FrameProtocol/FrameProtocol.h"
-#include <vector>
 
 using namespace std;
 
-Sync::Sync(float fpf) : searchFramesPerToneFrame(fpf) {}
+Sync::Sync(FrameProtocol f, float fpf) :
+        frameProtocol(f),
+        searchFramesPerToneFrame(fpf)
+{}
 
 void Sync::receiveNipple(unsigned char nipple) {
     if (nipple == nextExpectedStartSequenceNipple()){
@@ -23,7 +24,7 @@ void Sync::receiveNipple(unsigned char nipple) {
 }
 
 bool Sync::startSequenceReceived() {
-    return startSequenceNipplesConfirmed == FrameProtocol::startSequence.size();
+    return startSequenceNipplesConfirmed == frameProtocol.getStartBytes().size();
 }
 
 void Sync::reset() {
@@ -33,5 +34,5 @@ void Sync::reset() {
 }
 
 unsigned char Sync::nextExpectedStartSequenceNipple() {
-    return FrameProtocol::startSequence[startSequenceNipplesConfirmed];
+    return frameProtocol.getStartBytes()[startSequenceNipplesConfirmed];
 }

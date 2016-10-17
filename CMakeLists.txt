@@ -3,8 +3,7 @@ project(dytbaat)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-set(SOURCE_FILES CommunicationService.h CommunicationService.cpp DataLinkLayer.h DataLinkLayer.cpp)
-add_subdirectory(TransmissionLayer)
+find_package(Portaudio REQUIRED)
+include_directories(${PORTAUDIO_INCLUDE_DIR})
 
-add_executable(dytbaat main.cpp)
-target_link_libraries(dytbaat TransmissionLayer)
+add_subdirectory(TransmissionLayer)

@@ -1,9 +1,5 @@
-set(PAWSources PaWrapper.h PaWrapper.cpp PaLifeHandler.h PaCallBackData.h)
-add_library(PaWrapper ${PAWSources})
+add_library(PaWrapper PaWrapper.h PaWrapper.cpp PaLifeHandler.h PaCallBackData.h)
 
-#portaudio
-find_package(Portaudio REQUIRED)
-include_directories(${PORTAUDIO_INCLUDE_DIR})
 target_link_libraries(PaWrapper ${PORTAUDIO_LIBRARIES})
 
 add_executable(PAWOutputTest Test/Sine.cpp)
