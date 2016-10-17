@@ -1,22 +1,30 @@
 #include "../PaWrapper.h"
 #include <iostream>
+#include <functional>
 #include "math.h"
 
 using namespace std;
+using namespace placeholders;
 
-double sr = 44100;
-double f = 440;
-double t = 0;
+class Sine{
+public:
+    double sr = 44100;
+    double f = 440;
+    double a = 0.2;
+    double t = 0;
 
-void callback(PaCallbackData cbd){
-    float *out = (float*) cbd.outputBuffer;
-    for (double i = 0; i < cbd.framesPerBuffer; i++){
-        *out++ = (float) sin(t++ / sr * f * 2 * M_PI);
+    void callback(PaCallbackData cbd){
+        float *out = (float*) cbd.outputBuffer;
+        for (int i = 0; i < cbd.framesPerBuffer; i++){
+            *out++ = (float)(a * sin(t++ / sr * f * 2. * M_PI));
+        }
     }
-}
+};
 
 int main(){
-    PaWrapper paWrapper(sr, &callback);
+    Sine sine;
+    PaWrapper paWrapper(sine.sr, bind(&Sine::callback, sine, _1));
+
     cin.get(); //Keeps playing sinusoidal wave, until user aborts.
     return 0;
 }

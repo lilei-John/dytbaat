@@ -3,9 +3,10 @@
 #include <vector>
 
 using namespace std;
+using namespace placeholders;
 
 AcousticTL::AcousticTL() :
-        paWrapper(sampleRate, &callback),
+        paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1)),
         sampleRate(44100),
         samplesPerTone(5000),
         samplesPerSearch(500)
@@ -18,7 +19,7 @@ AcousticTL::AcousticTL(
         sampleRate(sampleRate),
         samplesPerTone(samplesPerTone),
         samplesPerSearch(samplesPerSearch),
-        paWrapper(sampleRate, &callback)
+        paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1))
 {}
 
 void AcousticTL::callback(PaCallbackData pcd) {

@@ -3,11 +3,10 @@
 
 using namespace std;
 
-PaWrapper::PaWrapper(double sr, void(*onCB)(PaCallbackData)) : sampleRate(sr){
+PaWrapper::PaWrapper(double sr, function<void(PaCallbackData)> cb) : sampleRate(sr), userCallback(cb){
     if(!paLifeHandler.initSuccess()) {
         throw paLifeHandler.getPaErrorText();
     }
-    userCallback = onCB;
     open();
 }
 
@@ -49,6 +48,6 @@ int PaWrapper::paCallback(const void *inputBuffer, void *outputBuffer,
 
 PaStreamCallbackResult PaWrapper::callback(PaCallbackData paCBData) {
     if (userCallback == nullptr) return paComplete;
-    (*userCallback)(paCBData);
+    userCallback(paCBData);
     return paContinue;
 }

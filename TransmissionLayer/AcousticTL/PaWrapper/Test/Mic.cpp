@@ -20,13 +20,14 @@ void callback(PaCallbackData cbd){
     }
     t += cbd.framesPerBuffer;
     if (t / sr > frameLength){
-        cout << sum / frameLength << endl;
+        int p = (int)(sum / frameLength);
+        cout << p << endl;
         sum = t = 0;
     }
 }
 
 int main(){
-    PaWrapper paWrapper(sr, &callback);
+    PaWrapper paWrapper(sr, callback);
     cin.get(); //Keeps playing sinusoidal wave, until user aborts.
     return 0;
 }

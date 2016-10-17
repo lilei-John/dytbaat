@@ -19,6 +19,7 @@ public:
     AcousticTL(const int sampleRate, const int samplesPerTone, const int samplesPerSearch);
 
     void sendFrame(std::vector<unsigned char>);
+    void callback(PaCallbackData);
 
     const int sampleRate;
     const int samplesPerTone;
@@ -28,7 +29,6 @@ private:
     std::queue<float> incomingSamples;
     std::queue<float> outgoingSamples;
 
-    void callback(PaCallbackData);
     unsigned char getNextNipple(int sampleCount);
 
     PaWrapper paWrapper;
