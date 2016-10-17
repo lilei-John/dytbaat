@@ -17,11 +17,11 @@ vector<unsigned char> FrameReceiver::getFrame() {
 }
 
 void FrameReceiver::receiveNipple(unsigned char nipple) {
-    if (highNipple == nullptr) {
+    if (highNipple == noHighNipple) {
         highNipple = nipple;
     }else{
         unsigned char byte = highNipple << 4 | nipple;
-        highNipple = nullptr;
+        highNipple = noHighNipple;
         receiveByte(byte);
     }
 }
