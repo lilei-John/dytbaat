@@ -5,6 +5,7 @@
 #include "FrameReceiver/FrameReceiver.h"
 #include "Sync/Sync.h"
 #include "FreqGeneration/FreqGeneration.h"
+#include "DtmfAnalysis/DtmfAnalysis.h"
 #include <queue>
 
 enum ATLState{
@@ -19,6 +20,9 @@ public:
     AcousticTL(const int sampleRate, const int samplesPerTone, const int samplesPerSearch);
 
     void sendFrame(std::vector<unsigned char>);
+
+    void setOnFrameReceiveCallback(const std::function<void(std::vector<unsigned char>)> &);
+
     void callback(PaCallbackData);
 
     const int sampleRate;
@@ -29,11 +33,16 @@ private:
     std::queue<float> incomingSamples;
     std::queue<float> outgoingSamples;
 
+    std::function<void(std::vector<unsigned char>)> onFrameReceiveCallback;
+
     unsigned char getNextNipple(int sampleCount);
 
     FrameProtocol frameProtocol;
     Sync sync = Sync(frameProtocol, samplesPerTone / samplesPerSearch);
-    FrameReceiver frameReceiver;
-    FreqGeneration freqGeneration;
+    FrameReceiver frameReceiver = FrameReceiver(frameProtocol);
+
+    DtmfSpec dtmfSpec;
+    FreqGeneration freqGeneration = FreqGeneration(dtmfSpec);
+
     PaWrapper paWrapper;
 };

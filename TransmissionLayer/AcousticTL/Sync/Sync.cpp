@@ -1,22 +1,36 @@
+#include <iostream>
 #include "Sync.h"
 
 using namespace std;
 
 Sync::Sync(FrameProtocol f, float fpf) :
         frameProtocol(f),
-        searchFramesPerToneFrame(fpf)
+        searchPerTone(fpf)
 {}
 
 void Sync::receiveNipple(unsigned char nipple) {
-    if (nipple == nextExpectedStartSequenceNipple()){
-        if(++searchFramesConfirmed >= searchFramesPerToneFrame - allowedMissedSearchFrames){
-            startSequenceNipplesConfirmed++;
-            searchFramesConfirmed = 0;
-            missedHammingSearchFrames = 0;
+    auto wantedNipple = getStartNipple(confStartNip);
+    if (nipple == wantedNipple){
+        confSearch++;
+        if(confSearch >= searchPerTone){
+            confStartNip++;
+            confSearch = 0;
+            missedSearchFrames = 0;
         }
     }else{
-        if (searchFramesConfirmed == 0 && missedHammingSearchFrames < allowedMissedSearchFrames){
-            missedHammingSearchFrames++;
+        if (confSearch >= searchPerTone - allowedMissedSearchFrames){
+            confStartNip++;
+            if (startSequenceReceived()) return;
+            if (nipple == getStartNipple(confStartNip + 1)){
+                confSearch = 1;
+            }else{
+                confSearch = 0;
+            }
+            missedSearchFrames = 0;
+        }else if (confStartNip > 0 &&
+            confSearch == 0 &&
+            missedSearchFrames < allowedMissedSearchFrames){
+            missedSearchFrames++;
         }else{
             reset();
         }
@@ -24,15 +38,20 @@ void Sync::receiveNipple(unsigned char nipple) {
 }
 
 bool Sync::startSequenceReceived() {
-    return startSequenceNipplesConfirmed == frameProtocol.getStartBytes().size();
+    return confStartNip == frameProtocol.getStartBytes().size() * 2;
 }
 
 void Sync::reset() {
-    searchFramesConfirmed = 0;
-    startSequenceNipplesConfirmed = 0;
-    missedHammingSearchFrames = 0;
+    confSearch = 0;
+    confStartNip = 0;
+    missedSearchFrames = 0;
 }
 
-unsigned char Sync::nextExpectedStartSequenceNipple() {
-    return frameProtocol.getStartBytes()[startSequenceNipplesConfirmed];
+unsigned char Sync::getStartNipple(int i) {
+    auto byte = frameProtocol.getStartBytes()[i / 2];
+    if (i % 2 == 0){
+        return byte >> 4;
+    }else{
+        return byte & (unsigned char)0x0F;
+    }
 }

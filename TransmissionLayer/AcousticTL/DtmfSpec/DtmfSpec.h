@@ -1,14 +1,7 @@
-//
-// Created by Haukur Kristinsson on 12/10/2016.
-//
-
-#ifndef DYTBAAT_DTMFSPEC_H
-#define DYTBAAT_DTMFSPEC_H
-
+#pragma once
 #include <utility>
 #include <vector>
 #include <math.h>
-
 
 class DtmfSpec {
 public:
@@ -30,6 +23,3 @@ private:
     std::vector<int> DTMFColFreq = {1209, 1336, 1477, 1633};
     std::vector<int> DTMFFreq = {697, 770, 852, 941, 1209, 1336, 1477, 1633};
 };
-
-
-#endif //DYTBAAT_DTMFSPEC_H

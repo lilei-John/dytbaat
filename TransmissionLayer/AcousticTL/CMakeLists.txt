@@ -14,3 +14,6 @@ target_link_libraries(AcousticTL FrameProtocol Sync FrameReceiver DtmfSpec FreqG
 
 add_executable(atlPlayFrame Test/atlPlayFrame.cpp)
 target_link_libraries(atlPlayFrame AcousticTL)
+
+add_executable(atlSendReceive Test/atlSendReceive.cpp)
+target_link_libraries(atlSendReceive AcousticTL)

@@ -43,3 +43,7 @@ void FrameReceiver::receiveByte(unsigned char byte) {
 
     frame.push_back(byte);
 }
+
+void FrameReceiver::reset() {
+
+}

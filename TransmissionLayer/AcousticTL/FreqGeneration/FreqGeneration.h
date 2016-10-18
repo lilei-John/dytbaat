@@ -1,9 +1,4 @@
-//
-// Created by Haukur Kristinsson on 13/10/2016.
-//
-
-#ifndef DYTBAAT_FREQGENERATION_H
-#define DYTBAAT_FREQGENERATION_H
+#pragma once
 
 #include <utility>
 #include <vector>
@@ -14,12 +9,18 @@
 
 class FreqGeneration {
 public:
-    void freqToSamples(std::vector<float> &samples, std::pair<int, int>, int sampleRate, int samplesPerTone);
-    std::vector<float> byteFrameToSamples(std::vector<unsigned char> frame, int sampleRate, int samplesPerTone);
-
+    FreqGeneration(DtmfSpec);
+    void freqToSamples(
+            std::vector<float> &samples,
+            const std::pair<int, int> &freqs,
+            std::pair<double, double> &sineState,
+            const int sampleRate,
+            const int samplesPerTone);
+    std::vector<float> byteFrameToSamples(
+            std::vector<unsigned char> frame,
+            int sampleRate,
+            int samplesPerTone);
 private:
-    DtmfSpec dtmf;
+    DtmfSpec dtmfSpec;
 };
 
-
-#endif //DYTBAAT_FREQGENERATION_H

@@ -10,12 +10,12 @@ public:
     void reset();
 private:
     FrameProtocol frameProtocol;
-    const float searchFramesPerToneFrame;
+    const float searchPerTone;
     const int allowedMissedSearchFrames = 1;
 
-    int searchFramesConfirmed = 0;
-    int missedHammingSearchFrames = 0;
-    int startSequenceNipplesConfirmed = 0;
+    int confSearch = 0;
+    int missedSearchFrames = 0;
+    int confStartNip = 0;
 
-    unsigned char nextExpectedStartSequenceNipple();
+    unsigned char getStartNipple(int);
 };

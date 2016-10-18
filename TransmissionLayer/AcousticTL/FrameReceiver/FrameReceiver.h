@@ -14,6 +14,8 @@ public:
     bool isWholeFrameReceived();
     std::vector<unsigned char> getFrame();
 
+    void reset();
+
 private:
     FrameProtocol frameProtocol;
     std::vector<unsigned char> frame;
