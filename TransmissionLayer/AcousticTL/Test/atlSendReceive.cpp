@@ -4,7 +4,7 @@
 using namespace std;
 
 const int sampleRate = 44100;
-const int samplesPerTone = 2000;
+const int samplesPerTone = 1600;
 const int samplesPerSearch = 500;
 
 int main(){
