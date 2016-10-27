@@ -24,7 +24,6 @@ int main(){
     StopAndWait inDLL(inStream);
     AcousticTL outTL;
     AcousticTL inTL;
-    AcousticTL randTL;
 
     CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
@@ -40,7 +39,6 @@ int main(){
 
     unsigned char index0;
     while(inStream >> index0){
-        cout << "I0: " << index0 << endl;
         inData.push_back(index0);
     }
 
