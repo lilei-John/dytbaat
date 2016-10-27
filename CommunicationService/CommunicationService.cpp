@@ -1,10 +1,21 @@
-//
-// Created by Haukur Kristinsson on 06/10/2016.
-//
-
 #include "CommunicationService.h"
+#include "DataLinkLayer/DataLinkLayer.h"
+#include "TransmissionLayer/TransmissionLayer.h"
+#include <vector>
 
-CommunicationService::CommunicationService(DataLinkLayer, TransmissionLayer) {
+CommunicationService::CommunicationService(DataLinkLayer dl, TransmissionLayer tl) : dataLinkLayer(dl), transmissionLayer(tl){
+    // dataLinkLayer = dl;
+    // transmissionlayer = tl;
+    transmissionLayer.setOnFrameReceiveCallback(
+            [](std::vector<unsigned char> frame){
+                dataLinkLayer.receiveFrame(frame);
+            }
+    );
 
+    dataLinkLayer.setOnFrameSendCallback(
+            [](std::vector<unsigned char> frame){
+                transmissionLayer.sendFrame(frame);
+            }
+    );
 }
 

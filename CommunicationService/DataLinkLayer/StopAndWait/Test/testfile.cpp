@@ -1,7 +1,3 @@
-//
-// Created by quist on 10/6/16.
-//
-
 #include <iostream>
 #include "../StopAndWait.h"
 
@@ -30,8 +26,6 @@ void printStream(stringstream &c){
     cout << endl;
 }
 
-
-
 //  Format: vector(DataType) nameOfVector
 //  myVector.push_back(value)   --> adds an element to the END of the vector and resizes it
 //  myVector.at(index)          --> return element at specified index number
@@ -42,40 +36,53 @@ void printStream(stringstream &c){
 //  myVector.clear()            --> removes all elements in vector
 //  myVector.empty()            --> returns bool value if true or false
 
+void onFrameSendCallback(vector<unsigned char> bytes){
+
+}
+
 int main() {
-
-
-    // test function that generates a stream of 256 chars(console readable ASCII chars)
-    stringstream myStream(ios::in|ios::out|ios::app);
-    int j = 0;
-    char newByte = 0b00100001;
-    while (j < 256) {
-        myStream << newByte;
-        j++;
+    vector<unsigned char> outData;
+    vector<unsigned char> inData;
+    unsigned char newByte = 0b00100001;
+    for(int i = 0; i < 256; i++) {
+        outData.push_back(newByte);
         if (newByte == 0b01111110){
             newByte = 0b00100000;
         }
         newByte++;
     }
 
+    stringstream outStream(ios::in|ios::out|ios::app);
+    stringstream inStream(ios::in|ios::out|ios::app);
 
- //   stringstream testStream(ios::in|ios::out|ios::app);
- //   testStream << char(0b00100001);     // if we do not define char() it will input the numeric value into the stream
- //   testStream << char(0b00100011);     //  in this case 33 and 35 instead of ! and #
+    StopAndWait outStopAndWait(outStream);
+    StopAndWait inStopAndWait(inStream);
 
-    StopAndWait test(myStream); // test object initializes
-    char value;
-    while (myStream >> value) {
-        vector<unsigned char> tempFrame = test.getNextFrame();
-        printVector(tempFrame);
+    outStopAndWait.setOnFrameSendCallback([&](vector<unsigned char> frame) -> bool{
+        //send / receive frame
+        inStopAndWait.recieveFrame(frame);
+        return true;
+    });
+    inStopAndWait.setOnFrameSendCallback([&](vector<unsigned char> frame) -> bool{
+        //send / receive ack
+        outStopAndWait.recieveFrame(frame);
+        return true;
+    });
 
-        if (test.frameControl()){
-            cout << "CRC og FLOW approved" << endl;
-        }
+    for (auto byte : outData){
+        outStream << byte;
     }
-    std::this_thread::sleep_for(std::chrono::seconds(10));
 
+    outStopAndWait.transmit();
 
+    unsigned char index0;
+    while(inStream >> index0){
+        cout << "I0: " << index0 << endl;
+        inData.push_back(index0);
+    }
+
+    cout << boolalpha;
+    cout << "Test succeeded: " << (inData == outData) << endl;
 
     return 0;
 }

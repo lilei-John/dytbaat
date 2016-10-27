@@ -1,0 +1,6 @@
+add_library(CommunicationService CommunicationService.h CommunicationService.cpp)
+
+add_subdirectory(DataLinkLayer)
+add_subdirectory(TransmissionLayer)
+
+target_link_libraries(CommunicationService DataLinkLayer TransmissionLayer)
