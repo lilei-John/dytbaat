@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "StopAndWait.h"
+#include "../StopAndWait.h"
 
 using namespace std;
 
