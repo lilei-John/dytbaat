@@ -1,9 +1,9 @@
 add_library(CommunicationService CommunicationService.h CommunicationService.cpp)
 
-add_subdirectory(DataLinkLayer)
 add_subdirectory(TransmissionLayer)
+add_subdirectory(DataLinkLayer)
 
-target_link_libraries(CommunicationService DataLinkLayer TransmissionLayer)
+target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer)
 
 add_executable(CommunicationTest Test/CommunicationTest.cpp)
-target_link_libraries(CommunicationTest CommunicationService)
+target_link_libraries(CommunicationTest CommunicationService StopAndWait AcousticTL)

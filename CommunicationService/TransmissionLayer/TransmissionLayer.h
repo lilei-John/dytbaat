@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <queue>
+#include <functional>
 
 class TransmissionLayer{
 public:
