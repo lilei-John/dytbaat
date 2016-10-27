@@ -7,7 +7,7 @@ AcousticTL::AcousticTL() :
         frameReceiver(frameProtocol),
         paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1)),
         sampleRate(44100),
-        samplesPerTone(5000),
+        samplesPerTone(1600),
         samplesPerSearch(500)
 {}
 

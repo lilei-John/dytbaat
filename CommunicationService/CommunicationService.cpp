@@ -1,7 +1,4 @@
 #include "CommunicationService.h"
-#include "DataLinkLayer/DataLinkLayer.h"
-#include "TransmissionLayer/TransmissionLayer.h"
-#include <vector>
 
 CommunicationService::CommunicationService(DataLinkLayer &dl, TransmissionLayer &tl) : dataLinkLayer(dl), transmissionLayer(tl){
     transmissionLayer.setOnFrameReceiveCallback(

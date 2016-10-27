@@ -9,7 +9,7 @@ int main(){
     vector<unsigned char> outData;
     vector<unsigned char> inData;
     unsigned char newByte = 0b00100001;
-    for(int i = 0; i < 256; i++) {
+    for(int i = 0; i < 50; i++) {
         outData.push_back(newByte);
         if (newByte == 0b01111110){
             newByte = 0b00100000;
@@ -28,13 +28,20 @@ int main(){
     CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
 
+    inDLL.setOnFrameSendCallback(
+            [&](std::vector<unsigned char> frame) -> bool{
+                cout << "sending ack" << endl;
+                return inTL.sendFrame(frame);
+            }
+    );
+
     for (auto byte : outData){
         outStream << byte;
     }
 
     sender.transmit();
 
-    Pa_Sleep(3000);
+    cin.get();
 
     unsigned char index0;
     while(inStream >> index0){
