@@ -19,7 +19,7 @@ void printStream(stringstream &c){
     char value;
     int i = 0;
     while (c >> value){
-        c.seekg(i) >> std::noskipws >> value;
+        c.seekg(i) >> value;
         cout << value << "|";
         i++;
     }
@@ -44,12 +44,12 @@ int main() {
     vector<unsigned char> outData;
     vector<unsigned char> inData;
     unsigned char newByte = 0b00100001;
-    string data = "juhuu hallojsa hmuuu";
-    for(int i = 0; i < data.size(); i++) {
-        outData.push_back((unsigned char)data[i]);
-        if (data[i] == 32) {
-            cout << "whitespace!" << endl;
+    for(int i = 0; i < 256; i++) {
+        outData.push_back(newByte);
+        if (newByte == 0b01111110){
+            newByte = 0b00100000;
         }
+        newByte++;
     }
 
     stringstream outStream(ios::in|ios::out|ios::app);
@@ -60,12 +60,12 @@ int main() {
 
     outStopAndWait.setOnFrameSendCallback([&](vector<unsigned char> frame) -> bool{
         //send / receive frame
-        inStopAndWait.receiveFrame(frame);
+        inStopAndWait.recieveFrame(frame);
         return true;
     });
     inStopAndWait.setOnFrameSendCallback([&](vector<unsigned char> frame) -> bool{
         //send / receive ack
-        outStopAndWait.receiveFrame(frame);
+        outStopAndWait.recieveFrame(frame);
         return true;
     });
 
