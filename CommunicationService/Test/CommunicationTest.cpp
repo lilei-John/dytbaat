@@ -24,16 +24,10 @@ int main(){
     StopAndWait inDLL(inStream);
     AcousticTL outTL;
     AcousticTL inTL;
+    AcousticTL randTL;
 
     CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
-
-    inDLL.setOnFrameSendCallback(
-            [&](std::vector<unsigned char> frame) -> bool{
-                cout << "sending ack" << endl;
-                return inTL.sendFrame(frame);
-            }
-    );
 
     for (auto byte : outData){
         outStream << byte;
@@ -41,6 +35,7 @@ int main(){
 
     sender.transmit();
 
+    cout << "Indtast noget i terminalen, når lydene stopper." << endl;
     cin.get();
 
     unsigned char index0;

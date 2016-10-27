@@ -88,7 +88,7 @@ void StopAndWait::frameSplit() {
 }
 
 void StopAndWait::timeOut() {
-    if(timerCount == 1) {
+    if(isExpectingAck() && timerCount == 1) {
         onFrameSendCallback(storedFrame);
         startTimer();
     }
@@ -164,7 +164,6 @@ void StopAndWait::sendFrame() {
 }
 
 void StopAndWait::startTimer() {
-    return;
     std::thread(&StopAndWait::timer, this).detach();
 }
 

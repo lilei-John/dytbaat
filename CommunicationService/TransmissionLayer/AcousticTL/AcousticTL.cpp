@@ -62,9 +62,9 @@ void AcousticTL::callback(PaCallbackData pcd) {
             frameReceiver.receiveNipple(getNextNipple(samplesPerTone - 2 * samplesPerSearch));
             for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
             if (frameReceiver.isWholeFrameReceived()){
+                state = ATLState::idle;
                 onFrameReceiveCallback(frameReceiver.getFrame());
                 frameReceiver = FrameReceiver(frameProtocol);
-                state = ATLState::idle;
             }
         }
     }
