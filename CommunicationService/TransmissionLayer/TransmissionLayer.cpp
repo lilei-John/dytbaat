@@ -1,12 +1,7 @@
-//
-// Created by Haukur Kristinsson on 06/10/2016.
-//
-
 #include "TransmissionLayer.h"
-#include "math.h"
 
-TransmissionLayer::TransmissionLayer() {
-
+void TransmissionLayer::setOnFrameReceiveCallback(const std::function<void(std::vector<unsigned char>)> &cb) {
+    onFrameReceiveCallback = cb;
 }
 
 

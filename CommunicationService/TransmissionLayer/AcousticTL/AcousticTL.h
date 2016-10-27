@@ -19,10 +19,7 @@ public:
     AcousticTL();
     AcousticTL(const int sampleRate, const int samplesPerTone, const int samplesPerSearch);
 
-    void sendFrame(std::vector<unsigned char>);
-
-    void setOnFrameReceiveCallback(const std::function<void(std::vector<unsigned char>)> &);
-
+    bool sendFrame(std::vector<unsigned char>);
     void callback(PaCallbackData);
 
     const int sampleRate;
@@ -32,8 +29,6 @@ private:
     ATLState state = ATLState::idle;
     std::queue<float> incomingSamples;
     std::queue<float> outgoingSamples;
-
-    std::function<void(std::vector<unsigned char>)> onFrameReceiveCallback;
 
     unsigned char getNextNipple(int sampleCount);
 

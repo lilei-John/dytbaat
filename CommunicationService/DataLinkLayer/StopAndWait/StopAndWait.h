@@ -14,6 +14,7 @@ class StopAndWait : public DataLinkLayer{
 public:
     StopAndWait();
     StopAndWait(std::stringstream &stream);
+    virtual ~StopAndWait() {};
 
     // SENDER
     void transmit();

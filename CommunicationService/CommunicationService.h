@@ -8,6 +8,8 @@ public:
     //App interface
     CommunicationService(DataLinkLayer, TransmissionLayer);
 
+    void transmit();
+
 private:
     DataLinkLayer dataLinkLayer;
     TransmissionLayer transmissionLayer;

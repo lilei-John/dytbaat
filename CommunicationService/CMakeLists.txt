@@ -4,3 +4,6 @@ add_subdirectory(DataLinkLayer)
 add_subdirectory(TransmissionLayer)
 
 target_link_libraries(CommunicationService DataLinkLayer TransmissionLayer)
+
+add_executable(CommunicationTest Test/CommunicationTest.cpp)
+target_link_libraries(CommunicationTest CommunicationService)

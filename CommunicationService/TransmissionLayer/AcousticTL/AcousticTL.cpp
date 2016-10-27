@@ -79,15 +79,13 @@ unsigned char AcousticTL::getNextNipple(int sampleCount) {
     return dtmfAnalysis.getNipple();
 }
 
-void AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
+bool AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
+    if (outgoingSamples.size() != 0) return false;
     frameProtocol.packFrame(byteFrame);
     vector<float> samples = freqGeneration.byteFrameToSamples(byteFrame, sampleRate, samplesPerTone);
     for (float f : samples){
         outgoingSamples.push(f);
     }
     state = ATLState::transmitting;
-}
-
-void AcousticTL::setOnFrameReceiveCallback(const function<void(vector<unsigned char>)> &cb) {
-    onFrameReceiveCallback = cb;
+    return true;
 }
