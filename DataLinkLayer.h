@@ -6,7 +6,7 @@ class DataLinkLayer{
 public:
     DataLinkLayer();
     //CommService interface
-
+    //Test test
     //Stream til og fra app
 
     // Vector<char> til og fra transmissionlag
