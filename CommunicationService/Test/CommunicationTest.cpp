@@ -1,7 +1,3 @@
-//
-// Created by Rasmus Haugaard on 27/10/2016.
-//
-
 #include <iostream>
 #include "../CommunicationService.h"
 #include "../DataLinkLayer/StopAndWait/StopAndWait.h"
@@ -9,9 +5,7 @@
 
 using namespace std;
 
-
 int main(){
-
     vector<unsigned char> outData;
     vector<unsigned char> inData;
     unsigned char newByte = 0b00100001;
@@ -26,14 +20,21 @@ int main(){
     stringstream outStream(ios::in|ios::out|ios::app);
     stringstream inStream(ios::in|ios::out|ios::app);
 
-    CommunicationService sender((StopAndWait(outStream)), AcousticTL());
-    //CommunicationService receiver((StopAndWait(inStream)), AcousticTL());
+    StopAndWait outDLL(outStream);
+    StopAndWait inDLL(inStream);
+    AcousticTL outTL;
+    AcousticTL inTL;
+
+    CommunicationService sender(outDLL, outTL);
+    CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
         outStream << byte;
     }
 
-    //sender.transmit();
+    sender.transmit();
+
+    Pa_Sleep(3000);
 
     unsigned char index0;
     while(inStream >> index0){
@@ -45,25 +46,4 @@ int main(){
     cout << "Test succeeded: " << (inData == outData) << endl;
 
     return 0;
-
-    /*string receivedMessage;
-    receiver.setOnFrameReceiveCallback([&](vector<unsigned char> receivedFrame){
-        receivedMessage = "";
-        for (auto c : receivedFrame){
-            receivedMessage += c;
-        }
-        cout << "Received: " << receivedMessage << endl;
-    });
-
-    string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."; // 56 Bytes
-    vector<unsigned char> sendFrame;
-    for (auto c : message){
-        sendFrame.push_back((unsigned char) c);
-    }
-
-    Pa_Sleep(200);
-    sender.sendFrame(sendFrame);
-    Pa_Sleep(((sendFrame.size() + 3) * 2 * samplesPerTone * 1000) / sampleRate + 1000);
-    cout << (receivedMessage == message ? "Test succeeded!" : "Test failed!") << endl;
-    return 0;*/
 }

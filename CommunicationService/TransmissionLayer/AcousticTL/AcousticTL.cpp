@@ -29,6 +29,7 @@ void AcousticTL::callback(PaCallbackData pcd) {
     if (state == ATLState::transmitting){
         for (int i = 0; i < pcd.framesPerBuffer; i++){
             if (outgoingSamples.size() > 0){
+                float val = outgoingSamples.front();
                 *out++ = outgoingSamples.front();
                 outgoingSamples.pop();
             }else{

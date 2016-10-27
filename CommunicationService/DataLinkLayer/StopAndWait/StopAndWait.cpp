@@ -141,7 +141,7 @@ std::vector<unsigned char> StopAndWait::getACK() {
     return frame;
 }
 
-void StopAndWait::recieveFrame(std::vector<unsigned char> frame) {
+void StopAndWait::receiveFrame(std::vector<unsigned char> frame) {
     if(isExpectingAck()){
         incomingACK(frame);
     }else{

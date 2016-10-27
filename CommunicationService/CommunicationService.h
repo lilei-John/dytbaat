@@ -5,12 +5,9 @@
 
 class CommunicationService{
 public:
-    //App interface
-    CommunicationService(DataLinkLayer, TransmissionLayer);
-
+    CommunicationService(DataLinkLayer&, TransmissionLayer&);
     void transmit();
-
 private:
-    DataLinkLayer dataLinkLayer;
-    TransmissionLayer transmissionLayer;
+    DataLinkLayer& dataLinkLayer;
+    TransmissionLayer& transmissionLayer;
 };

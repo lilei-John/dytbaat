@@ -14,7 +14,6 @@ class StopAndWait : public DataLinkLayer{
 public:
     StopAndWait();
     StopAndWait(std::stringstream &stream);
-    virtual ~StopAndWait() {};
 
     // SENDER
     void transmit();
@@ -33,7 +32,7 @@ public:
 
     //TIME_OUT
     void timeOut();                                             // timer & sendPreviousFrame
-    void recieveFrame(std::vector<unsigned char>);
+    void receiveFrame(std::vector<unsigned char>);
 
 private:
     std::stringstream *stream;                  // pointer to a stream
