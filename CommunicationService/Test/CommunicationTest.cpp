@@ -8,13 +8,14 @@ using namespace std;
 int main(){
     vector<unsigned char> outData;
     vector<unsigned char> inData;
+    string data = "Hallo haukur rosa flott";
     unsigned char newByte = 0b00100001;
-    for(int i = 0; i < 50; i++) {
-        outData.push_back(newByte);
-        if (newByte == 0b01111110){
+    for(int i = 0; i < data.size(); i++) {
+        outData.push_back(data[i]);
+        /*if (newByte == 0b01111110){
             newByte = 0b00100000;
         }
-        newByte++;
+        newByte++;*/
     }
 
     stringstream outStream(ios::in|ios::out|ios::app);
@@ -29,7 +30,7 @@ int main(){
     CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
-        outStream << byte;
+        outStream << noskipws << byte;
     }
 
     sender.transmit();
@@ -40,6 +41,7 @@ int main(){
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
+        cout << index0 << endl;
     }
 
     cout << boolalpha;
