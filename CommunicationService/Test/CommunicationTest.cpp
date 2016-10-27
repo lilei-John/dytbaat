@@ -26,7 +26,7 @@ int main(){
     CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
-        outStream << noskipws << byte;
+        outStream << byte;
     }
 
     sender.transmit();
@@ -37,10 +37,10 @@ int main(){
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
-        cout << index0 << endl;
+        cout << index0;
     }
 
-    cout << boolalpha;
+    cout << boolalpha << endl;
     cout << "Test succeeded: " << (inData == outData) << endl;
 
     return 0;
