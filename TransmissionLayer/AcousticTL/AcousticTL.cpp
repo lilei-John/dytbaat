@@ -88,6 +88,6 @@ void AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
     state = ATLState::transmitting;
 }
 
-void AcousticTL::setOnFrameReceiveCallback(const function<void(vector<unsigned char>)> &onFrameReceiveCallback) {
-    AcousticTL::onFrameReceiveCallback = onFrameReceiveCallback;
+void AcousticTL::setOnFrameReceiveCallback(const function<void(vector<unsigned char>)> &cb) {
+    onFrameReceiveCallback = cb;
 }
