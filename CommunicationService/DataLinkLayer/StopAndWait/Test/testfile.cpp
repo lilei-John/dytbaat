@@ -77,9 +77,9 @@ int main() {
 
     unsigned char index0;
     while(inStream >> index0){
-        cout << "I0: " << index0 << endl;
         inData.push_back(index0);
     }
+    printVector(inData);
 
     cout << boolalpha;
     cout << "Test succeeded: " << (inData == outData) << endl;
