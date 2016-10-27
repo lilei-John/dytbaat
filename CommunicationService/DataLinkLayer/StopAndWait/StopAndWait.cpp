@@ -101,7 +101,6 @@ bool StopAndWait::isFrameValid() {
 void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
     frame = aFrame;
     if(isFrameValid()){
-        cout << "FrameValid" << endl;
         frameSplit();
         for (auto byte : frame){
             *stream << byte;
@@ -144,10 +143,8 @@ std::vector<unsigned char> StopAndWait::getACK() {
 
 void StopAndWait::recieveFrame(std::vector<unsigned char> frame) {
     if(isExpectingAck()){
-        cout << "ack" << endl;
         incomingACK(frame);
     }else{
-        cout << "frame" << endl;
         incomingFrame(frame);
     }
 }
