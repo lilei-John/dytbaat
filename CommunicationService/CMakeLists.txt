@@ -7,3 +7,6 @@ target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer)
 
 add_executable(CommunicationTest Test/CommunicationTest.cpp)
 target_link_libraries(CommunicationTest CommunicationService StopAndWait AcousticTL)
+
+add_executable(ChatProgram Test/ChatProgram.cpp)
+target_link_libraries(ChatProgram CommunicationService StopAndWait AcousticTL)

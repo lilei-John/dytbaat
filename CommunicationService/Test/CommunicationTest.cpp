@@ -22,14 +22,14 @@ int main(){
     AcousticTL outTL;
     AcousticTL inTL;
 
-    CommunicationService sender(outDLL, outTL);
+    //CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
         outStream << byte;
     }
 
-    sender.transmit();
+    //sender.transmit();
 
     cout << "Indtast noget i terminalen, når lydene stopper." << endl;
     cin.get();
