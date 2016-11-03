@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../FrameProtocol/FrameProtocol.h"
+#include <functional>
 
 class Sync {
 public:
