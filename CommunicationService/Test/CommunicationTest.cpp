@@ -8,13 +8,10 @@ using namespace std;
 int main(){
     vector<unsigned char> outData;
     vector<unsigned char> inData;
-    unsigned char newByte = 0b00100001;
-    for(int i = 0; i < 50; i++) {
-        outData.push_back(newByte);
-        if (newByte == 0b01111110){
-            newByte = 0b00100000;
-        }
-        newByte++;
+    string data = "This is an test with many white spaces so we can test it, pretty long packet right? :)";
+
+    for(int i = 0; i < data.size(); i++) {
+        outData.push_back((unsigned char)data[i]);
     }
 
     stringstream outStream(ios::in|ios::out|ios::app);
@@ -34,15 +31,17 @@ int main(){
 
     sender.transmit();
 
-    cout << "Indtast noget i terminalen, når lydene stopper." << endl;
+    cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
 
+    cout << "Received text: ";
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
+        cout << index0;
     }
 
-    cout << boolalpha;
+    cout << boolalpha << endl;
     cout << "Test succeeded: " << (inData == outData) << endl;
 
     return 0;
