@@ -3,6 +3,9 @@
 #include <utility>
 #include <vector>
 #include <math.h>
+#ifndef M_PI
+#define M_PI    3.1415
+#endif
 
 inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
     int blockSize = (int)samples.size();
