@@ -15,11 +15,12 @@ int main(){
     StopAndWait clientDLL(clientStream);
     AcousticTL clientTL;
 
-    CommunicationService client(clientDLL, clientTL);
+
 
     while (true) {
+        CommunicationService client(clientDLL, clientTL);
         cout << "Indtast din besked: " << endl;
-        cin >> data;
+        getline(cin,data);
         if(data == "") {
             unsigned char index0;
             while(clientStream >> index0){
