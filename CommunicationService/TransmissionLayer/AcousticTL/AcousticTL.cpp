@@ -90,3 +90,7 @@ bool AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
     state = ATLState::transmitting;
     return true;
 }
+
+Sync &AcousticTL::getSync(){
+    return sync;
+}

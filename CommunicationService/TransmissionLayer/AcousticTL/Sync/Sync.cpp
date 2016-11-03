@@ -32,6 +32,7 @@ void Sync::receiveNipple(unsigned char nipple) {
             missedSearchFrames < allowedMissedSearchFrames){
             missedSearchFrames++;
         }else{
+            if (onSyncFailed) onSyncFailed(confStartNip, frameProtocol.getStartBytes(), nipple);
             reset();
         }
     }
@@ -54,4 +55,8 @@ unsigned char Sync::getStartNipple(int i) {
     }else{
         return byte & (unsigned char)0x0F;
     }
+}
+
+void Sync::setOnSyncFailed(const function<void(int, const vector<unsigned char> &, unsigned char)> &cb) {
+    onSyncFailed = cb;
 }

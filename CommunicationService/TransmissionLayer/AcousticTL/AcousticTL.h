@@ -22,6 +22,8 @@ public:
     bool sendFrame(std::vector<unsigned char>);
     void callback(PaCallbackData);
 
+    Sync &getSync();
+
     const int sampleRate;
     const int samplesPerTone;
     const int samplesPerSearch;
@@ -34,6 +36,7 @@ private:
 
     FrameProtocol frameProtocol;
     Sync sync = Sync(frameProtocol, samplesPerTone / samplesPerSearch);
+
     FrameReceiver frameReceiver = FrameReceiver(frameProtocol);
 
     DtmfSpec dtmfSpec;
