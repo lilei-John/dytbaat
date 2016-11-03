@@ -22,14 +22,14 @@ public:
     bool sendFrame(std::vector<unsigned char>);
     void callback(PaCallbackData);
 
-    //Callback funktion
-    void startSeqGet();
-
     Sync &getSync();
 
     const int sampleRate;
     const int samplesPerTone;
     const int samplesPerSearch;
+
+    void setOnStartSeqReceived(const std::function<void()> &onStartSeqReceived);
+
 private:
     ATLState state = ATLState::idle;
     std::queue<float> incomingSamples;
@@ -46,4 +46,6 @@ private:
     FreqGeneration freqGeneration = FreqGeneration(dtmfSpec);
 
     PaWrapper paWrapper;
+
+    std::function<void(void)> onStartSeqReceived;
 };
