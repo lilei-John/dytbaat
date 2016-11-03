@@ -35,7 +35,7 @@ int main(){
     logger.log("My mums caar");
     logger.log("Yolo");
 
-    //sender.transmit();
+    sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
