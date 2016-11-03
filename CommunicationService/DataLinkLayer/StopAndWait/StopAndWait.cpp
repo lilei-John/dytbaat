@@ -14,7 +14,7 @@ void StopAndWait::getData() {
     unsigned int i = index;
     while (index <  i +frameSize and !isStreamEmpty()){      // * pointer that takes the content that is pointed at
         unsigned char byte;
-        stream->seekg(index) >> byte;                        // seekg grabber and removes the object from the stream. and -> insted of a . because it is a pointer
+        stream->seekg(index) >> noskipws >> byte;                        // seekg grabber and removes the object from the stream. and -> insted of a . because it is a pointer
         frame.push_back(byte);
         index++;
     }
@@ -103,7 +103,7 @@ void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
     if(isFrameValid()){
         frameSplit();
         for (auto byte : frame){
-            *stream << byte;
+            *stream << noskipws << byte;
         }
         frame = getACK();
         seqNoSwap();
