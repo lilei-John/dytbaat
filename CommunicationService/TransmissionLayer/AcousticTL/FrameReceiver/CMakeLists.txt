@@ -1,0 +1,3 @@
+add_library(FrameReceiver FrameReceiver.h FrameReceiver.cpp)
+
+target_link_libraries(FrameReceiver FrameProtocol)
