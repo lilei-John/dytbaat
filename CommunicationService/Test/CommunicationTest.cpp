@@ -2,6 +2,7 @@
 #include "../CommunicationService.h"
 #include "../DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 
@@ -58,6 +59,11 @@ int main(){
     for (auto byte : outData){
         outStream << byte;
     }
+
+    Logger logger("myfile");
+    logger.log("Helloooo");
+    logger.log("My mums caar");
+    logger.log("Yolo");
 
     sender.transmit();
 
