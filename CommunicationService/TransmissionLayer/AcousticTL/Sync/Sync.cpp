@@ -56,7 +56,7 @@ unsigned char Sync::getStartNipple(int i) {
         return byte & (unsigned char)0x0F;
     }
 }
-
+// her er eksemplet at arbejde ud fra
 void Sync::setOnSyncFailed(const function<void(int, const vector<unsigned char> &, unsigned char)> &cb) {
     onSyncFailed = cb;
 }

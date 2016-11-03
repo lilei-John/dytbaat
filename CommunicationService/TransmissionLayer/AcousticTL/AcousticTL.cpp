@@ -50,6 +50,9 @@ void AcousticTL::callback(PaCallbackData pcd) {
             sync.receiveNipple(getNextNipple(samplesPerSearch));
             if (sync.startSequenceReceived()){
                 sync.reset();
+                // indsæt callback funktion som kan noget
+                if(startSeqGet) startSeqGet();
+                cout << "something" << endl;
                 state = ATLState::receiving;
                 break;
             }
@@ -93,4 +96,8 @@ bool AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
 
 Sync &AcousticTL::getSync(){
     return sync;
+}
+
+void AcousticTL::startSeqGet() {
+
 }

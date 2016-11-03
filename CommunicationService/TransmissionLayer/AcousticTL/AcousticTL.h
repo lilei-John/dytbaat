@@ -22,6 +22,9 @@ public:
     bool sendFrame(std::vector<unsigned char>);
     void callback(PaCallbackData);
 
+    //Callback funktion
+    void startSeqGet();
+
     Sync &getSync();
 
     const int sampleRate;
