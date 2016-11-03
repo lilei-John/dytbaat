@@ -50,7 +50,7 @@ void StopAndWait::addCRC() {
 }
 
 bool StopAndWait::isCrcValid() {
-    return calcCRC() == 0;
+    return calcCRC()==0;
 }
 
 void StopAndWait::makeFrame() {
@@ -91,39 +91,47 @@ void StopAndWait::timeOut() {
     if(isExpectingAck() && timerCount == 1) {
         onFrameSendCallback(storedFrame);
         startTimer();
+        if(onTimeout) onTimeout();
     }
-}
-
-bool StopAndWait::isFrameValid() {
-    return isCrcValid() && isHeaderValid();
 }
 
 void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
     frame = aFrame;
-    if(isFrameValid()){
-        frameSplit();
-        for (auto byte : frame){
-            *stream << noskipws << byte;
+    if(isCrcValid()){
+        if(isHeaderValid()){
+            frameSplit();
+            for (auto byte : frame){
+                *stream << noskipws << byte;
+            }
+            frame = getACK();
+            storedFrame = frame;
+            seqNoSwap();
+            onFrameSendCallback(frame);
+        }else{
+            onFrameSendCallback(storedFrame);
+            onFlowFail();
         }
-        frame = getACK();
-        seqNoSwap();
-        onFrameSendCallback(frame);
     }else{
-        //Vi gør ikke noget. Et timeout på afsendersiden vil gensende tidligere frame.
+        onCrcFail();
     }
 }
 
 void StopAndWait::incomingACK(std::vector<unsigned char> aFrame) {
     frame = aFrame;
-    if (isFrameValid()){
-        seqNoSwap();
-        ackFrameCount++;
-        if (!isStreamEmpty()) {
-            getNextFrame();
-            sendFrame();
+    if(isCrcValid()){
+        if(isHeaderValid()){
+            onAckReceiveTime();
+            seqNoSwap();
+            ackFrameCount++;
+            if (!isStreamEmpty()) {
+                getNextFrame();
+                sendFrame();
+            }
+        }else{
+            onFlowFail();
         }
     }else{
-        //Vi gør ikke noget. Et timeout vil gensende tidligere frame, hvis ack ikke modtages.
+        onCrcFail();
     }
 }
 
@@ -161,6 +169,7 @@ bool StopAndWait::isStreamEmpty() {
 void StopAndWait::sendFrame() {
     sentFrameCount++;
     onFrameSendCallback(frame);
+    onFrameSendTime();
 }
 
 void StopAndWait::startTimer() {
@@ -172,4 +181,24 @@ void StopAndWait::transmit() {
         getNextFrame();
         sendFrame();
     }
+}
+
+void StopAndWait::setOnTimeout(std::function<void(void)> callback) {
+    onTimeout = callback;
+}
+
+void StopAndWait::setOnCrcFail(std::function<void(void)> callback) {
+    onCrcFail = callback;
+}
+
+void StopAndWait::setOnFlowFail(std::function<void(void)> callback) {
+    onFlowFail = callback;
+}
+
+void StopAndWait::setOnFrameSendTime(std::function<void(void)> callback) {
+    onFrameSendTime = callback;
+}
+
+void StopAndWait::setOnAckReceiveTime(std::function<void(void)> callback) {
+    onAckReceiveTime = callback;
 }
