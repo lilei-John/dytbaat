@@ -8,3 +8,6 @@ target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer Logge
 
 add_executable(CommunicationTest Test/CommunicationTest.cpp)
 target_link_libraries(CommunicationTest CommunicationService StopAndWait AcousticTL)
+
+add_executable(FrameTravelTimeTest Test/FrameTravelTimeTest.cpp)
+target_link_libraries(FrameTravelTimeTest CommunicationService StopAndWait AcousticTL)
