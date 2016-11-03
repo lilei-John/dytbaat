@@ -22,18 +22,19 @@ int main(){
     AcousticTL outTL;
     AcousticTL inTL;
 
-    //CommunicationService sender(outDLL, outTL);
+    CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
         outStream << byte;
     }
 
-    //sender.transmit();
+    sender.transmit();
 
-    cout << "Indtast noget i terminalen, når lydene stopper." << endl;
+    cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
 
+    cout << "Received text: ";
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
