@@ -1,0 +1,5 @@
+add_library(DtmfAnalysis DtmfAnalysis.h DtmfAnalysis.cpp)
+target_link_libraries(DtmfAnalysis DtmfSpec)
+
+add_executable(DtmfAnalysisTest Test/DtmfAnalysisTest.cpp)
+target_link_libraries(DtmfAnalysisTest DtmfAnalysis)
