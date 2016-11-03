@@ -2,6 +2,7 @@
 
 #include "../FrameProtocol/FrameProtocol.h"
 #include <functional>
+
 class Sync {
 public:
     Sync(FrameProtocol, float fpf);

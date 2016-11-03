@@ -1,4 +1,5 @@
 #include <string>
+#include <iostream>
 #include "PaWrapper.h"
 
 using namespace std;
@@ -35,6 +36,7 @@ void PaWrapper::open(){
     if (err != paNoError) throw (Pa_GetErrorText(err));
     err = Pa_StartStream(paStream);
     if (err != paNoError) throw (Pa_GetErrorText(err));
+
 }
 
 int PaWrapper::paCallback(const void *inputBuffer, void *outputBuffer,

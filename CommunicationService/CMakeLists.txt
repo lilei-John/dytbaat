@@ -1,9 +1,10 @@
-add_library(CommunicationService CommunicationService.h CommunicationService.cpp)
+add_library(CommunicationService CommunicationService.h CommunicationService.cpp Logger/Logger.cpp Logger/Logger.h Logger/FsWriter.h)
 
 add_subdirectory(TransmissionLayer)
 add_subdirectory(DataLinkLayer)
+add_subdirectory(Logger)
 
-target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer)
+target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer Logger)
 
 add_executable(CommunicationTest Test/CommunicationTest.cpp)
 target_link_libraries(CommunicationTest CommunicationService StopAndWait AcousticTL)

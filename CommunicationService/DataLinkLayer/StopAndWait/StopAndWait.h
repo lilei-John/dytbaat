@@ -26,13 +26,19 @@ public:
     void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK, if true call getNextFrame
 
     //RECEIVER
-    bool isFrameValid();                                        // isCrcValid & isHeaderValid
     void incomingFrame(std::vector<unsigned char> aFrame);      // handles an incoming Frame
     std::vector<unsigned char> getACK();
 
     //TIME_OUT
     void timeOut();                                             // timer & sendPreviousFrame
     void receiveFrame(std::vector<unsigned char>);
+
+    //Test functions
+    void setOnTimeout(std::function<void(void)> callback);
+    void setOnCrcFail(std::function<void(void)> callback);
+    void setOnFlowFail(std::function<void(void)> callback);
+    void setOnFrameSendTime(std::function<void(void)> callback);
+    void setOnAckReceiveTime(std::function<void(void)> callback);
 
 private:
     std::stringstream *stream;                  // pointer to a stream
@@ -59,4 +65,11 @@ private:
 
     bool isExpectingAck();
     bool isStreamEmpty();
+
+    //TEST callbacks
+    std::function<void(void)> onTimeout;
+    std::function<void(void)> onCrcFail;
+    std::function<void(void)> onFlowFail;
+    std::function<void(void)> onFrameSendTime;
+    std::function<void(void)> onAckReceiveTime;
 };

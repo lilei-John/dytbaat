@@ -1,0 +1,1 @@
+add_library(Logger FsWriter.h Logger.h Logger.cpp)
