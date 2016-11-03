@@ -2,6 +2,7 @@
 #include "../CommunicationService.h"
 #include "../DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 
@@ -29,7 +30,12 @@ int main(){
         outStream << byte;
     }
 
-    sender.transmit();
+    Logger logger("myfile");
+    logger.log("Helloooo");
+    logger.log("My mums caar");
+    logger.log("Yolo");
+
+    //sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
