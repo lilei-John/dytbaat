@@ -6,6 +6,7 @@
 #define DYTBAAT_FSWRITER_H
 
 #include <fstream>
+#include <mutex>
 
 class FStreamWriter
 {
