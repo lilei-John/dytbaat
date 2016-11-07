@@ -20,6 +20,7 @@ public:
             std::vector<unsigned char> frame,
             int sampleRate,
             int samplesPerTone);
+    void fadeInOut(std::vector<float> &samples, float fadeStep);
 private:
     DtmfSpec dtmfSpec;
 };
