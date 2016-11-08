@@ -1,0 +1,2 @@
+add_library(SelectiveRepeat SelectiveRepeat.h SelectiveRepeat.cpp)
+target_link_libraries(SelectiveRepeat DataLinkLayer)
