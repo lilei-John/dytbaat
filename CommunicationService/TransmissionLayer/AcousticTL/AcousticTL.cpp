@@ -7,8 +7,8 @@ AcousticTL::AcousticTL() :
         frameReceiver(frameProtocol),
         paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1)),
         sampleRate(44100),
-        samplesPerTone(1600),
-        samplesPerSearch(500)
+        samplesPerTone(900),
+        samplesPerSearch(400)
 {}
 
 AcousticTL::AcousticTL(
@@ -59,9 +59,9 @@ void AcousticTL::callback(PaCallbackData pcd) {
 
     if (state == ATLState::receiving){
         while(incomingSamples.size() >= samplesPerTone){
-            for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
-            frameReceiver.receiveNipple(getNextNipple(samplesPerTone - 2 * samplesPerSearch));
-            for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
+            for (int i = 0; i < (samplesPerTone-samplesPerSearch)/2; i++) incomingSamples.pop();
+            frameReceiver.receiveNipple(getNextNipple(samplesPerSearch));
+            for (int i = 0; i < (samplesPerTone-samplesPerSearch)/2; i++) incomingSamples.pop();
             if (frameReceiver.isWholeFrameReceived()){
                 state = ATLState::idle;
                 onFrameReceiveCallback(frameReceiver.getFrame());

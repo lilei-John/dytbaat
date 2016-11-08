@@ -12,7 +12,8 @@
 #endif
 
 inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
-    int blockSize = (int)samples.size();
+    int N = (int)samples.size();
+    int blockSize = 3000;
     std::vector<std::pair<int, float>> returnAmpFreq;
 
     for (int i = 0; i < freqs.size(); ++i) {
@@ -25,7 +26,7 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float
         double Q1 = 0;
         double Q2 = 0;
 
-        for (int j = 0; j < blockSize; j++) {
+        for (int j = 0; j < N; j++) {
             Q0 = coeff * Q1 - Q2 + samples[j];
             Q2 = Q1;
             Q1 = Q0;
