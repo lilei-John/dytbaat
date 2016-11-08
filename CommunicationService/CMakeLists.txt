@@ -1,5 +1,6 @@
 add_library(CommunicationService CommunicationService.h CommunicationService.cpp Logger/Logger.cpp Logger/Logger.h Logger/FsWriter.h)
 
+add_subdirectory(Media)
 add_subdirectory(TransmissionLayer)
 add_subdirectory(DataLinkLayer)
 add_subdirectory(Logger)

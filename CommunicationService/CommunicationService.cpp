@@ -1,8 +1,8 @@
 #include "CommunicationService.h"
 
 CommunicationService::CommunicationService(DataLinkLayer &dl, TransmissionLayer &tl) : dataLinkLayer(dl), transmissionLayer(tl){
-    transmissionLayer.setOnFrameReceiveCallback(
-            [&](std::vector<unsigned char> frame){
+    transmissionLayer.setOnFrameReceived(
+            [&](std::vector<unsigned char> frame) {
                 dataLinkLayer.receiveFrame(frame);
             }
     );

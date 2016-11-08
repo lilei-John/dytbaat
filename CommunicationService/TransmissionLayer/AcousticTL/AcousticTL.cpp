@@ -5,7 +5,6 @@ using namespace placeholders;
 
 AcousticTL::AcousticTL() :
         frameReceiver(frameProtocol),
-        paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1)),
         sampleRate(44100),
         samplesPerTone(1600),
         samplesPerSearch(500)
@@ -19,44 +18,23 @@ AcousticTL::AcousticTL(
         sampleRate(sampleRate),
         samplesPerTone(samplesPerTone),
         samplesPerSearch(samplesPerSearch),
-        paWrapper(sampleRate, bind(&AcousticTL::callback, this, _1))
 {}
 
-void AcousticTL::callback(PaCallbackData pcd) {
-    float *in = (float*) pcd.inputBuffer;
-    float *out = (float*) pcd.outputBuffer;
-
-    if (state == ATLState::transmitting){
-        for (int i = 0; i < pcd.framesPerBuffer; i++){
-            if (outgoingSamples.size() > 0){
-                float val = outgoingSamples.front();
-                *out++ = outgoingSamples.front();
-                outgoingSamples.pop();
-            }else{
-                *out++ = 0;
-            }
-        }
-        if (outgoingSamples.size() == 0) state = ATLState::idle;
-        return;
+void AcousticTL::processInput(const std::vector<float> &in) {
+    if (state != ATLState::transmitting) {
+        for (auto sample : in) incomingSamples.push(sample);
     }
-
-    for (int i = 0; i < pcd.framesPerBuffer; i++){
-        incomingSamples.push(*in++);
-        *out++ = 0;
-    }
-
     if (state == ATLState::idle) {
         while (incomingSamples.size() >= samplesPerSearch) {
             sync.receiveNipple(getNextNipple(samplesPerSearch));
             if (sync.startSequenceReceived()){
                 sync.reset();
-                if(onStartSeqReceived) onStartSeqReceived();
                 state = ATLState::receiving;
+                if(onStartSeqReceived) onStartSeqReceived();
                 break;
             }
         }
     }
-
     if (state == ATLState::receiving){
         while(incomingSamples.size() >= samplesPerTone){
             for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
@@ -64,10 +42,24 @@ void AcousticTL::callback(PaCallbackData pcd) {
             for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
             if (frameReceiver.isWholeFrameReceived()){
                 state = ATLState::idle;
-                onFrameReceiveCallback(frameReceiver.getFrame());
+                onFrameReceived(frameReceiver.getFrame());
                 frameReceiver = FrameReceiver(frameProtocol);
             }
         }
+    }
+}
+
+void AcousticTL::setOutput(std::vector<float> &out) {
+    int i = 0;
+    if (state == ATLState::transmitting){
+        while (i < out.size() && outgoingSamples.size() > 0){
+            out[i++] = outgoingSamples.front();
+            outgoingSamples.pop();
+        }
+        if (outgoingSamples.size() == 0) state = ATLState::idle;
+    }
+    while (i < out.size()){
+        out[i++] = 0;
     }
 }
 
@@ -81,7 +73,8 @@ unsigned char AcousticTL::getNextNipple(int sampleCount) {
     return dtmfAnalysis.getNipple();
 }
 
-bool AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
+bool AcousticTL::sendFrame(const std::vector<unsigned char> &bytes) {
+    vector<unsigned char> byteFrame = bytes;
     if (outgoingSamples.size() != 0) return false;
     frameProtocol.packFrame(byteFrame);
     vector<float> samples = freqGeneration.byteFrameToSamples(byteFrame, sampleRate, samplesPerTone);
@@ -92,10 +85,10 @@ bool AcousticTL::sendFrame(std::vector<unsigned char> byteFrame) {
     return true;
 }
 
-Sync &AcousticTL::getSync(){
-    return sync;
-}
-
 void AcousticTL::setOnStartSeqReceived(const function<void()> &onStartSeqReceived) {
     AcousticTL::onStartSeqReceived = onStartSeqReceived;
+}
+
+Sync &AcousticTL::getSync(){
+    return sync;
 }

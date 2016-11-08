@@ -12,9 +12,9 @@ int main(){
     AcousticTL receiver(sampleRate, samplesPerTone, samplesPerSearch);
 
     string receivedMessage;
-    receiver.setOnFrameReceiveCallback([&](vector<unsigned char> receivedFrame){
+    receiver.setOnFrameReceived([&](vector<unsigned char> receivedFrame) {
         receivedMessage = "";
-        for (auto c : receivedFrame){
+        for (auto c : receivedFrame) {
             receivedMessage += c;
         }
         cout << "Received: " << receivedMessage << endl;
