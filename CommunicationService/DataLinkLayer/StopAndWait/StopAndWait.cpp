@@ -97,6 +97,10 @@ void StopAndWait::timeOut() {
 
 void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
     frame = aFrame;
+    for (auto i : frame) {
+        cout << i;
+    }
+    cout << endl;
     if(isCrcValid()){
         if(isHeaderValid()){
             frameSplit();

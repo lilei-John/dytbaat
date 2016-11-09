@@ -30,8 +30,8 @@ bool SelectiveRepeat::isStreamEmpty() {
 }
 
 void SelectiveRepeat::addHeader() {
-    frame.insert(frame.begin(), (framesToBeSend.size()-1)-windowIndex);
     frame.insert(frame.begin(), seqNo);
+//  frame.insert(frame.begin(), firstOutstanding);
 }
 
 unsigned int SelectiveRepeat::calcCRC() {
@@ -61,4 +61,49 @@ void SelectiveRepeat::addCRC() {
 
 bool SelectiveRepeat::isCrcValid() {
     return calcCRC()==0;
+}
+
+void SelectiveRepeat::transmit() {
+    while (!isStreamEmpty()&&seqNo-firstOutstanding>=windowSize){
+        getData();
+        makeFrame();
+        storeFrame();
+        sendFrame();
+        seqNo++;
+    }
+    expectingAck = true;
+    startTimer();
+}
+
+void SelectiveRepeat::makeFrame() {
+    addHeader();
+    addCRC();
+}
+
+void SelectiveRepeat::storeFrame() {
+    window.push_back(frame);
+}
+
+void SelectiveRepeat::sendFrame() {
+    onFrameSendCallback(frame);
+//  onFrameSendTime();
+}
+
+void SelectiveRepeat::startTimer() {
+    std::thread(&SelectiveRepeat::timer, this).detach();
+}
+
+void SelectiveRepeat::timer() {
+    timerCount++;
+    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
+    timeOut();
+    timerCount--;
+}
+
+void SelectiveRepeat::timeOut() {
+    if(expectingAck && timerCount == 1) {
+
+        startTimer();
+ //     if(onTimeout) onTimeout();
+    }
 }
