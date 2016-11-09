@@ -15,7 +15,7 @@ public:
     SelectiveRepeat();
     SelectiveRepeat(std::stringstream &inStream);
     void transmit();
-
+    void receiveFrame(std::vector<unsigned char>);
 
 private:
     std::stringstream *stream;                  // pointer to a stream
@@ -30,14 +30,19 @@ private:
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;
     std::vector<std::vector<unsigned char>> framesToBeSend;
+    std::vector<std::vector<int>> whatToSendNext;
 
     void getData();
     void makeFrame();
     void storeFrame();
     void sendFrame();
+
+    void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK
+
     void startTimer();
     void timer();
     void timeOut();
+
     void addHeader();
     unsigned int calcCRC();
     void addCRC();

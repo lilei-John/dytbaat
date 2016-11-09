@@ -64,15 +64,17 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::transmit() {
-    while (!isStreamEmpty()&&seqNo-firstOutstanding>=windowSize){
+    if(!isStreamEmpty()&&seqNo-firstOutstanding>=windowSize){
         getData();
         makeFrame();
         storeFrame();
         sendFrame();
         seqNo++;
     }
-    expectingAck = true;
-    startTimer();
+    else{
+        expectingAck = true;
+        startTimer();
+    }
 }
 
 void SelectiveRepeat::makeFrame() {
@@ -102,8 +104,40 @@ void SelectiveRepeat::timer() {
 
 void SelectiveRepeat::timeOut() {
     if(expectingAck && timerCount == 1) {
-
         startTimer();
  //     if(onTimeout) onTimeout();
     }
+}
+
+void SelectiveRepeat::receiveFrame(std::vector<unsigned char>) {
+    if(expectingAck){
+        incomingACK(frame);
+    }else{
+        incomingFrame(frame);
+    }
+
+}
+
+void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
+    frame = aFrame;
+    if(isCrcValid()){
+        checkAckHeader();
+
+
+        if(isHeaderValid()){
+//          onAckReceiveTime();
+            expectingAck = false;
+            seqNoSwap();
+            ackFrameCount++;
+            if (!isStreamEmpty()) {
+                getNextFrame();
+                sendFrame();
+            }
+        }else{
+//          onFlowFail();
+        }
+    }else{
+//      onCrcFail();
+    }
+
 }
