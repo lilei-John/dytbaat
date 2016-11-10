@@ -4,7 +4,7 @@
 
 using namespace std;
 
-PaWrapper::PaWrapper(double sr, function<void(PaCallbackData)> cb) : sampleRate(sr), userCallback(cb){
+PaWrapper::PaWrapper(double sr) : sampleRate(sr) {
     if(!paLifeHandler.initSuccess()) {
         throw paLifeHandler.getPaErrorText();
     }
@@ -44,12 +44,27 @@ int PaWrapper::paCallback(const void *inputBuffer, void *outputBuffer,
                           const PaStreamCallbackTimeInfo *timeInfo,
                           PaStreamCallbackFlags statusFlags, void *objectLink) {
     return ((PaWrapper*)objectLink)->callback(
-            PaCallbackData{inputBuffer, outputBuffer, framesPerBuffer, timeInfo, statusFlags}
+            PaCallbackData{(float *)inputBuffer, (float *)outputBuffer, framesPerBuffer, timeInfo, statusFlags}
     );
 }
 
 PaStreamCallbackResult PaWrapper::callback(PaCallbackData paCBData) {
-    if (userCallback == nullptr) return paComplete;
-    userCallback(paCBData);
+    vector<float> in;
+    in.assign(paCBData.inputBuffer, paCBData.inputBuffer + paCBData.framesPerBuffer);
+    if (onInReceived) onInReceived(in);
+
+    vector<float> out (paCBData.framesPerBuffer);
+    if (onOutRequest) onOutRequest(out);
+    for (int i = 0; i < paCBData.framesPerBuffer; i++){
+        *(paCBData.outputBuffer + i) = out[i];
+    }
     return paContinue;
+}
+
+void PaWrapper::setOnInReceived(const function<void(vector<float> &)> &onInReceived) {
+    PaWrapper::onInReceived = onInReceived;
+}
+
+void PaWrapper::setOnOutRequest(const function<void(vector<float> &)> &onOutRequest) {
+    PaWrapper::onOutRequest = onOutRequest;
 }

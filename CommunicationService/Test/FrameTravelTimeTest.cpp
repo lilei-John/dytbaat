@@ -3,6 +3,7 @@
 #include "../DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
 #include "../Logger/Logger.h"
+#include "../Media/RealAudio/RealAudio.h"
 
 using namespace std;
 
@@ -19,10 +20,23 @@ int main(){
     stringstream outStream(ios::in|ios::out|ios::app);
     stringstream inStream(ios::in|ios::out|ios::app);
 
+    for (auto byte : outData){
+        outStream << byte;
+    }
+
+    int sampleRate = 44100;
+    int samplesPerTone = 1600;
+    int samplesPerSearch = 500;
+
     StopAndWait outDLL(outStream);
     StopAndWait inDLL(inStream);
-    AcousticTL outTL;
-    AcousticTL inTL;
+    AcousticTL outTL(sampleRate, samplesPerTone, samplesPerSearch);
+    AcousticTL inTL(sampleRate, samplesPerTone, samplesPerSearch);
+    RealAudio outRA(sampleRate);
+    RealAudio inRA(sampleRate);
+
+    CommunicationService sender(outDLL, outTL, outRA);
+    CommunicationService receiver(inDLL, inTL, inRA);
 
     outDLL.setOnTimeout([&](){
        logger.log("TIMEOUT");
@@ -39,7 +53,8 @@ int main(){
     inDLL.setOnFlowFail([&](){
         logger.log("RECEIVER FLOW FAIL");
     });
-    long millisec = 0;
+
+    long millisec;
     outDLL.setOnFrameSendTime([&](){
         chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
                 chrono::system_clock::now().time_since_epoch()
@@ -48,34 +63,26 @@ int main(){
     });
     outDLL.setOnAckReceiveTime([&](){
         chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-         chrono::system_clock::now().time_since_epoch()
-    );
+                chrono::system_clock::now().time_since_epoch()
+        );
         millisec = ms.count() - millisec;
         logger.log("Frame travel time: " + to_string(millisec));
     });
-
-    CommunicationService sender(outDLL, outTL);
-    CommunicationService receiver(inDLL, inTL);
-
-    for (auto byte : outData){
-        outStream << byte;
-    }
-
 
     sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
 
-    cout << "Received text: ";
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
-        cout << index0;
     }
 
     cout << boolalpha << endl;
     cout << "Test succeeded: " << (inData == outData) << endl;
+    string result(inData.begin(), inData.end());
+    cout << "Received text: " << result << endl;
 
     return 0;
 }

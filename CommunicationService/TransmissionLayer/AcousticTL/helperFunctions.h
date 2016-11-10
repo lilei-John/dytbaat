@@ -3,9 +3,6 @@
 #include <utility>
 #include <vector>
 #include <math.h>
-#ifndef M_PI
-#define M_PI    3.1415
-#endif
 
 #ifndef M_PI
 #define M_PI           3.14159265358979323846
@@ -16,8 +13,8 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float
     std::vector<std::pair<int, float>> returnAmpFreq;
 
     for (int i = 0; i < freqs.size(); ++i) {
-        double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
-        double w = (2 * M_PI / blockSize) * k;
+        double k = 0.5 + blockSize * freqs[i] / sampleRate;
+        double w = 2 * (double)M_PI / blockSize * k;
         double cosine = cos(w);
         double sine = sin(w);
         double coeff = 2 * cosine;
