@@ -15,14 +15,11 @@ enum ATLState{
 
 class AcousticTL : public TransmissionLayer{
 public:
-    AcousticTL();
     AcousticTL(const int sampleRate, const int samplesPerTone, const int samplesPerSearch);
 
     bool sendFrame(const std::vector<unsigned char> &);
     void processInput(const std::vector<float> &);
     void setOutput(std::vector<float> &);
-
-    //void callback(PaCallbackData);
 
     Sync &getSync();
 

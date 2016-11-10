@@ -12,7 +12,7 @@ add_subdirectory(DtmfAnalysis)
 target_link_libraries(AcousticTL FrameProtocol Sync FrameReceiver DtmfSpec FreqGeneration DtmfAnalysis)
 
 add_executable(atlPlayFrame Test/atlPlayFrame.cpp)
-target_link_libraries(atlPlayFrame AcousticTL)
+target_link_libraries(atlPlayFrame AcousticTL PaWrapper)
 
 add_executable(atlSendReceive Test/atlSendReceive.cpp)
-target_link_libraries(atlSendReceive AcousticTL)
+target_link_libraries(atlSendReceive AcousticTL PaWrapper)

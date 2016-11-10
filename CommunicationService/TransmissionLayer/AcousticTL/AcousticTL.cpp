@@ -1,14 +1,6 @@
 #include "AcousticTL.h"
 
 using namespace std;
-using namespace placeholders;
-
-AcousticTL::AcousticTL() :
-        frameReceiver(frameProtocol),
-        sampleRate(44100),
-        samplesPerTone(1600),
-        samplesPerSearch(500)
-{}
 
 AcousticTL::AcousticTL(
         const int sampleRate,
@@ -17,7 +9,7 @@ AcousticTL::AcousticTL(
         frameReceiver(frameProtocol),
         sampleRate(sampleRate),
         samplesPerTone(samplesPerTone),
-        samplesPerSearch(samplesPerSearch),
+        samplesPerSearch(samplesPerSearch)
 {}
 
 void AcousticTL::processInput(const std::vector<float> &in) {

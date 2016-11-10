@@ -5,10 +5,7 @@ add_subdirectory(TransmissionLayer)
 add_subdirectory(DataLinkLayer)
 add_subdirectory(Logger)
 
-target_link_libraries(CommunicationService TransmissionLayer DataLinkLayer Logger)
-
-add_executable(CommunicationTest Test/CommunicationTest.cpp)
-target_link_libraries(CommunicationTest CommunicationService StopAndWait AcousticTL)
+target_link_libraries(CommunicationService Media TransmissionLayer DataLinkLayer Logger)
 
 add_executable(FrameTravelTimeTest Test/FrameTravelTimeTest.cpp)
-target_link_libraries(FrameTravelTimeTest CommunicationService StopAndWait AcousticTL)
+target_link_libraries(FrameTravelTimeTest CommunicationService StopAndWait AcousticTL RealAudio)
