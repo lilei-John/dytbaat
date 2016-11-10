@@ -36,8 +36,13 @@ void AcousticTL::callback(PaCallbackData pcd) {
                 *out++ = 0;
             }
         }
-        if (outgoingSamples.size() == 0) state = ATLState::idle;
-        return;
+        if (outgoingSamples.size() == 0) {
+
+
+            state = ATLState::idle;
+            // Er det her, man bør kalde et callback i Selective Repeat??
+        }
+            return;
     }
 
     for (int i = 0; i < pcd.framesPerBuffer; i++){

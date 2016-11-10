@@ -29,7 +29,6 @@ private:
 
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;
-    std::vector<std::vector<unsigned char>> framesToBeSend;
     std::vector<std::vector<int>> whatToSendNext;
 
     void getData();

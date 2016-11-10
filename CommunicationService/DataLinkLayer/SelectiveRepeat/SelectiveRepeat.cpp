@@ -64,12 +64,17 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::transmit() {
-    if(!isStreamEmpty()&&seqNo-firstOutstanding>=windowSize){
+    if(!isStreamEmpty()&&window.size()< windowSize){
         getData();
         makeFrame();
         storeFrame();
         sendFrame();
-        seqNo++;
+        if(seqNo>=7)
+        {
+            seqNo = 0;
+        }else{
+            seqNo++;
+        }
     }
     else{
         expectingAck = true;
@@ -109,11 +114,11 @@ void SelectiveRepeat::timeOut() {
     }
 }
 
-void SelectiveRepeat::receiveFrame(std::vector<unsigned char>) {
+void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
     if(expectingAck){
-        incomingACK(frame);
+        incomingACK(aFrame);
     }else{
-        incomingFrame(frame);
+        incomingFrame(aFrame);
     }
 
 }
@@ -121,6 +126,18 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char>) {
 void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
     frame = aFrame;
     if(isCrcValid()){
+        uint8_t firstByte = frame[0];
+        if (firstByte==seqNo){
+            window.clear();
+            transmit();
+        }else{
+            int nakCount = frame.size()-2;
+            for(int i = 0; i < frame.size()-2; i++){
+                frame[i] =
+            }
+
+         window.erase(window.begin());
+        }
         checkAckHeader();
 
 
