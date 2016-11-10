@@ -37,6 +37,7 @@ private:
     void sendFrame();
 
     void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK
+    void retransmit();
 
     void startTimer();
     void timer();
@@ -48,6 +49,7 @@ private:
     bool isCrcValid();
     bool isStreamEmpty();
     bool expectingAck = false;
+    bool isRetransmitting = false;
 
     int timerCount = 0;
 
