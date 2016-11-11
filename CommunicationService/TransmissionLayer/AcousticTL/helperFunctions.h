@@ -13,12 +13,12 @@
 
 inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
     int N = (int)samples.size();
-    int blockSize = 3000;
     std::vector<std::pair<int, float>> returnAmpFreq;
 
     for (int i = 0; i < freqs.size(); ++i) {
-        double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
-        double w = (2 * M_PI / blockSize) * k;
+        //double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
+        //double w = (2 * M_PI / blockSize) * k;
+        double w = 2 * M_PI * freqs[i] / sampleRate;
         double cosine = cos(w);
         double sine = sin(w);
         double coeff = 2 * cosine;
