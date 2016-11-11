@@ -64,29 +64,27 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::transmit() {
-    if(isRetransmitting){
-        frame = window[0];
+    if(framesToResend > 0){
+        frame = window[window.size()-framesToResend];
         sendFrame();
-        window.erase(window.begin()); //det er noget crap
-        if(window.size()==0){
-            isRetransmitting = false;
+        framesToResend--;
+    }else{
+        if(!isStreamEmpty()&&window.size()< windowSize&&abs(seqNo-firstOutstanding)>3){
+            getData();
+            makeFrame();
+            storeFrame();
+            sendFrame();
+            if(seqNo>=totalSeqNo)
+            {
+                seqNo = 0;
+            }else{
+                seqNo++;
+            }
         }
-    }
-    if(!isStreamEmpty()&&window.size()< windowSize){
-        getData();
-        makeFrame();
-        storeFrame();
-        sendFrame();
-        if(seqNo>=totalSeqNo)
-        {
-            seqNo = 0;
-        }else{
-            seqNo++;
+        else{
+            expectingAck = true;
+            startTimer();
         }
-    }
-    else{
-        expectingAck = true;
-        startTimer();
     }
 }
 
@@ -134,44 +132,25 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
 void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
     frame = aFrame;
     if(isCrcValid()){
-        if (frame[0]==seqNo){
+        expectingAck = false;
+        firstOutstanding = frame[0];
+        if (firstOutstanding==seqNo){
             window.clear();
             transmit();
         }else{
-            for(auto i = 0, j = 0, k = window.size(); i < k; ){
-                if(frame[i]!=window[j][0]){
+            for(int i = 0, j = 0; i < frame.size()-2; ){ // Continue through all NAK's in frame
+                if(frame[i]!=window[j][0]){         // If i'th NAK != j'th frame-seqNo in window
+                    window.erase(window.begin()+j); // Delete j'th element in window (no need to resend)
+                }else{                              // Else keep in window (need to resend)
                     j++;
                     i++;
-                }else{
-                    window.erase(window.begin()+j);
                 }
             }
-            isRetransmitting = true;
+            framesToResend = window.size();
             transmit();
-
-        }
-        checkAckHeader();
-
-
-        if(isHeaderValid()){
-//          onAckReceiveTime();
-            expectingAck = false;
-            seqNoSwap();
-            ackFrameCount++;
-            if (!isStreamEmpty()) {
-                getNextFrame();
-                sendFrame();
-            }
-        }else{
-//          onFlowFail();
         }
     }else{
 //      onCrcFail();
     }
 
-}
-
-void SelectiveRepeat::retransmit() {
-    frame = window[0];
-    sendFrame();
 }
