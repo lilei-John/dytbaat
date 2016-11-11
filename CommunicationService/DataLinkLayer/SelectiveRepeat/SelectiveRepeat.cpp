@@ -69,12 +69,12 @@ void SelectiveRepeat::transmit() {
         sendFrame();
         framesToResend--;
     }else{
-        if(!isStreamEmpty() && window.size() < windowSize && !isWindowFull()){
+        if(!isStreamEmpty() && window.size() < frameBlocksize && !isWindowFull()){
             getData();
             makeFrame();
             storeFrame();
             sendFrame();
-            seqNo = (seqNo++)%8;
+            seqNo = (seqNo++)%totalSeqNo;
         }
         else{
             expectingAck = true;
@@ -133,12 +133,14 @@ void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
             window.clear();
             transmit();
         }else{
-            for(int i = 0, j = 0; i < frame.size()-2; ){ // Continue through all NAK's in frame
+            for(auto i = 0, j = 0; j < window.size(); ){ // Continue through all NAK's in frame
                 if(frame[i]!=window[j][0]){         // If i'th NAK != j'th frame-seqNo in window
                     window.erase(window.begin()+j); // Delete j'th element in window (no need to resend)
                 }else{                              // Keep in window (need to resend)
                     j++;
-                    i++;
+                    if(i<frame.size()-3){
+                        i++;
+                    }
                 }
             }
             framesToResend = window.size();

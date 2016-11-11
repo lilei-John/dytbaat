@@ -26,6 +26,7 @@ private:
     uint8_t windowSize = totalSeqNo/uint8_t(2);
     uint8_t seqNo = 0;
     uint8_t firstOutstanding = 0;
+    unsigned int frameBlocksize = 4;
 
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;
