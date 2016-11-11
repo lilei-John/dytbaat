@@ -141,7 +141,7 @@ void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
             for(int i = 0, j = 0; i < frame.size()-2; ){ // Continue through all NAK's in frame
                 if(frame[i]!=window[j][0]){         // If i'th NAK != j'th frame-seqNo in window
                     window.erase(window.begin()+j); // Delete j'th element in window (no need to resend)
-                }else{                              // Else keep in window (need to resend)
+                }else{                              // Keep in window (need to resend)
                     j++;
                     i++;
                 }
