@@ -74,12 +74,7 @@ void SelectiveRepeat::transmit() {
             makeFrame();
             storeFrame();
             sendFrame();
-            if(seqNo>=totalSeqNo)
-            {
-                seqNo = 0;
-            }else{
-                seqNo++;
-            }
+            seqNo = (seqNo++)%8;
         }
         else{
             expectingAck = true;
@@ -156,6 +151,6 @@ void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
 }
 
 bool SelectiveRepeat::isWindowFull() {
-    return (firstOutstanding<5&&!(0>=seqNo-firstOutstanding<4) ||
-            (firstOutstanding>=5&&(0>seqNo-firstOutstanding<=-4)));
+    return (firstOutstanding<=windowSize&&!(0>=seqNo-firstOutstanding<windowSize) ||
+            (firstOutstanding>windowSize&&(0>seqNo-firstOutstanding<=-windowSize)));
 }
