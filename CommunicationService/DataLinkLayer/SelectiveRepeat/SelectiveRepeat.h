@@ -47,6 +47,7 @@ private:
     void addCRC();
     bool isCrcValid();
     bool isStreamEmpty();
+    bool isWindowFull();
     bool expectingAck = false;
 
     int framesToResend = 0;

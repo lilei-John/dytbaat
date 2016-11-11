@@ -69,7 +69,7 @@ void SelectiveRepeat::transmit() {
         sendFrame();
         framesToResend--;
     }else{
-        if(!isStreamEmpty()&&window.size()< windowSize&&abs(seqNo-firstOutstanding)>3){
+        if(!isStreamEmpty() && window.size() < windowSize && !isWindowFull()){
             getData();
             makeFrame();
             storeFrame();
@@ -153,4 +153,9 @@ void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
 //      onCrcFail();
     }
 
+}
+
+bool SelectiveRepeat::isWindowFull() {
+    return (firstOutstanding<5&&!(0>=seqNo-firstOutstanding<4) ||
+            (firstOutstanding>=5&&(0>seqNo-firstOutstanding<=-4)));
 }
