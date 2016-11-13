@@ -37,10 +37,8 @@ void AcousticTL::callback(PaCallbackData pcd) {
             }
         }
         if (outgoingSamples.size() == 0) {
-
-
             state = ATLState::idle;
-            // Er det her, man bør kalde et callback i Selective Repeat??
+            onFrameTransmittedCallback();
         }
             return;
     }

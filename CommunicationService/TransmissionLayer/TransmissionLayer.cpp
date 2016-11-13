@@ -4,6 +4,11 @@ void TransmissionLayer::setOnFrameReceiveCallback(const std::function<void(std::
     onFrameReceiveCallback = cb;
 }
 
+void TransmissionLayer::setOnFrameTransmittedCallback(const std::function<void(void)> &cb) {
+    onFrameTransmittedCallback = cb;
+
+}
+
 
 
 

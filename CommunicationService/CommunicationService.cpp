@@ -6,6 +6,11 @@ CommunicationService::CommunicationService(DataLinkLayer &dl, TransmissionLayer 
                 dataLinkLayer.receiveFrame(frame);
             }
     );
+    transmissionLayer.setOnFrameTransmittedCallback(
+            [&](void){
+                dataLinkLayer.frameTransmitted();
+            }
+    );
     dataLinkLayer.setOnFrameSendCallback(
             [&](std::vector<unsigned char> frame) -> bool{
                 return transmissionLayer.sendFrame(frame);

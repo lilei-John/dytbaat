@@ -15,6 +15,7 @@ public:
     SelectiveRepeat();
     SelectiveRepeat(std::stringstream &inStream);
     void transmit();
+    void frameTransmitted();
     void receiveFrame(std::vector<unsigned char>);
 
 private:

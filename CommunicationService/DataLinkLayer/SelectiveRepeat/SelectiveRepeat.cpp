@@ -63,6 +63,10 @@ bool SelectiveRepeat::isCrcValid() {
     return calcCRC()==0;
 }
 
+void SelectiveRepeat::frameTransmitted() {
+    transmit();
+}
+
 void SelectiveRepeat::transmit() {
     if(framesToResend > 0){
         frame = window[window.size()-framesToResend];
