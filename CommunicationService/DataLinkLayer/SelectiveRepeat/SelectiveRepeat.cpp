@@ -30,8 +30,11 @@ bool SelectiveRepeat::isStreamEmpty() {
 }
 
 void SelectiveRepeat::addHeader() {
-    frame.insert(frame.begin(), seqNo);
-//  frame.insert(frame.begin(), firstOutstanding);
+    if(expectingReply){
+        frame.insert(frame.begin(), (seqNo|(1<<7)));
+    }else{
+        frame.insert(frame.begin(), seqNo);
+    }
 }
 
 unsigned int SelectiveRepeat::calcCRC() {
@@ -121,7 +124,22 @@ void SelectiveRepeat::timer() {
 
 void SelectiveRepeat::timeOut() {
     if(expectingReply && timerCount == 1) {
-        startTimer();
+        if(frame[0] & (1<<7)){ // If MSB is set in header
+            sendFrame();       // Send frame again
+        }else{
+            if(!isStreamEmpty()){// If more data in stream
+                getData();      // Send next frame from stream
+                makeFrame();
+                storeFrame();
+                sendFrame();
+                seqNo = (++seqNo)%totalSeqNo;
+            }else{              // Send last outstanding
+                frame = window[window.size()-1];
+                frameSplit();
+                makeFrame();
+                sendFrame();
+            }
+        }
  //     if(onTimeout) onTimeout();
     }
 }
@@ -177,17 +195,18 @@ void SelectiveRepeat::incomingFrame(std::vector<unsigned char> aFrame) {
     cout << endl;*/
     if(isCrcValid()) {
         uint8_t incomingSeqNo = frame[0];
-        if(incomingSeqNo > 127 ){
-            incomingSeqNo = incomingSeqNo - 127;
+        // Check for sender time-out (MSB is set)
+        if(incomingSeqNo & (1<<7) ){    // If MSB (bit 7) is set
+            incomingSeqNo &= ~(1<<7);   // Clear MSB
             lastInBlock = incomingSeqNo;
         }
 
+        // NACK is needed when lastInBlock is received
         if (incomingSeqNo == lastInBlock) { // If received frame equals lastInBlock
             isNackNeeded = true;                // NACK is needed
         }
 
         if (!acknowledgedFrames[incomingSeqNo]) {
-
             // Save new frame to incomingFrames array
             acknowledgedFrames[incomingSeqNo] = true;   // Mark frame as received
             frameSplit();
