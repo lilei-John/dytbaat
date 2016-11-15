@@ -29,9 +29,9 @@ void AcousticTL::processInput(const std::vector<float> &in) {
     }
     if (state == ATLState::receiving){
         while(incomingSamples.size() >= samplesPerTone){
-            for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
-            frameReceiver.receiveNipple(getNextNipple(samplesPerTone - 2 * samplesPerSearch));
-            for (int i = 0; i < samplesPerSearch; i++) incomingSamples.pop();
+            for (int i = 0; i < (samplesPerTone-samplesPerSearch)/2; i++) incomingSamples.pop();
+            frameReceiver.receiveNipple(getNextNipple(samplesPerSearch));
+            for (int i = 0; i < (samplesPerTone-samplesPerSearch)/2; i++) incomingSamples.pop();
             if (frameReceiver.isWholeFrameReceived()){
                 state = ATLState::idle;
                 onFrameReceived(frameReceiver.getFrame());
