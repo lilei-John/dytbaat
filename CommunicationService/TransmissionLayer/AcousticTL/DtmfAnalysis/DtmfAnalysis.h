@@ -5,7 +5,7 @@
 
 class DtmfAnalysis {
 public:
-    DtmfAnalysis(const std::vector<float> &samples, DtmfSpec dtmfSpec, int sampleRate);
+    DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sampleRate);
     unsigned char getNipple();
     float getCertainty();
 private:

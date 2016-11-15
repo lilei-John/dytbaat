@@ -25,13 +25,12 @@ int main(){
     }
 
     int sampleRate = 44100;
-    int samplesPerTone = 1600;
-    int samplesPerSearch = 500;
+    int samplesPerTone = 1000;
 
     StopAndWait outDLL(outStream);
     StopAndWait inDLL(inStream);
-    AcousticTL outTL(sampleRate, samplesPerTone, samplesPerSearch);
-    AcousticTL inTL(sampleRate, samplesPerTone, samplesPerSearch);
+    AcousticTL outTL(sampleRate, samplesPerTone);
+    AcousticTL inTL(sampleRate, samplesPerTone);
     RealAudio outRA(sampleRate);
     RealAudio inRA(sampleRate);
 

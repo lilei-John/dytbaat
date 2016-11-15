@@ -34,15 +34,14 @@ void FreqGeneration::freqToSamples(
     }
 }
 
-vector<float> FreqGeneration::byteFrameToSamples(vector<unsigned char> frame, int sampleRate, int samplesPerTone) {
+vector<float> FreqGeneration::nibbleFrameToSamples(vector<unsigned char> frame, int sampleRate, int samplesPerTone) {
     vector<float> samples;
-    frame = byteFrameToNibbleFrame(frame);
     pair<double, double> sineState = {0, 0};
     for (unsigned char n : frame) {
         pair<int, int> freqs = dtmfSpec.nibbleToFreqs(n);
         freqToSamples(samples, freqs, sineState, sampleRate, samplesPerTone);
     }
-    fadeInOut(samples, 200);
+    fadeInOut(samples, samplesPerTone);
     return samples;
 }
 

@@ -1,9 +1,13 @@
+#include <iostream>
 #include "FrameReceiver.h"
 
 using namespace std;
 
-FrameReceiver::FrameReceiver(FrameProtocol f) :
-        frameProtocol(f)
+FrameReceiver::FrameReceiver(FrameProtocol f, DtmfSpec dtmfSpec, int samplesPerTone, int sampleRate) :
+        frameProtocol(f),
+        dtmfSpec(dtmfSpec),
+        samplesPerTone(samplesPerTone),
+        sampleRate(sampleRate)
 {}
 
 bool FrameReceiver::isWholeFrameReceived() {
@@ -12,6 +16,18 @@ bool FrameReceiver::isWholeFrameReceived() {
 
 vector<unsigned char> FrameReceiver::getFrame() {
     return frame;
+}
+
+void FrameReceiver::processInput(std::queue<float> &samples) {
+    while(samples.size() >= samplesPerTone){
+        vector<float> toneSamples((unsigned long)samplesPerTone);
+        for (int i = 0; i < samplesPerTone; i++){
+            toneSamples[i] = samples.front();
+            samples.pop();
+        }
+        DtmfAnalysis dtmf(&toneSamples[0], samplesPerTone, dtmfSpec, sampleRate);
+        receiveNipple(dtmf.getNipple());
+    }
 }
 
 void FrameReceiver::receiveNipple(unsigned char nipple) {
@@ -38,6 +54,8 @@ void FrameReceiver::receiveByte(unsigned char byte) {
 
     if (frameProtocol.isStopByte(byte)){
         wholeFrameReceived = true;
+        for (auto c : frame) cout << c;
+        cout << endl;
         return;
     }
 
@@ -45,5 +63,8 @@ void FrameReceiver::receiveByte(unsigned char byte) {
 }
 
 void FrameReceiver::reset() {
-
+    frame.clear();
+    wholeFrameReceived = false;
+    shouldEscapeNexByte = false;
+    highNipple = noHighNipple;
 }

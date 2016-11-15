@@ -16,7 +16,7 @@ public:
             std::pair<double, double> &sineState,
             const int sampleRate,
             const int samplesPerTone);
-    std::vector<float> byteFrameToSamples(
+    std::vector<float> nibbleFrameToSamples(
             std::vector<unsigned char> frame,
             int sampleRate,
             int samplesPerTone);

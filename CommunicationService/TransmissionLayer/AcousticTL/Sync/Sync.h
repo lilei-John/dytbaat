@@ -1,31 +1,32 @@
 #pragma once
 
-#include "../FrameProtocol/FrameProtocol.h"
 #include <functional>
+#include <queue>
+#include "../DtmfAnalysis/DtmfAnalysis.h"
 
 class Sync {
 public:
-    Sync(FrameProtocol, float fpf);
-    void receiveNipple(unsigned char);
-    bool startSequenceReceived();
-    void reset();
-
-    void setOnSyncFailed(const std::function<void(int, const std::vector<unsigned char> &, unsigned char)> &onSyncFailed);
+    Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec);
+    bool trySync(std::queue<float> &);
+    const std::vector<unsigned char> &getSyncNibbles() const;
 
 private:
-    FrameProtocol frameProtocol;
-    const float searchPerTone;
-    const int allowedMissedSearchFrames = 1;
+    const DtmfSpec dtmfSpec;
+    const int sampleRate;
+    const int samplesPerTone;
 
-    int confSearch = 0;
-    int missedSearchFrames = 0;
-    int confStartNip = 0;
+    std::vector<float> recSyncSamples;
 
-    unsigned char getStartNipple(int);
+    const std::vector<unsigned char> matchRegions = {0xF, 0xA, 0x5, 0x0};
+    std::vector<unsigned char> recSyncNibbles;
+    const int tonesPerMatchRegion = 3;
+    const float matchPercentage = .33;
+    bool doesMatch();
 
-    std::function<void(
-            int startSequenceFailIndex,
-            const std::vector<unsigned char> &startSequence,
-            unsigned char receivedByte
-    )> onSyncFailed;
+    const std::vector<unsigned char> confNibs = {0xF, 0xA, 0x5, 0x0, 0x6, 0x9};
+    const int alignResolution = 5;
+    const unsigned char paddingNibble = 0x0;
+    int confirmAndAlign();
+
+    std::vector<unsigned char> syncNibbles;
 };
