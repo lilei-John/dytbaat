@@ -11,6 +11,10 @@
 #define M_PI           3.14159265358979323846
 #endif
 
+inline double hammingWindow(int N, int n) {
+    return 0.54+0.46*cos((2*M_PI*n)/(N-1));
+}
+
 inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
     int N = (int)samples.size();
     std::vector<std::pair<int, float>> returnAmpFreq;
@@ -27,7 +31,7 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float
         double Q2 = 0;
 
         for (int j = 0; j < N; j++) {
-            Q0 = coeff * Q1 - Q2 + samples[j];
+            Q0 = coeff * Q1 - Q2 + (samples[j] * hammingWindow(N,j));
             Q2 = Q1;
             Q1 = Q0;
         }
