@@ -13,6 +13,7 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const float *its, int b
     for (int i = 0; i < freqs.size(); ++i) {
         double k = 0.5 + 3000 * freqs[i] / sampleRate;
         double w = 2 * (double)M_PI / 3000 * k;
+        //double w = 2 * M_PI * freqs[i] / sampleRate;
         double cosine = cos(w);
         double sine = sin(w);
         double coeff = 2 * cosine;
@@ -34,7 +35,6 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const float *its, int b
                 sqrtf((float)((real*real)+(imag*imag)))
         );
     }
-
     return returnAmpFreq;
 }
 

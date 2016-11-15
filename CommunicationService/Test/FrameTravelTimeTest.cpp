@@ -25,7 +25,10 @@ int main(){
     }
 
     int sampleRate = 44100;
-    int samplesPerTone = 1000;
+    float toneTime = 10; //ms
+    int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
+
+    cout << "Samples per tone: " << samplesPerTone << endl;
 
     StopAndWait outDLL(outStream);
     StopAndWait inDLL(inStream);

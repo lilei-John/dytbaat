@@ -19,11 +19,11 @@ private:
 
     const std::vector<unsigned char> matchRegions = {0xF, 0xA, 0x5, 0x0};
     std::vector<unsigned char> recSyncNibbles;
-    const int tonesPerMatchRegion = 3;
-    const float matchPercentage = .33;
+    const int tonesPerMatchRegion = 2;
+    const float matchPercentage = .5;
     bool doesMatch();
 
-    const std::vector<unsigned char> confNibs = {0xF, 0xA, 0x5, 0x0, 0x6, 0x9};
+    const std::vector<unsigned char> confNibs = {0xF, 0xA, 0x5};
     const int alignResolution = 5;
     const unsigned char paddingNibble = 0x0;
     int confirmAndAlign();
