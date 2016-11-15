@@ -3,7 +3,6 @@
 #include "math.h"
 
 using namespace std;
-using namespace placeholders;
 
 class Sine{
 public:
@@ -12,17 +11,17 @@ public:
     double a = 0.2;
     double t = 0;
 
-    void callback(PaCallbackData cbd){
-        float *out = (float*) cbd.outputBuffer;
-        for (int i = 0; i < cbd.framesPerBuffer; i++){
-            *out++ = (float)(a * sin(t++ / sr * f * 2. * M_PI));
-        }
+    float next() {
+        return (float) (a * sin(t++ / sr * f * 2. * M_PI));
     }
 };
 
 int main(){
     Sine sine;
-    PaWrapper p(sine.sr, bind(&Sine::callback, sine, _1));
+    PaWrapper p(sine.sr);
+    p.setOnOutRequest([&sine](vector<float> &out){
+        for (auto &val : out) val = sine.next();
+    });
 
     cin.get(); //Keeps playing sinusoidal wave, until user aborts.
     return 0;

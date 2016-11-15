@@ -7,8 +7,10 @@
 
 class TransmissionLayer{
 public:
-    void setOnFrameReceiveCallback(const std::function<void(std::vector<unsigned char>)> &cb);
-    virtual bool sendFrame(std::vector<unsigned char>) = 0;
+    void setOnFrameReceived(const std::function<void(std::vector<unsigned char>)> &cb);
+    virtual bool sendFrame(const std::vector<unsigned char> &) = 0;
+    virtual void processInput(const std::vector<float> &) = 0;
+    virtual void setOutput(std::vector<float> &) = 0;
 protected:
-    std::function<void(std::vector<unsigned char>)> onFrameReceiveCallback;
+    std::function<void(std::vector<unsigned char>)> onFrameReceived;
 };
