@@ -78,7 +78,7 @@ void SelectiveRepeat::transmit() {
             makeFrame();
             storeFrame();
             sendFrame();
-            seqNo = (seqNo++)%totalSeqNo;
+            seqNo = (++seqNo)%totalSeqNo;
         }
         else{
             expectingReply = true;
@@ -99,6 +99,13 @@ void SelectiveRepeat::storeFrame() {
 void SelectiveRepeat::sendFrame() {
     onFrameSendCallback(frame);
 //  onFrameSendTime();
+}
+
+void SelectiveRepeat::frameSplit() {
+    frame.erase(frame.begin());
+    for (int i = 0; i < 2; ++i) {
+        frame.erase(frame.end()-1);
+    }
 }
 
 void SelectiveRepeat::startTimer() {
@@ -170,53 +177,64 @@ void SelectiveRepeat::incomingFrame(std::vector<unsigned char> aFrame) {
     cout << endl;*/
     if(isCrcValid()) {
         uint8_t incomingSeqNo = frame[0];
+        if(incomingSeqNo > 127 ){
+            incomingSeqNo = incomingSeqNo - 127;
+            lastInBlock = incomingSeqNo;
+        }
 
-        if (acknowledgedFrames[incomingSeqNo]) {  // If frame is already received
-            resendNak();                        // Resend NAK
-        } else {
+        if (incomingSeqNo == lastInBlock) { // If received frame equals lastInBlock
+            isNackNeeded = true;                // NACK is needed
+        }
+
+        if (!acknowledgedFrames[incomingSeqNo]) {
+
+            // Save new frame to incomingFrames array
             acknowledgedFrames[incomingSeqNo] = true;   // Mark frame as received
             frameSplit();
             incomingFrames[incomingSeqNo] = frame;      // Copy frame to incomingFrames array
+
+            if (incomingSeqNo == firstOutstanding) {    // If received frame equals firstOutstanding
+
+                // Send firstOutstanding frames to stream
+                for (uint8_t i = firstOutstanding; acknowledgedFrames[i]; i = (++i) % totalSeqNo) {
+                    firstOutstanding = (firstOutstanding++)%totalSeqNo; // Increment firstOutstanding
+                    for (auto byte : incomingFrames[i]) {
+                        *stream << noskipws << byte;    // Send to stream
+                    }
+                }
+
+            }
         }
 
-        if (incomingSeqNo == firstOutstanding) {    // If received frame equals firstOutstanding
-            for (uint8_t i = firstOutstanding; acknowledgedFrames[i]; i = (i++) % totalSeqNo) {
-                for (auto byte : incomingFrames[i]) {
-                    *stream << noskipws << byte;    // Send to stream
-                }
+        // Create NAK-frame
+        frame.clear();                  // Clear frame
+        for (uint8_t i = firstOutstanding;
+             i != (lastInBlock + 1) % totalSeqNo; i = (++i) % totalSeqNo) { // Make NACK frame
+            if (!acknowledgedFrames[i]) {  // If i'th frame is corrupted
+                frame.push_back(i); // Add seqNo to NACK frame
             }
+        }
+        if (frame.size() == 0) {    // If no NACK's have been added (resulting in NACK frame still empty)
+            frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
+        }
+        // Adjust receive window
+        lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding
+        for (auto i = 1, j = 0, k = lastInBlock; i < frameBlocksize && j < windowSize; i++) {    // Create new "best case" full size window
 
+            do {
+                k = (++k) % totalSeqNo;   // Increment lastOutstanding
+                j++;
+            } while (acknowledgedFrames[k]); // While acknowledged
+            if (j>=windowSize){
+                lastInBlock = k;
+            }
         }
 
-        if (incomingSeqNo == lastOutstanding) { // If received frame equals lastOutstanding
-            frame.clear();                  // Clear frame
-            for (uint8_t i = firstOutstanding;
-                 i != (lastOutstanding + 1) % totalSeqNo; i = (i++) % totalSeqNo) { // Make NAK frame
-                if (acknowledgedFrames[i]) {  // If i'th frame is alright
-                    firstOutstanding = (firstOutstanding++) % totalSeqNo; // Increment firstOutstanding
-                } else {
-                    frame.push_back(i); // If not: add seqNo to NAK frame
-                }
-            }
-            if (frame.size() == 0) {    // If no NAK's have been added (resulting in NAK frame still empty)
-                frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
-            }
-
-            // Make new receive window
-            lastOutstanding = firstOutstanding; // Worst case: lastOutstanding = firstOutstanding
-            for (int i = 1; i < frameBlocksize; i++) {    // Create new "best case" full size window
-                do {
-                    lastOutstanding = (lastOutstanding++) % totalSeqNo;   // Increment lastOutstanding
-                } while (acknowledgedFrames[lastOutstanding]); // While acknowledged
-            }
-
-            while (isWindowFull(firstOutstanding, lastOutstanding)) { // Decrease window while full
-                do {
-                    lastOutstanding = (lastOutstanding--) % totalSeqNo;   // Decrement lastOutstanding
-                } while (acknowledgedFrames[lastOutstanding]); // While acknowledged
-            }
-
-            sendNak();
+        // Send NACK if needed
+        if(isNackNeeded){
+            isNackNeeded = false;
+            onFrameSendCallback(frame);
+        //  onFrameSendTime();
         }
 
     }
