@@ -8,8 +8,9 @@ using namespace std;
 
 int main(){
     int sampleRate = 44100;
-    float toneTime = 10; //ms
+    float toneTime = 100; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
+    cout << "samplesPerTone: " << samplesPerTone << endl;
 
     stringstream ssOut(ios::in|ios::out|ios::app);
     stringstream ssIn(ios::in|ios::out|ios::app);
@@ -26,17 +27,17 @@ int main(){
     CommunicationService sender(outDLL, outTL, outIA);
     CommunicationService receiver(inDLL, inTL, inIA);
 
-    string outMessage = "abc";
-    for (char byte : outMessage)
-        ssOut << byte;
-    sender.transmit();
-
     atomic<bool> shouldStop(false);
 
     receiver.setOnReceive([&](){
         cout << ssIn.str() << endl;
         shouldStop.store(true);
     });
+
+    for (char byte : "abc")
+        ssOut << byte;
+
+    sender.transmit();
 
     while (!shouldStop.load())
         this_thread::yield();

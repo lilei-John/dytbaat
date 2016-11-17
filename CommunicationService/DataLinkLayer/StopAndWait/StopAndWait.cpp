@@ -110,10 +110,10 @@ void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
             onFrameSendReq(frame);
         }else{
             onFrameSendReq(storedFrame);
-            onFlowFail();
+            if(onFlowFail) onFlowFail();
         }
     }else{
-        onCrcFail();
+        if(onCrcFail) onCrcFail();
     }
 }
 
@@ -129,10 +129,10 @@ void StopAndWait::incomingACK(std::vector<unsigned char> aFrame) {
                 sendFrame();
             }
         }else{
-            onFlowFail();
+            if(onFlowFail) onFlowFail();
         }
     }else{
-        onCrcFail();
+        if(onFlowFail) onCrcFail();
     }
 }
 
