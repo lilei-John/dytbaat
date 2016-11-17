@@ -29,7 +29,7 @@ private:
     uint8_t firstOutstanding = 0;
     unsigned int const frameBlocksize = 4;
     unsigned int lastInBlock = firstOutstanding + frameBlocksize;
-    unsigned int timerLength = 1500;               //in milliseconds
+    unsigned int timerLength = 2500;               //in milliseconds
 
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;

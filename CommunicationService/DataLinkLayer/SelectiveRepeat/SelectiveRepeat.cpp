@@ -67,7 +67,9 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::frameTransmitted() {
+
     if (isSender) {
+        cout << "Sender: " << int(frame[0]) << endl;
         transmit();
     }
 }
@@ -91,7 +93,6 @@ void SelectiveRepeat::transmit() {
             startTimer();
         }
     }
-    cout << int(frame[0]) << endl;
 }
 
 void SelectiveRepeat::makeFrame() {
@@ -274,6 +275,7 @@ void SelectiveRepeat::incomingFrame() {
             isNackNeeded = false;
             addCRC();
             onFrameSendCallback(frame);
+            cout << "NAK: " << int(frame[0]) << endl;
         //  onFrameSendTime();
         }
 }
