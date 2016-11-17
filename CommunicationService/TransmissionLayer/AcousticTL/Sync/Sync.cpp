@@ -88,10 +88,10 @@ int Sync::confirmAndAlign(){
         return a.certainty > b.certainty;
     });
     if (alignScores[0].confNibCount != confNibs.size()) {
-        cout << "Failed sync! Mathced: " << alignScores[0].confNibCount << " of " << confNibs.size() << endl;
+        //cout << "Failed sync! Mathced: " << alignScores[0].confNibCount << " of " << confNibs.size() << endl;
         return -1;
     }
-    cout << "Succeeded sync!" << alignScores[0].certainty << endl;
+    //cout << "Succeeded sync!" << alignScores[0].certainty << endl;
     return (int)(alignScores[0].startIndex + (confNibs.size() + tonesPerMatchRegion) * samplesPerTone);
 }
 

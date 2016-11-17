@@ -169,6 +169,8 @@ bool StopAndWait::isStreamEmpty() {
     bool isEmpty = !(bool)(*stream >> index0);
     if (isEmpty) {
         stream->clear();
+        stream->str("");
+        index = 0;
     }
     return isEmpty;
 }
