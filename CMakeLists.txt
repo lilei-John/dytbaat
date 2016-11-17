@@ -10,3 +10,4 @@ include_directories(${PORTAUDIO_INCLUDE_DIR})
 
 add_subdirectory(PaWrapper)
 add_subdirectory(CommunicationService)
+add_subdirectory(Applications)
