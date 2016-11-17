@@ -70,6 +70,6 @@ private:
     std::function<void(void)> onTimeout;
     std::function<void(void)> onCrcFail;
     std::function<void(void)> onFlowFail;
-    std::function<void(void)> onFrameSendTime;
+    std::function<void(void)> onFrameSend;
     std::function<void(void)> onAckReceiveTime;
 };

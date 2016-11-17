@@ -54,8 +54,6 @@ void FrameReceiver::receiveByte(unsigned char byte) {
 
     if (frameProtocol.isStopByte(byte)){
         wholeFrameReceived = true;
-        for (auto c : frame) cout << c;
-        cout << endl;
         return;
     }
 

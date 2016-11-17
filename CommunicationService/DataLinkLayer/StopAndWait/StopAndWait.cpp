@@ -89,7 +89,7 @@ void StopAndWait::frameSplit() {
 
 void StopAndWait::timeOut() {
     if(isExpectingAck() && timerCount == 1) {
-        onFrameSendCallback(storedFrame);
+        onFrameSendReq(storedFrame);
         startTimer();
         if(onTimeout) onTimeout();
     }
@@ -103,12 +103,13 @@ void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
             for (auto byte : frame){
                 *stream << noskipws << byte;
             }
+            if(onReceive) onReceive();
             frame = getACK();
             storedFrame = frame;
             seqNoSwap();
-            onFrameSendCallback(frame);
+            onFrameSendReq(frame);
         }else{
-            onFrameSendCallback(storedFrame);
+            onFrameSendReq(storedFrame);
             onFlowFail();
         }
     }else{
@@ -168,8 +169,9 @@ bool StopAndWait::isStreamEmpty() {
 
 void StopAndWait::sendFrame() {
     sentFrameCount++;
-    onFrameSendCallback(frame);
-    onFrameSendTime();
+    if (onFrameSendReq(frame)){
+        if (onFrameSend) onFrameSend();
+    }
 }
 
 void StopAndWait::startTimer() {
@@ -196,7 +198,7 @@ void StopAndWait::setOnFlowFail(std::function<void(void)> callback) {
 }
 
 void StopAndWait::setOnFrameSendTime(std::function<void(void)> callback) {
-    onFrameSendTime = callback;
+    onFrameSend = callback;
 }
 
 void StopAndWait::setOnAckReceiveTime(std::function<void(void)> callback) {

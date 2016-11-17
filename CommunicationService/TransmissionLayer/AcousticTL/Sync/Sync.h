@@ -10,6 +10,9 @@ public:
     bool trySync(std::queue<float> &);
     const std::vector<unsigned char> &getSyncNibbles() const;
 
+    void setOnSyncFail(const std::function<void(float)> &onSyncFail);
+    void setOnSyncSuccess(const std::function<void(float)> &onSyncSuccess);
+
 private:
     const DtmfSpec dtmfSpec;
     const int sampleRate;
@@ -17,16 +20,22 @@ private:
 
     std::vector<float> recSyncSamples;
 
-    const std::vector<unsigned char> matchRegions = {0xF, 0xA, 0x5, 0x0};
+    //match - efficient searching
+    const std::vector<unsigned char> matchRegions = {0xF, 0xA, 0x0};
     std::vector<unsigned char> recSyncNibbles;
     const int tonesPerMatchRegion = 2;
-    const float matchPercentage = .5;
+    const float reqMatchPercentage = .5;
     bool doesMatch();
 
+    //confim and align - processor heavy alignment
+    //load depends linearly on samplerate, confNibs.size() and alignResolution
     const std::vector<unsigned char> confNibs = {0xF, 0xA, 0x5};
     const int alignResolution = 5;
-    const unsigned char paddingNibble = 0x0;
     int confirmAndAlign();
 
+    const unsigned char paddingNibble = 0x0;
     std::vector<unsigned char> syncNibbles;
+
+    std::function<void(float confNibPercentage)> onSyncFail;
+    std::function<void(float certainty)> onSyncSuccess;
 };

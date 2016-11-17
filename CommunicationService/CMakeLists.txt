@@ -9,3 +9,6 @@ target_link_libraries(CommunicationService Media TransmissionLayer DataLinkLayer
 
 add_executable(FrameTravelTimeTest Test/FrameTravelTimeTest.cpp)
 target_link_libraries(FrameTravelTimeTest CommunicationService StopAndWait AcousticTL RealAudio)
+git
+add_executable(transmitAndOnReceiveCallback Test/transmitAndOnReceiveCallback.cpp)
+target_link_libraries(transmitAndOnReceiveCallback CommunicationService StopAndWait AcousticTL IdealAudio)
