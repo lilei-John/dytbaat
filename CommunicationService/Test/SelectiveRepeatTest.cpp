@@ -3,6 +3,7 @@
 #include "../DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
 #include "../Logger/Logger.h"
+#include "../DataLinkLayer/SelectiveRepeat/SelectiveRepeat.h"
 
 using namespace std;
 
@@ -19,9 +20,9 @@ int main(){
     stringstream outStream(ios::in|ios::out|ios::app);
     stringstream inStream(ios::in|ios::out|ios::app);
 
- //   StopAndWait outDLL(outStream);
-//    StopAndWait inDLL(inStream);
- //   AcousticTL outTL;
+    SelectiveRepeat outDLL(outStream);
+    SelectiveRepeat inDLL(inStream);
+    AcousticTL outTL;
     AcousticTL inTL;
 
 /*    outDLL.setOnTimeout([&](){
@@ -39,6 +40,7 @@ int main(){
     inDLL.setOnFlowFail([&](){
         logger.log("RECEIVER FLOW FAIL");
     });
+
     long millisec = 0;
     outDLL.setOnFrameSendTime([&](){
         chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
@@ -54,15 +56,15 @@ int main(){
         logger.log("Frame travel time: " + to_string(millisec));
     });
 */
-//    CommunicationService sender(outDLL, outTL);
-//    CommunicationService receiver(inDLL, inTL);
+    CommunicationService sender(outDLL, outTL);
+    CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
         outStream << byte;
     }
 
 
- //   sender.transmit();
+    sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();

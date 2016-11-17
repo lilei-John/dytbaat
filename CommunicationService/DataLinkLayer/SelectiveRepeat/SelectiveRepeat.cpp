@@ -67,10 +67,13 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::frameTransmitted() {
-    transmit();
+    if (isSender) {
+        transmit();
+    }
 }
 
 void SelectiveRepeat::transmit() {
+    isSender = true;
     if(framesToResend > 0){
         frame = window[window.size()-framesToResend];
         sendFrame();
@@ -150,24 +153,41 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
     frame = aFrame;
     if(isCrcValid()){
         if(expectingACK){
-            incomingACK();
+            if(!(frame[0] &(1<<7))){          // if MSB is set it is an ACK for stop frame! transmission complete
+                incomingACK();
+            } else{
+                clearAll();                     // all VAR's are cleared, ready to receive or send new msg.
+            }
         }else{
-            incomingFrame();
+            if(frame.size() > 3) {
+                incomingFrame();
+            }else{
+                frame.clear();
+                frame.push_back(0b10000000);
+                addCRC();
+                onFrameSendCallback(frame);
+                clearAll();
+            }
         }
     }else{
         //onCrcFail();
     }
-
-
 }
 
 void SelectiveRepeat::incomingACK() {
     expectingACK = false;
+    isSender = false;
     firstOutstanding = frame[0];
     if (firstOutstanding==seqNo){
         window.clear();
         if(!isStreamEmpty()) {
             transmit();
+        } else{
+            getData();
+            makeFrame();
+            storeFrame();
+            sendFrame();
+            isSender = true;
         }
     }else {
         for(int i = 0, j = 0; j < window.size(); ){     // Continue through all NAK's in frame
@@ -202,7 +222,6 @@ void SelectiveRepeat::incomingFrame() {
             incomingSeqNo &= ~(1<<7);   // Clear MSB
             lastInBlock = incomingSeqNo;
         }
-
         // NACK is needed when lastInBlock is received
         if (incomingSeqNo == lastInBlock) { // If received frame equals lastInBlock
             isNackNeeded = true;                // NACK is needed
@@ -213,16 +232,16 @@ void SelectiveRepeat::incomingFrame() {
             acknowledgedFrames[incomingSeqNo] = true;   // Mark frame as received
             frameSplit();
             incomingFrames[incomingSeqNo] = frame;      // Copy frame to incomingFrames array
-
             if (incomingSeqNo == firstOutstanding) {    // If received frame equals firstOutstanding
 
                 // Send firstOutstanding frames to stream
-                while(acknowledgedFrames[firstOutstanding]) {
+                while (acknowledgedFrames[firstOutstanding]) {
                     for (auto byte : incomingFrames[firstOutstanding]) {
                         *stream << noskipws << byte;    // Send to stream
                     }
-                    acknowledgedFrames[(firstOutstanding+totalSeqNo-1)%totalSeqNo] = false;             //this is weird because of the expetion: if very last frame's ACK is lost.
-                    firstOutstanding = (++firstOutstanding)%totalSeqNo; // Increment firstOutstanding
+                    acknowledgedFrames[(firstOutstanding + totalSeqNo - 1) %
+                                       totalSeqNo] = false;             //this is weird because of the expetion: if very last frame's ACK is lost.
+                    firstOutstanding = (++firstOutstanding) % totalSeqNo; // Increment firstOutstanding
                 }
             }
         }
@@ -239,7 +258,7 @@ void SelectiveRepeat::incomingFrame() {
         }
         // Adjust receive window
         lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding
-        for (auto i = 1, j = 0, k = lastInBlock; i < frameBlocksize && j < windowSize; i++) {    // Create new "best case" full size window
+        for (unsigned int i = 1, j = 0, k = lastInBlock; i < frameBlocksize && j < windowSize; i++) {    // Create new "best case" full size window
 
             do {
                 k = (++k) % totalSeqNo;   // Increment lastOutstanding
@@ -252,7 +271,28 @@ void SelectiveRepeat::incomingFrame() {
         // Send NACK if needed
         if(isNackNeeded){
             isNackNeeded = false;
+            addCRC();
             onFrameSendCallback(frame);
         //  onFrameSendTime();
         }
 }
+
+void SelectiveRepeat::clearAll() {
+    index = 0;
+    seqNo = 0;
+    firstOutstanding = 0;
+    lastInBlock = firstOutstanding + frameBlocksize;
+
+    frame.clear();
+    window.clear();
+    incomingFrames->clear();
+    acknowledgedFrames[totalSeqNo] = {false};
+
+    expectingACK = false;
+    isNackNeeded = false;
+    isSender = false;
+
+    framesToResend = 0;
+}
+
+

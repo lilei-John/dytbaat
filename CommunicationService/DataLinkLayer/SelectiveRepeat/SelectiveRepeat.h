@@ -23,17 +23,16 @@ private:
 
     unsigned int index = 0;                     // used to index where in the incoming stream we are
     unsigned int frameSize = 20;                // defines the number of bytes taken from the stream
-    uint8_t const totalSeqNo = 128;
+    uint8_t static const totalSeqNo = 126;
     uint8_t const windowSize = totalSeqNo/uint8_t(2);
     uint8_t seqNo = 0;
     uint8_t firstOutstanding = 0;
     unsigned int const frameBlocksize = 4;
-    unsigned int lastOutstanding = firstOutstanding + windowSize - 1;
     unsigned int lastInBlock = firstOutstanding + frameBlocksize;
+    unsigned int timerLength = 2;
 
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;
-    std::vector<std::vector<int>> whatToSendNext;
     std::vector<unsigned char> incomingFrames[totalSeqNo];
     bool acknowledgedFrames[totalSeqNo] = {false};
 
@@ -54,11 +53,15 @@ private:
     void addHeader();
     unsigned int calcCRC();
     void addCRC();
+
+    void clearAll();
+
     bool isCrcValid();
     bool isStreamEmpty();
     bool isWindowFull(int firstInWindow, int lastInWindow);
     bool expectingACK = false;
     bool isNackNeeded = false;
+    bool isSender = false;
 
     int framesToResend = 0;
     int timerCount = 0;

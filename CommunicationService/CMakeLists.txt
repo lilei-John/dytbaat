@@ -11,3 +11,6 @@ target_link_libraries(CommunicationTest CommunicationService StopAndWait Acousti
 
 add_executable(FrameTravelTimeTest Test/FrameTravelTimeTest.cpp)
 target_link_libraries(FrameTravelTimeTest CommunicationService StopAndWait AcousticTL)
+
+add_executable(SelectiveRepeatTest Test/SelectiveRepeatTest.cpp)
+target_link_libraries(SelectiveRepeatTest CommunicationService SelectiveRepeat AcousticTL)
