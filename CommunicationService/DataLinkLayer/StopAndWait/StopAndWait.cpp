@@ -62,20 +62,6 @@ void StopAndWait::storeFrame() {
     storedFrame = frame;
 }
 
-void StopAndWait::timer() {
-    timerCount++;
-    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
-    timeOut();
-    timerCount--;
-}
-
-void StopAndWait::getNextFrame() {
-    getData();
-    makeFrame();
-    storeFrame();
-    startTimer();
-}
-
 bool StopAndWait::isHeaderValid() {
     return seqNo == frame.at(0);
 }
@@ -85,14 +71,6 @@ void StopAndWait::frameSplit() {
      for (int i = 0; i < 2; ++i) {
          frame.erase(frame.end()-1);
      }
-}
-
-void StopAndWait::timeOut() {
-    if(isExpectingAck() && timerCount == 1) {
-        onFrameSendCallback(storedFrame);
-        startTimer();
-        if(onTimeout) onTimeout();
-    }
 }
 
 void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
@@ -176,10 +154,6 @@ void StopAndWait::sendFrame() {
     onFrameSendTime();
 }
 
-void StopAndWait::startTimer() {
-    std::thread(&StopAndWait::timer, this).detach();
-}
-
 void StopAndWait::transmit() {
     if (!isStreamEmpty()){
         getNextFrame();
@@ -205,4 +179,30 @@ void StopAndWait::setOnFrameSendTime(std::function<void(void)> callback) {
 
 void StopAndWait::setOnAckReceiveTime(std::function<void(void)> callback) {
     onAckReceiveTime = callback;
+}
+
+void StopAndWait::getNextFrame() {
+    getData();
+    makeFrame();
+    storeFrame();
+    startTimer();
+}
+
+void StopAndWait::startTimer() {
+    std::thread(&StopAndWait::timer, this).detach();
+}
+
+void StopAndWait::timer() {
+    timerCount++;
+    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
+    timeOut();
+    timerCount--;
+}
+
+void StopAndWait::timeOut() {
+    if(isExpectingAck() && timerCount == 1) {
+        onFrameSendCallback(storedFrame);           //gensender sidste frame
+        startTimer();
+        if(onTimeout) onTimeout();                  //test function
+    }
 }

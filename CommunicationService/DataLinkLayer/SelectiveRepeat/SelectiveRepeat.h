@@ -44,8 +44,8 @@ private:
 
     void frameSplit();                          // splits the frame up, and dumps the header and the CRC checksum
 
-    void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK
-    void incomingFrame(std::vector<unsigned char> aFrame);
+    void incomingACK();        // handles an incoming ACK
+    void incomingFrame();
 
     void startTimer();
     void timer();
@@ -57,7 +57,7 @@ private:
     bool isCrcValid();
     bool isStreamEmpty();
     bool isWindowFull(int firstInWindow, int lastInWindow);
-    bool expectingReply = false;
+    bool expectingACK = false;
     bool isNackNeeded = false;
 
     int framesToResend = 0;

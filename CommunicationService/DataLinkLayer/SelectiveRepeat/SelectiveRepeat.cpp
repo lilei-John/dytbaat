@@ -30,7 +30,7 @@ bool SelectiveRepeat::isStreamEmpty() {
 }
 
 void SelectiveRepeat::addHeader() {
-    if(expectingReply){
+    if(expectingACK || isStreamEmpty()){
         frame.insert(frame.begin(), (seqNo|(1<<7)));
     }else{
         frame.insert(frame.begin(), seqNo);
@@ -84,7 +84,7 @@ void SelectiveRepeat::transmit() {
             seqNo = (++seqNo)%totalSeqNo;
         }
         else{
-            expectingReply = true;
+            expectingACK = true;
             startTimer();
         }
     }
@@ -117,24 +117,26 @@ void SelectiveRepeat::startTimer() {
 
 void SelectiveRepeat::timer() {
     timerCount++;
-    std::this_thread::sleep_for(std::chrono::seconds(window.size()*timerLength));
+    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
     timeOut();
     timerCount--;
 }
 
 void SelectiveRepeat::timeOut() {
-    if(expectingReply && timerCount == 1) {
-        if(frame[0] & (1<<7)){ // If MSB is set in header
-            sendFrame();       // Send frame again
+    if(expectingACK && timerCount == 1) {
+        if(window[window.size()-1][0] & (1<<7)){          // If MSB is set in header, it is, second or later, timeout
+            frame = window[window.size()-1];
+            sendFrame();                // Send frame again
         }else{
-            if(!isStreamEmpty()){// If more data in stream
-                getData();      // Send next frame from stream
+            if(!isStreamEmpty()){       // If more data in stream
+                getData();              // Send next frame from stream
                 makeFrame();
-                storeFrame();
+                storeFrame();           // MSB in seqNo is set here
                 sendFrame();
                 seqNo = (++seqNo)%totalSeqNo;
-            }else{              // Send last outstanding
+            }else{                      // Send last outstanding, if stream is empty
                 frame = window[window.size()-1];
+                seqNo = frame[0];
                 frameSplit();
                 makeFrame();
                 sendFrame();
@@ -145,55 +147,55 @@ void SelectiveRepeat::timeOut() {
 }
 
 void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
-    if(expectingReply){
-        incomingACK(aFrame);
+    frame = aFrame;
+    if(isCrcValid()){
+        if(expectingACK){
+            incomingACK();
+        }else{
+            incomingFrame();
+        }
     }else{
-        incomingFrame(aFrame);
+        //onCrcFail();
     }
+
 
 }
 
-void SelectiveRepeat::incomingACK(std::vector<unsigned char> aFrame) {
-    frame = aFrame;
-    if(isCrcValid()){
-        expectingReply = false;
-        firstOutstanding = frame[0];
-        if (firstOutstanding==seqNo){
-            window.clear();
-            transmit();
-        }else{
-            for(int i = 0, j = 0; j < window.size(); ){ // Continue through all NAK's in frame
-                if(frame[i]!=window[j][0]){         // If i'th NAK != j'th frame-seqNo in window
-                    window.erase(window.begin()+j); // Delete j'th element in window (no need to resend)
-                }else{                              // Keep in window (need to resend)
-                    j++;
-                    if(i<frame.size()-3){
-                        i++;
-                    }
-                }
-            }
-
-            framesToResend = window.size();
+void SelectiveRepeat::incomingACK() {
+    expectingACK = false;
+    firstOutstanding = frame[0];
+    if (firstOutstanding==seqNo){
+        window.clear();
+        if(!isStreamEmpty()) {
             transmit();
         }
-    }else{
-//      onCrcFail();
-    }
+    }else {
+        for(int i = 0, j = 0; j < window.size(); ){     // Continue through all NAK's in frame
+            if(frame[i]!=(window[j][0]&~(1<<7))){       // If i'th NAK != j'th frame-seqNo in window, (&~(1<<7)) to ignore piggyback saved
+                window.erase(window.begin()+j);         // Delete j'th element in window (no need to resend)
+            }else{                                      // Keep in window (need to resend)
+                j++;
+                if(i<frame.size()-3){
+                    i++;
+                }
+            }
+        }
 
+        framesToResend = window.size();
+        transmit();
+    }
 }
 
 bool SelectiveRepeat::isWindowFull(int firstInWindow, int lastInWindow) {
-    return (firstInWindow<=windowSize&&!(0>=(lastInWindow-firstInWindow)<windowSize) ||
-            (firstInWindow>windowSize&&(0>(lastInWindow-firstInWindow)<=-windowSize)));
+    return (firstInWindow<=windowSize&&(((lastInWindow-firstInWindow)>= windowSize)||((lastInWindow-firstInWindow)<0))) ||  // !(0<=(lastInWindow-firstInWindow)<windowSize)
+            (firstInWindow>windowSize&&(((lastInWindow-firstInWindow)>= -windowSize)||((lastInWindow-firstInWindow)<0))); // 0>(lastInWindow-firstInWindow)>=-windowSize)
 }
 
-void SelectiveRepeat::incomingFrame(std::vector<unsigned char> aFrame) {
-    frame = aFrame;
+void SelectiveRepeat::incomingFrame() {
 /*    for (auto i : frame) {
         cout << i;
     }
     cout << endl;*/
-    if(isCrcValid()) {
         uint8_t incomingSeqNo = frame[0];
         // Check for sender time-out (MSB is set)
         if(incomingSeqNo & (1<<7) ){    // If MSB (bit 7) is set
@@ -215,16 +217,15 @@ void SelectiveRepeat::incomingFrame(std::vector<unsigned char> aFrame) {
             if (incomingSeqNo == firstOutstanding) {    // If received frame equals firstOutstanding
 
                 // Send firstOutstanding frames to stream
-                for (uint8_t i = firstOutstanding; acknowledgedFrames[i]; i = (++i) % totalSeqNo) {
-                    firstOutstanding = (firstOutstanding++)%totalSeqNo; // Increment firstOutstanding
-                    for (auto byte : incomingFrames[i]) {
+                while(acknowledgedFrames[firstOutstanding]) {
+                    for (auto byte : incomingFrames[firstOutstanding]) {
                         *stream << noskipws << byte;    // Send to stream
                     }
+                    acknowledgedFrames[(firstOutstanding+totalSeqNo-1)%totalSeqNo] = false;             //this is weird because of the expetion: if very last frame's ACK is lost.
+                    firstOutstanding = (++firstOutstanding)%totalSeqNo; // Increment firstOutstanding
                 }
-
             }
         }
-
         // Create NAK-frame
         frame.clear();                  // Clear frame
         for (uint8_t i = firstOutstanding;
@@ -248,32 +249,10 @@ void SelectiveRepeat::incomingFrame(std::vector<unsigned char> aFrame) {
                 lastInBlock = k;
             }
         }
-
         // Send NACK if needed
         if(isNackNeeded){
             isNackNeeded = false;
             onFrameSendCallback(frame);
         //  onFrameSendTime();
         }
-
-    }
-
-/*
-        if(isHeaderValid()){
-            frameSplit();
-            for (auto byte : frame){
-                *stream << noskipws << byte;
-            }
-            frame = getACK();
-            storedFrame = frame;
-            seqNoSwap();
-            onFrameSendCallback(frame);
-        }else{
-            onFrameSendCallback(storedFrame);
-            onFlowFail();
-        }
-    }else{
-        onCrcFail();
-    }
-    */
 }
