@@ -91,6 +91,7 @@ void SelectiveRepeat::transmit() {
             startTimer();
         }
     }
+    cout << int(frame[0]) << endl;
 }
 
 void SelectiveRepeat::makeFrame() {
@@ -120,7 +121,7 @@ void SelectiveRepeat::startTimer() {
 
 void SelectiveRepeat::timer() {
     timerCount++;
-    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
+    std::this_thread::sleep_for(std::chrono::milliseconds(timerLength));
     timeOut();
     timerCount--;
 }
