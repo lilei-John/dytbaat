@@ -31,14 +31,14 @@ int main(){
     cout << "Samples per tone: " << samplesPerTone << endl;
 
     StopAndWait outDLL(outStream);
-    //StopAndWait inDLL(inStream);
+    StopAndWait inDLL(inStream);
     AcousticTL outTL(sampleRate, samplesPerTone);
-    //AcousticTL inTL(sampleRate, samplesPerTone);
+    AcousticTL inTL(sampleRate, samplesPerTone);
     RealAudio outRA(sampleRate);
-    //RealAudio inRA(sampleRate);
+    RealAudio inRA(sampleRate);
 
     CommunicationService sender(outDLL, outTL, outRA);
-    //CommunicationService receiver(inDLL, inTL, inRA);
+    CommunicationService receiver(inDLL, inTL, inRA);
 
     outDLL.setOnTimeout([&](){
        logger.log("TIMEOUT");
@@ -49,14 +49,12 @@ int main(){
     outDLL.setOnFlowFail([&](){
         logger.log("SENDER FLOW FAIL");
     });
-    /*
     inDLL.setOnCrcFail([&](){
         logger.log("RECEIVER CRC FAIL");
     });
     inDLL.setOnFlowFail([&](){
         logger.log("RECEIVER FLOW FAIL");
     });
-    */
 
     long millisec;
     outDLL.setOnFrameSendTime([&](){

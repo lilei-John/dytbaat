@@ -10,16 +10,12 @@ FrameReceiver::FrameReceiver(FrameProtocol f, DtmfSpec dtmfSpec, int samplesPerT
         sampleRate(sampleRate)
 {}
 
-bool FrameReceiver::isWholeFrameReceived() {
-    return wholeFrameReceived;
-}
-
 vector<unsigned char> FrameReceiver::getFrame() {
     return frame;
 }
 
 void FrameReceiver::processInput(std::queue<float> &samples) {
-    while(samples.size() >= samplesPerTone && !wholeFrameReceived){
+    while(samples.size() >= samplesPerTone && frameReceiverStatus == FrameReceiverStatus::receiving){
         vector<float> toneSamples((unsigned long)samplesPerTone);
         for (int i = 0; i < samplesPerTone; i++){
             toneSamples[i] = samples.front();
@@ -41,28 +37,31 @@ void FrameReceiver::receiveNipple(unsigned char nipple) {
 }
 
 void FrameReceiver::receiveByte(unsigned char byte) {
-    if (shouldEscapeNexByte){
+    if (frame.size() > maxFrameSize){
+        frameReceiverStatus = FrameReceiverStatus::frameError;
+    }else if (shouldEscapeNexByte){
         frame.push_back(byte);
         shouldEscapeNexByte = false;
-        return;
-    }
-
-    if (frameProtocol.isEscapeByte(byte)){
+    }else if (frameProtocol.isEscapeByte(byte)){
         shouldEscapeNexByte = true;
-        return;
+    }else if (frameProtocol.isStopByte(byte)){
+        frameReceiverStatus = FrameReceiverStatus::frameReceived;
+    }else {
+        frame.push_back(byte);
     }
-
-    if (frameProtocol.isStopByte(byte)){
-        wholeFrameReceived = true;
-        return;
-    }
-
-    frame.push_back(byte);
 }
 
 void FrameReceiver::reset() {
     frame.clear();
-    wholeFrameReceived = false;
+    frameReceiverStatus = FrameReceiverStatus::receiving;
     shouldEscapeNexByte = false;
     highNipple = noHighNipple;
+}
+
+void FrameReceiver::setMaxFrameSize(int maxFrameSize) {
+    FrameReceiver::maxFrameSize = maxFrameSize;
+}
+
+FrameReceiverStatus FrameReceiver::getFrameReceiverStatus() const {
+    return frameReceiverStatus;
 }

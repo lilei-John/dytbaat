@@ -24,6 +24,9 @@ CommunicationService::CommunicationService(
                 dataLinkLayer.receiveFrame(frame);
             }
     );
+    transmissionLayer.setMaxFrameSize(
+            dataLinkLayer.getMaxFrameSize()
+    );
     media.setOnInReceived(
             [&](std::vector<float> &in) {
                 transmissionLayer.processInput(in);

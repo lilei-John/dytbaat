@@ -25,6 +25,8 @@ public:
     void getNextFrame();                                        // getData, makeFrame, storeFrame, timer, return frame
     void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK, if true call getNextFrame
 
+    int getMaxFrameSize();
+
     //RECEIVER
     void incomingFrame(std::vector<unsigned char> aFrame);      // handles an incoming Frame
     std::vector<unsigned char> getACK();
