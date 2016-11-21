@@ -182,6 +182,8 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
         } else {
             //onCrcFail();
         }
+    }else{
+        cout << "Busy: " << frame[0] << endl;
     }
 }
 
@@ -296,7 +298,12 @@ void SelectiveRepeat::incomingFrame() {
             addCRC();
         isBusy = true;
             onFrameSendCallback(frame);
-            cout << "NAK: " << int(frame[0]) << endl;
+
+        cout << "NAK:";
+        for(int i = 0; i < frame.size()-2;i++)
+            cout << " " << int(frame[i]);
+        cout << endl;
+
         //  onFrameSendTime();
         }
 }

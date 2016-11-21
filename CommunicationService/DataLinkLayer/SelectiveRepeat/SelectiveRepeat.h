@@ -22,14 +22,14 @@ private:
     std::stringstream *stream;                  // pointer to a stream
 
     unsigned int index = 0;                     // used to index where in the incoming stream we are
-    unsigned int frameSize = 20;                // defines the number of bytes taken from the stream
+    unsigned int frameSize = 10;                // defines the number of bytes taken from the stream
     unsigned int static const totalSeqNo = 126;
     unsigned int const windowSize = totalSeqNo/uint8_t(2);
     unsigned int seqNo = 0;
     unsigned int firstOutstanding = 0;
     unsigned int const frameBlocksize = 4;
     unsigned int lastInBlock = firstOutstanding + frameBlocksize-1;
-    unsigned int timerLength = 4500;               //in milliseconds
+    unsigned int timerLength = 1500;               //in milliseconds
 
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<std::vector<unsigned char>> window;
