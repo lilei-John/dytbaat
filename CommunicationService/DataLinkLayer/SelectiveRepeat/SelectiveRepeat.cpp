@@ -160,7 +160,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
     if (!isBusy) {
         frame = aFrame;
         if (isCrcValid()) {
-            if (expectingACK) {
+            if (isSender) {
                 if (!(frame[0] &
                       (1 << 7))) {          // if MSB is set it is an ACK for stop frame! transmission complete
                     incomingACK();
@@ -187,18 +187,16 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
 
 void SelectiveRepeat::incomingACK() {
     expectingACK = false;
-    isSender = false;
     firstOutstanding = frame[0];
     if (firstOutstanding==seqNo){
         window.clear();
         if(!isStreamEmpty()) {
             transmit();
         } else{
-            getData();
+            frame.clear();
             makeFrame();
             storeFrame();
             sendFrame();
-            isSender = true;
         }
     }else {
         for(int i = 0, j = 0; j < window.size(); ){     // Continue through all NAK's in frame
@@ -287,7 +285,7 @@ void SelectiveRepeat::incomingFrame() {
                 k = (++k) % totalSeqNo;   // Increment lastOutstanding
                 j++;
             } while (acknowledgedFrames[k]); // While acknowledged
-            if (j>=windowSize){
+            if (j<=windowSize){
                 lastInBlock = k;
             }
         }
