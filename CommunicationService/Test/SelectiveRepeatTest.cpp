@@ -20,9 +20,9 @@ int main(){
     stringstream outStream(ios::in|ios::out|ios::app);
     stringstream inStream(ios::in|ios::out|ios::app);
 
-//    SelectiveRepeat outDLL(outStream);
+    SelectiveRepeat outDLL(outStream);
     SelectiveRepeat inDLL(inStream);
- //   AcousticTL outTL;
+    AcousticTL outTL;
     AcousticTL inTL;
 
 /*    outDLL.setOnTimeout([&](){
@@ -56,7 +56,7 @@ int main(){
         logger.log("Frame travel time: " + to_string(millisec));
     });
 */
- //   CommunicationService sender(outDLL, outTL);
+    CommunicationService sender(outDLL, outTL);
     CommunicationService receiver(inDLL, inTL);
 
     for (auto byte : outData){
@@ -64,7 +64,7 @@ int main(){
     }
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
- //   sender.transmit();
+    sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();

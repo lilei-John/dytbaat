@@ -257,10 +257,15 @@ void SelectiveRepeat::incomingFrame() {
                 }
             }
         }
+
+    // Send NACK if needed
+    if(isNackNeeded){
+        isNackNeeded = false;
+
         // Create NAK-frame
         frame.clear();                  // Clear frame
         for (uint8_t i = firstOutstanding;
-             i != (lastInBlock + 1) % totalSeqNo; i = (++i) % totalSeqNo) { // Make NACK frame
+             i != (lastInBlock + 1) % totalSeqNo&&i != (lastInBlock + 2) % totalSeqNo; i = (++i) % totalSeqNo) { // Make NACK frame
             if (!acknowledgedFrames[i]) {  // If i'th frame is corrupted
                 frame.push_back(i); // Add seqNo to NACK frame
             }
@@ -269,35 +274,22 @@ void SelectiveRepeat::incomingFrame() {
             frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
         }
 
-    if(isNackNeeded){
-
         // Adjust receive window
         lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding
-
- /*       for(unsigned int i = 1; i < frameBlocksize; i++){
-            do {
-                lastInBlock = (lastInBlock+1)%totalSeqNo;
-            }while(acknowledgedFrames[lastInBlock]);
-        }
-*/
-
          for (unsigned int i = 1, j = 0, k = lastInBlock; i < frameBlocksize && j < windowSize; i++) {    // Create new "best case" full size window
 
-            do {
-                k = (++k) % totalSeqNo;   // Increment lastOutstanding
-                j++;
-            } while (acknowledgedFrames[k]); // While acknowledged
-            if (j<=windowSize){
-                lastInBlock = k;
-            }
-        }
+             do {
+                 k = (++k) % totalSeqNo;   // Increment lastOutstanding
+                 j++;
+             } while (acknowledgedFrames[k]); // While acknowledged
+             if (j <= windowSize) {
+                 lastInBlock = k;
+             }
+         }
 
-        // Send NACK if needed
-
-            isNackNeeded = false;
-            addCRC();
+        addCRC();
         isBusy = true;
-            onFrameSendCallback(frame);
+        onFrameSendCallback(frame);
 
         cout << "NAK:";
         for(int i = 0; i < frame.size()-2;i++)
