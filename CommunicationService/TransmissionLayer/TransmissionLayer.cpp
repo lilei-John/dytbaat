@@ -4,7 +4,9 @@ void TransmissionLayer::setOnFrameReceived(const std::function<void(std::vector<
     onFrameReceived = cb;
 }
 
-
+void TransmissionLayer::setOnFrameTransmitted(const std::function<void()> &cb) {
+    onFrameTransmitted = cb;
+}
 
 
 

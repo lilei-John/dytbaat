@@ -25,13 +25,15 @@ int main(){
     }
 
     int sampleRate = 44100;
-    int samplesPerTone = 1600;
-    int samplesPerSearch = 500;
+    float toneTime = 30; //ms
+    int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
+
+    cout << "Samples per tone: " << samplesPerTone << endl;
 
     StopAndWait outDLL(outStream);
     StopAndWait inDLL(inStream);
-    AcousticTL outTL(sampleRate, samplesPerTone, samplesPerSearch);
-    AcousticTL inTL(sampleRate, samplesPerTone, samplesPerSearch);
+    AcousticTL outTL(sampleRate, samplesPerTone);
+    AcousticTL inTL(sampleRate, samplesPerTone);
     RealAudio outRA(sampleRate);
     RealAudio inRA(sampleRate);
 

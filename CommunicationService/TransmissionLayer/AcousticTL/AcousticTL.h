@@ -7,7 +7,7 @@
 #include "DtmfAnalysis/DtmfAnalysis.h"
 #include <queue>
 
-enum ATLState{
+enum class ATLState{
     idle,
     transmitting,
     receiving
@@ -15,17 +15,17 @@ enum ATLState{
 
 class AcousticTL : public TransmissionLayer{
 public:
-    AcousticTL(const int sampleRate, const int samplesPerTone, const int samplesPerSearch);
+    AcousticTL(const int sampleRate, const int samplesPerTone);
 
     bool sendFrame(const std::vector<unsigned char> &);
     void processInput(const std::vector<float> &);
     void setOutput(std::vector<float> &);
+    void setMaxFrameSize(int size);
 
     Sync &getSync();
 
     const int sampleRate;
     const int samplesPerTone;
-    const int samplesPerSearch;
 
     void setOnStartSeqReceived(const std::function<void()> &onStartSeqReceived);
 
@@ -34,15 +34,12 @@ private:
     std::queue<float> incomingSamples;
     std::queue<float> outgoingSamples;
 
-    unsigned char getNextNipple(int sampleCount);
+    DtmfSpec dtmfSpec;
+    Sync sync = Sync(samplesPerTone, sampleRate, dtmfSpec);
+    FreqGeneration freqGeneration = FreqGeneration(dtmfSpec);
 
     FrameProtocol frameProtocol;
-    Sync sync = Sync(frameProtocol, samplesPerTone / samplesPerSearch);
-
-    FrameReceiver frameReceiver = FrameReceiver(frameProtocol);
-
-    DtmfSpec dtmfSpec;
-    FreqGeneration freqGeneration = FreqGeneration(dtmfSpec);
+    FrameReceiver frameReceiver;
 
     std::function<void(void)> onStartSeqReceived;
 };

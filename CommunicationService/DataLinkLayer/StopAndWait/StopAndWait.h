@@ -25,6 +25,8 @@ public:
     void getNextFrame();                                        // getData, makeFrame, storeFrame, timer, return frame
     void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK, if true call getNextFrame
 
+    int getMaxFrameSize();
+
     //RECEIVER
     void incomingFrame(std::vector<unsigned char> aFrame);      // handles an incoming Frame
     std::vector<unsigned char> getACK();
@@ -70,6 +72,6 @@ private:
     std::function<void(void)> onTimeout;
     std::function<void(void)> onCrcFail;
     std::function<void(void)> onFlowFail;
-    std::function<void(void)> onFrameSendTime;
+    std::function<void(void)> onFrameSend;
     std::function<void(void)> onAckReceiveTime;
 };

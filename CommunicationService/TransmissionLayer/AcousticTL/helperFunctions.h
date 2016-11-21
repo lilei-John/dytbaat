@@ -12,10 +12,8 @@ inline double hammingWindow(int N, int n) {
     return 0.54+0.46*cos((2*M_PI*n)/(N-1));
 }
 
-inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate) {
-    int N = (int)samples.size();
-    std::vector<std::pair<int, float>> returnAmpFreq;
-
+inline std::vector<std::pair<int, float>> goertzelFilter(const float *samples, int N, const std::vector<int> &freqs, const int sampleRate) {
+    std::vector<std::pair<int, float>> returnAmpFreq(freqs.size());
     for (int i = 0; i < freqs.size(); ++i) {
         //double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
         //double w = (2 * M_PI / blockSize) * k;
@@ -36,16 +34,17 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float
         double real = Q1 - Q2 * cosine;
         double imag = Q2 * sine;
 
-        returnAmpFreq.push_back(
-                std::make_pair(
-                        freqs[i],
-                        sqrtf((float)((real*real)+(imag*imag)))
-                )
+        returnAmpFreq[i] = std::make_pair(
+                freqs[i],
+                sqrtf((float)((real*real)+(imag*imag)))
         );
     }
-
     return returnAmpFreq;
 }
+
+inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float> &samples, const std::vector<int> &freqs, const int sampleRate){
+    return goertzelFilter(&samples[0], (int)samples.size(), freqs, sampleRate);
+};
 
 inline std::vector<unsigned char> byteFrameToNibbleFrame(std::vector<unsigned char> byteFrame) {
 

@@ -1,7 +1,6 @@
 #include "FrameProtocol.h"
 
 FrameProtocol::FrameProtocol() :
-    startBytes({0x05, 0xAF}),
     stopByte(0xAF),
     escapeByte(0x9E)
 {}
@@ -30,12 +29,11 @@ bool FrameProtocol::shouldEscape(unsigned char byte) const {
     return byte == stopByte || byte == escapeByte;
 }
 
-void FrameProtocol::packFrame(std::vector<unsigned char> &byteFrame) {
+void FrameProtocol::escapeByteFrame(std::vector<unsigned char> &byteFrame) {
     for (int i = 0; i < byteFrame.size(); i++){
         if (shouldEscape(byteFrame[i])){
             byteFrame.insert(byteFrame.begin() + i, escapeByte);
         }
     }
     byteFrame.insert(byteFrame.begin(), startBytes.begin(), startBytes.end());
-    byteFrame.insert(byteFrame.end(), stopByte);
 }
