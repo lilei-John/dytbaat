@@ -8,12 +8,16 @@
 #define M_PI           3.14159265358979323846
 #endif
 
-inline std::vector<std::pair<int, float>> goertzelFilter(const float *its, int blockSize, const std::vector<int> &freqs, const int sampleRate) {
+inline double hammingWindow(int N, int n) {
+    return 0.54+0.46*cos((2*M_PI*n)/(N-1));
+}
+
+inline std::vector<std::pair<int, float>> goertzelFilter(const float *its, int N, const std::vector<int> &freqs, const int sampleRate) {
     std::vector<std::pair<int, float>> returnAmpFreq(freqs.size());
     for (int i = 0; i < freqs.size(); ++i) {
-        double k = 0.5 + 3000 * freqs[i] / sampleRate;
-        double w = 2 * (double)M_PI / 3000 * k;
-        //double w = 2 * M_PI * freqs[i] / sampleRate;
+        //double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
+        //double w = (2 * M_PI / blockSize) * k;
+        double w = 2 * M_PI * freqs[i] / sampleRate;
         double cosine = cos(w);
         double sine = sin(w);
         double coeff = 2 * cosine;
@@ -21,8 +25,8 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const float *its, int b
         double Q1 = 0;
         double Q2 = 0;
 
-        for (int j = 0; j < blockSize; j++) {
-            Q0 = coeff * Q1 - Q2 + *(its + j);
+        for (int j = 0; j < N; j++) {
+            Q0 = coeff * Q1 - Q2 + (samples[j] * hammingWindow(N,j));
             Q2 = Q1;
             Q1 = Q0;
         }
