@@ -19,7 +19,7 @@ vector<unsigned char> FrameReceiver::getFrame() {
 }
 
 void FrameReceiver::processInput(std::queue<float> &samples) {
-    while(samples.size() >= samplesPerTone){
+    while(samples.size() >= samplesPerTone && !wholeFrameReceived){
         vector<float> toneSamples((unsigned long)samplesPerTone);
         for (int i = 0; i < samplesPerTone; i++){
             toneSamples[i] = samples.front();

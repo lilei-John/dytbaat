@@ -8,7 +8,7 @@ using namespace std;
 
 int main(){
     int sampleRate = 44100;
-    float toneTime = 100; //ms
+    float toneTime = 7; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
     cout << "samplesPerTone: " << samplesPerTone << endl;
 
@@ -27,16 +27,18 @@ int main(){
     CommunicationService sender(outDLL, outTL, outIA);
     CommunicationService receiver(inDLL, inTL, inIA);
 
-    atomic<bool> shouldStop(false);
+    string outMes = "abc";
+    for (char byte : outMes) ssOut << byte;
 
+    atomic<bool> shouldStop(false);
     receiver.setOnReceive([&](){
-        cout << ssIn.str() << endl;
+        string inMes = ssIn.str();
+        cout << "Received: '" << inMes << "'" << endl;
+        cout << (inMes == outMes ? "Success!" : "Fail!") << endl;
         shouldStop.store(true);
     });
 
-    for (char byte : "abc")
-        ssOut << byte;
-
+    cout << "Sending: '" << outMes << "'" << endl;
     sender.transmit();
 
     while (!shouldStop.load())
