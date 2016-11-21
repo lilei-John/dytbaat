@@ -70,6 +70,9 @@ void SelectiveRepeat::frameTransmitted() {
 
     if (isSender) {
         cout << "Sender: " << int(frame[0]) << endl;
+
+        for(int i = 0; i < window.size(); i++)
+            cout << int(window[i][0]) << endl;
         transmit();
     }
 }
@@ -218,7 +221,8 @@ void SelectiveRepeat::incomingFrame() {
         cout << i;
     }
     cout << endl;*/
-        uint8_t incomingSeqNo = frame[0];
+        unsigned int incomingSeqNo = frame[0];
+    cout << "SeqNo: " << int(incomingSeqNo) << endl;
         // Check for sender time-out (MSB is set)
         if(incomingSeqNo & (1<<7) ){    // If MSB (bit 7) is set
             incomingSeqNo &= ~(1<<7);   // Clear MSB
@@ -258,6 +262,9 @@ void SelectiveRepeat::incomingFrame() {
         if (frame.size() == 0) {    // If no NACK's have been added (resulting in NACK frame still empty)
             frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
         }
+
+    if(isNackNeeded){
+
         // Adjust receive window
         lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding
         for (unsigned int i = 1, j = 0, k = lastInBlock; i < frameBlocksize && j < windowSize; i++) {    // Create new "best case" full size window
@@ -270,8 +277,10 @@ void SelectiveRepeat::incomingFrame() {
                 lastInBlock = k;
             }
         }
+
+
         // Send NACK if needed
-        if(isNackNeeded){
+
             isNackNeeded = false;
             addCRC();
             onFrameSendCallback(frame);

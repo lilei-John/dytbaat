@@ -63,7 +63,7 @@ int main(){
         outStream << byte;
     }
 
-
+    std::this_thread::sleep_for(std::chrono::seconds(2));
     sender.transmit();
 
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
