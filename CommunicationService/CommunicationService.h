@@ -9,6 +9,7 @@ public:
     CommunicationService(DataLinkLayer&, TransmissionLayer&, Media&);
     void transmit();
     void setOnReceive(const std::function<void()> &onReceive);
+    ~CommunicationService();
 private:
     DataLinkLayer &dataLinkLayer;
     TransmissionLayer &transmissionLayer;

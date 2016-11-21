@@ -47,3 +47,8 @@ void CommunicationService::setOnReceive(const std::function<void()> &onReceive) 
     CommunicationService::onReceive = onReceive;
 }
 
+CommunicationService::~CommunicationService() {
+    media.setOnOutRequest(nullptr);
+    media.setOnInReceived(nullptr);
+}
+
