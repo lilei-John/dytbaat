@@ -11,12 +11,15 @@ StopAndWait::StopAndWait(stringstream &inStream) {
 
 void StopAndWait::getData() {
     frame.clear();
+    //string s = stream->str();
     unsigned int i = index;
     while (index <  i +frameSize and !isStreamEmpty()){      // * pointer that takes the content that is pointed at
         unsigned char byte;
         stream->seekg(index) >> noskipws >> byte;                        // seekg grabber and removes the object from the stream. and -> insted of a . because it is a pointer
         frame.push_back(byte);
         index++;
+    //for(auto byte : s) {
+    //    frame.push_back((unsigned char)byte);
     }
 }
 
@@ -164,7 +167,13 @@ bool StopAndWait::isExpectingAck() {
 
 bool StopAndWait::isStreamEmpty() {
     unsigned char index0;
-    return !(bool)(*stream >> index0);
+    bool isEmpty = !(bool)(*stream >> index0);
+    if (isEmpty) {
+        stream->clear();
+        stream->str("");
+        index = 0;
+    }
+    return isEmpty;
 }
 
 void StopAndWait::sendFrame() {
