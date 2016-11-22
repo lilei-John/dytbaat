@@ -62,6 +62,20 @@ void StopAndWait::storeFrame() {
     storedFrame = frame;
 }
 
+void StopAndWait::timer() {
+    timerCount++;
+    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
+    timeOut();
+    timerCount--;
+}
+
+void StopAndWait::getNextFrame() {
+    getData();
+    makeFrame();
+    storeFrame();
+    startTimer();
+}
+
 bool StopAndWait::isHeaderValid() {
     return seqNo == frame.at(0);
 }
@@ -73,28 +87,33 @@ void StopAndWait::frameSplit() {
      }
 }
 
+void StopAndWait::timeOut() {
+    if(isExpectingAck() && timerCount == 1) {
+        onFrameSendReq(storedFrame);
+        startTimer();
+        if(onTimeout) onTimeout();
+    }
+}
+
 void StopAndWait::incomingFrame(std::vector<unsigned char> aFrame) {
     frame = aFrame;
-    for (auto i : frame) {
-        cout << i;
-    }
-    cout << endl;
     if(isCrcValid()){
         if(isHeaderValid()){
             frameSplit();
             for (auto byte : frame){
                 *stream << noskipws << byte;
             }
+            if(onReceive) onReceive();
             frame = getACK();
             storedFrame = frame;
             seqNoSwap();
-            onFrameSendCallback(frame);
+            onFrameSendReq(frame);
         }else{
-            onFrameSendCallback(storedFrame);
-            onFlowFail();
+            onFrameSendReq(storedFrame);
+            if(onFlowFail) onFlowFail();
         }
     }else{
-        onCrcFail();
+        if(onCrcFail) onCrcFail();
     }
 }
 
@@ -110,10 +129,10 @@ void StopAndWait::incomingACK(std::vector<unsigned char> aFrame) {
                 sendFrame();
             }
         }else{
-            onFlowFail();
+            if(onFlowFail) onFlowFail();
         }
     }else{
-        onCrcFail();
+        if(onFlowFail) onCrcFail();
     }
 }
 
@@ -150,8 +169,13 @@ bool StopAndWait::isStreamEmpty() {
 
 void StopAndWait::sendFrame() {
     sentFrameCount++;
-    onFrameSendCallback(frame);
-    onFrameSendTime();
+    if (onFrameSendReq(frame)){
+        if (onFrameSend) onFrameSend();
+    }
+}
+
+void StopAndWait::startTimer() {
+    std::thread(&StopAndWait::timer, this).detach();
 }
 
 void StopAndWait::transmit() {
@@ -174,35 +198,13 @@ void StopAndWait::setOnFlowFail(std::function<void(void)> callback) {
 }
 
 void StopAndWait::setOnFrameSendTime(std::function<void(void)> callback) {
-    onFrameSendTime = callback;
+    onFrameSend = callback;
 }
 
 void StopAndWait::setOnAckReceiveTime(std::function<void(void)> callback) {
     onAckReceiveTime = callback;
 }
 
-void StopAndWait::getNextFrame() {
-    getData();
-    makeFrame();
-    storeFrame();
-    startTimer();
-}
-
-void StopAndWait::startTimer() {
-    std::thread(&StopAndWait::timer, this).detach();
-}
-
-void StopAndWait::timer() {
-    timerCount++;
-    std::this_thread::sleep_for(std::chrono::seconds(timerLength));
-    timeOut();
-    timerCount--;
-}
-
-void StopAndWait::timeOut() {
-    if(isExpectingAck() && timerCount == 1) {
-        onFrameSendCallback(storedFrame);           //gensender sidste frame
-        startTimer();
-        if(onTimeout) onTimeout();                  //test function
-    }
+int StopAndWait::getMaxFrameSize() {
+    return frameSize + 3;
 }

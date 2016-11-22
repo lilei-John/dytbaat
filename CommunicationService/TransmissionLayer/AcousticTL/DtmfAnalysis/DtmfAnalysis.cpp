@@ -5,17 +5,18 @@
 
 using namespace std;
 
-bool freqAmpSort(pair<int, float> p1, pair<int, float> p2){
-    return p1.second > p2.second;
+bool freqAmpSort(pair<int, float> a, pair<int, float> b){
+    return a.second > b.second;
 }
 
 float calcCertainty(vector<pair<int, float>> v){
+    if (v[0].second == 0) return 0;
     return (v[0].second - v[1].second) / v[0].second;
 }
 
-DtmfAnalysis::DtmfAnalysis(const vector<float> &samples, DtmfSpec dtmfSpec, int sampleRate) {
-    rowFreqAmp = goertzelFilter(samples, dtmfSpec.getFreqRow(), sampleRate);
-    colFreqAmp = goertzelFilter(samples, dtmfSpec.getFreqCol(), sampleRate);
+DtmfAnalysis::DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sampleRate) {
+    auto rowFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqRow(), sampleRate);
+    auto colFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqCol(), sampleRate);
 
     sort(rowFreqAmp.begin(), rowFreqAmp.end(), freqAmpSort);
     sort(colFreqAmp.begin(), colFreqAmp.end(), freqAmpSort);
@@ -24,10 +25,10 @@ DtmfAnalysis::DtmfAnalysis(const vector<float> &samples, DtmfSpec dtmfSpec, int 
     certainty = min(calcCertainty(rowFreqAmp), calcCertainty(colFreqAmp));
 }
 
-unsigned char DtmfAnalysis::getNipple() {
+unsigned char DtmfAnalysis::getNipple() const {
     return nipple;
 }
 
-float DtmfAnalysis::getCertainty(){
+float DtmfAnalysis::getCertainty() const {
     return certainty;
 }

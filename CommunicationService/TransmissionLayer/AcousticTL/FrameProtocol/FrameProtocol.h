@@ -8,7 +8,7 @@ public:
     bool isStopByte(unsigned char);
     bool isEscapeByte(unsigned char);
 
-    void packFrame(std::vector<unsigned char> &);
+    void escapeByteFrame(std::vector<unsigned char> &);
 
     const std::vector<unsigned char> &getStartBytes() const;
     unsigned char getStopByte() const;

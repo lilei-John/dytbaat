@@ -3,60 +3,107 @@
 
 using namespace std;
 
-Sync::Sync(FrameProtocol f, float fpf) :
-        frameProtocol(f),
-        searchPerTone(fpf)
-{}
+Sync::Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec)
+        : samplesPerTone(samplesPerTone),
+          sampleRate(sampleRate),
+          dtmfSpec(dtmfSpec){
+    for (auto nibble : matchRegions)
+        for (int i = 0; i < tonesPerMatchRegion; i++)
+            syncNibbles.push_back(nibble);
+    for (auto nibble : confNibs)
+        syncNibbles.push_back(nibble);
+    for (int i = 0; i < tonesPerMatchRegion; i++)
+        syncNibbles.push_back(paddingNibble);
+}
 
-void Sync::receiveNipple(unsigned char nipple) {
-    auto wantedNipple = getStartNipple(confStartNip);
-    if (nipple == wantedNipple){
-        confSearch++;
-        if(confSearch >= searchPerTone){
-            confStartNip++;
-            confSearch = 0;
-            missedSearchFrames = 0;
+bool Sync::trySync(std::queue<float> &samples) {
+    while(samples.size() >= samplesPerTone * (tonesPerMatchRegion + 1)){
+        for (int i = 0; i < samplesPerTone; i++){
+            recSyncSamples.push_back(samples.front());
+            samples.pop();
         }
-    }else{
-        if (confSearch >= searchPerTone - allowedMissedSearchFrames){
-            confStartNip++;
-            if (startSequenceReceived()) return;
-            if (nipple == getStartNipple(confStartNip + 1)){
-                confSearch = 1;
-            }else{
-                confSearch = 0;
+        DtmfAnalysis dtmf(&recSyncSamples[recSyncSamples.size() - samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
+        recSyncNibbles.push_back(dtmf.getNipple());
+        if (recSyncNibbles.size() < syncNibbles.size()) continue;
+        if (recSyncNibbles.size() > syncNibbles.size()){
+            recSyncNibbles.erase(recSyncNibbles.begin());
+            recSyncSamples.erase(recSyncSamples.begin(), recSyncSamples.begin() + samplesPerTone);
+        }
+        if(!doesMatch()) continue;
+        int firstSampleInMessage = confirmAndAlign();
+        if (firstSampleInMessage == -1) continue;
+        int paddingToBeRemoved = firstSampleInMessage - (int)recSyncSamples.size();
+        for (int i = 0; i < paddingToBeRemoved; i++) samples.pop();
+        recSyncSamples.clear();
+        recSyncNibbles.clear();
+        return true;
+    }
+    return false;
+}
+
+bool Sync::doesMatch(){
+    for (int m = 0; m < matchRegions.size(); m++){
+        int matches = 0;
+        for (int i = 0; i < tonesPerMatchRegion; i++){
+            int index = m * tonesPerMatchRegion + i;
+            if (recSyncNibbles[index] == syncNibbles[index])
+                matches++;
+        }
+        if (matches < tonesPerMatchRegion * reqMatchPercentage)
+            return false;
+    }
+    return true;
+}
+
+float lerp(float a, float b, float t){
+    return a + (b - a) * t;
+}
+
+struct AlignScore{
+    int confNibCount;
+    float certainty;
+    int startIndex;
+    vector<int> received;
+};
+
+int Sync::confirmAndAlign(){
+    int first = (int) matchRegions.size() * tonesPerMatchRegion * samplesPerTone;
+    int last = (int) (matchRegions.size() + 1) * tonesPerMatchRegion * samplesPerTone;
+    vector<AlignScore> alignScores;
+    for (int alignIndex = 0; alignIndex < alignResolution; alignIndex++){
+        int start = (int) roundf(lerp(first, last, (float) alignIndex / (alignResolution - 1)));
+        AlignScore score{0, 0, start};
+        for (int i = 0; i < confNibs.size(); i++){
+            DtmfAnalysis dtmf(&recSyncSamples[start + i * samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
+            if (dtmf.getNipple() == confNibs[i]){
+                score.confNibCount++;
+                score.certainty += dtmf.getCertainty() / confNibs.size();
             }
-            missedSearchFrames = 0;
-        }else if (confStartNip > 0 &&
-            confSearch == 0 &&
-            missedSearchFrames < allowedMissedSearchFrames){
-            missedSearchFrames++;
-        }else{
-            if (onSyncFailed) onSyncFailed(confStartNip, frameProtocol.getStartBytes(), nipple);
-            reset();
+            score.received.push_back(dtmf.getNipple());
         }
+        alignScores.push_back(score);
     }
-}
-
-bool Sync::startSequenceReceived() {
-    return confStartNip == frameProtocol.getStartBytes().size() * 2;
-}
-
-void Sync::reset() {
-    confSearch = 0;
-    confStartNip = 0;
-    missedSearchFrames = 0;
-}
-
-unsigned char Sync::getStartNipple(int i) {
-    auto byte = frameProtocol.getStartBytes()[i / 2];
-    if (i % 2 == 0){
-        return byte >> 4;
-    }else{
-        return byte & (unsigned char)0x0F;
+    sort(alignScores.begin(), alignScores.end(), [](AlignScore &a, AlignScore &b){
+        if (a.confNibCount != b.confNibCount) return a.confNibCount > b.confNibCount;
+        return a.certainty > b.certainty;
+    });
+    auto bestAlign = alignScores[0];
+    if (bestAlign.confNibCount != confNibs.size()) {
+        if(onSyncFail) onSyncFail((float)bestAlign.confNibCount / confNibs.size());
+        return -1;
     }
+    if(onSyncSuccess) onSyncSuccess(bestAlign.certainty);
+    return (int)(bestAlign.startIndex + (confNibs.size() + tonesPerMatchRegion) * samplesPerTone);
 }
-// her er eksemplet at arbejde ud fra
-void Sync::setOnSyncFailed(const function<void(int, const vector<unsigned char> &, unsigned char)> &cb) {
-    onSyncFailed = cb;
+
+const vector<unsigned char> &Sync::getSyncNibbles() const {
+    return syncNibbles;
+}
+
+void Sync::setOnSyncFail(const function<void(float)> &onSyncFail) {
+    Sync::onSyncFail = onSyncFail;
+}
+
+void Sync::setOnSyncSuccess(const function<void(float)> &onSyncSuccess) {
+    Sync::onSyncSuccess = onSyncSuccess;
 }

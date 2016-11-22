@@ -1,31 +1,41 @@
 #pragma once
 
-#include "../FrameProtocol/FrameProtocol.h"
 #include <functional>
+#include <queue>
+#include "../DtmfAnalysis/DtmfAnalysis.h"
 
 class Sync {
 public:
-    Sync(FrameProtocol, float fpf);
-    void receiveNipple(unsigned char);
-    bool startSequenceReceived();
-    void reset();
+    Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec);
+    bool trySync(std::queue<float> &);
+    const std::vector<unsigned char> &getSyncNibbles() const;
 
-    void setOnSyncFailed(const std::function<void(int, const std::vector<unsigned char> &, unsigned char)> &onSyncFailed);
+    void setOnSyncFail(const std::function<void(float)> &onSyncFail);
+    void setOnSyncSuccess(const std::function<void(float)> &onSyncSuccess);
 
 private:
-    FrameProtocol frameProtocol;
-    const float searchPerTone;
-    const int allowedMissedSearchFrames = 1;
+    const DtmfSpec dtmfSpec;
+    const int sampleRate;
+    const int samplesPerTone;
 
-    int confSearch = 0;
-    int missedSearchFrames = 0;
-    int confStartNip = 0;
+    std::vector<float> recSyncSamples;
 
-    unsigned char getStartNipple(int);
+    //match - efficient searching
+    const std::vector<unsigned char> matchRegions = {0xF, 0xA, 0x0};
+    std::vector<unsigned char> recSyncNibbles;
+    const int tonesPerMatchRegion = 2;
+    const float reqMatchPercentage = .5;
+    bool doesMatch();
 
-    std::function<void(
-            int startSequenceFailIndex,
-            const std::vector<unsigned char> &startSequence,
-            unsigned char receivedByte
-    )> onSyncFailed;
+    //confim and align - processor heavy alignment
+    //load depends linearly on samplerate, confNibs.size() and alignResolution
+    const std::vector<unsigned char> confNibs = {0xF, 0xA, 0x5};
+    const int alignResolution = 5;
+    int confirmAndAlign();
+
+    const unsigned char paddingNibble = 0x0;
+    std::vector<unsigned char> syncNibbles;
+
+    std::function<void(float confNibPercentage)> onSyncFail;
+    std::function<void(float certainty)> onSyncSuccess;
 };
