@@ -67,8 +67,6 @@ bool SelectiveRepeat::isCrcValid() {
 }
 
 void SelectiveRepeat::frameTransmitted() {
-    isBusy = false;
-
     if (isSender) {
         cout << "Sender: " << int(frame[0]) << endl;
 
@@ -109,7 +107,6 @@ void SelectiveRepeat::storeFrame() {
 }
 
 void SelectiveRepeat::sendFrame() {
-    isBusy = true;
     onFrameSendCallback(frame);
 //  onFrameSendTime();
 }
@@ -157,33 +154,28 @@ void SelectiveRepeat::timeOut() {
 }
 
 void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
-    if (!isBusy) {
-        frame = aFrame;
-        if (isCrcValid()) {
-            if (isSender) {
-                if (!(frame[0] &
-                      (1 << 7))) {          // if MSB is set it is an ACK for stop frame! transmission complete
-                    incomingACK();
-                } else {
-                    clearAll();                     // all VAR's are cleared, ready to receive or send new msg.
-                }
+    frame = aFrame;
+    if (isCrcValid()) {
+        if (isSender) {
+            if (!(frame[0] &
+                  (1 << 7))) {          // if MSB is set it is an ACK for stop frame! transmission complete
+                incomingACK();
             } else {
-                if (frame.size() > 3) {
-                    incomingFrame();
-                } else {
-                    frame.clear();
-                    frame.push_back(0b10000000);
-                    addCRC();
-                    isBusy = true;
-                    onFrameSendCallback(frame);
-                    clearAll();
-                }
+                clearAll();                     // all VAR's are cleared, ready to receive or send new msg.
             }
         } else {
-            //onCrcFail();
+            if (frame.size() > 3) {
+                incomingFrame();
+            } else {
+                frame.clear();
+                frame.push_back(0b10000000);
+                addCRC();
+                onFrameSendCallback(frame);
+                clearAll();
+            }
         }
-    }else{
-        cout << "Busy: " << frame[0] << endl;
+    } else {
+        //onCrcFail();
     }
 }
 
@@ -288,7 +280,6 @@ void SelectiveRepeat::incomingFrame() {
          }
 
         addCRC();
-        isBusy = true;
         onFrameSendCallback(frame);
 
         cout << "NAK:";

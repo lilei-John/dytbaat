@@ -62,7 +62,6 @@ private:
     bool expectingACK = false;
     bool isNackNeeded = false;
     bool isSender = false;
-    bool isBusy = false;
 
     int framesToResend = 0;
     int timerCount = 0;
