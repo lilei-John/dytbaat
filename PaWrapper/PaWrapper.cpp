@@ -28,7 +28,7 @@ void PaWrapper::open(){
             &inputParameters,
             &outputParameters,
             sampleRate,
-            paFramesPerBufferUnspecified,
+            512,
             paNoFlag,
             &PaWrapper::paCallback,
             this
