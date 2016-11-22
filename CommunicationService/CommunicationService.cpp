@@ -47,8 +47,15 @@ void CommunicationService::setOnReceive(const std::function<void()> &onReceive) 
     CommunicationService::onReceive = onReceive;
 }
 
-CommunicationService::~CommunicationService() {
+void CommunicationService::disable() {
     media.setOnOutRequest(nullptr);
     media.setOnInReceived(nullptr);
+    transmissionLayer.setOnFrameReceived([](std::vector<unsigned char>){});
+    dataLinkLayer.setOnFrameSendCallback([](std::vector<unsigned char>){return false;});
+    dataLinkLayer.setOnReceive([](){});
+}
+
+CommunicationService::~CommunicationService() {
+    disable();
 }
 
