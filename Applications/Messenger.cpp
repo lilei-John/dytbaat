@@ -17,7 +17,7 @@ int main(){
         outData.push_back((unsigned char)data[i]);
     }
 
-    int sampleRate = 96000;
+    int sampleRate = 44100;
     float toneTime = 30; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
@@ -69,6 +69,20 @@ int main(){
         logger.log("Frame travel time: " + to_string(millisec));
     });
 
+    unsigned char end_delim = 3;
+    data = "";
+    client->setOnReceive([&](){
+        unsigned char in;
+        while (clientStream >> in){
+            if (in == end_delim){
+                cout << "Received message: " << data << endl;
+                clientStream.str("");
+                data = "";
+            }else{
+                data += in;
+            }
+        }
+    });
 
     while(open) {
         data = "";
@@ -78,26 +92,16 @@ int main(){
             open = false;
         }
         else if (data == "") {
-            string result = clientStream.str();
-            cout << "Received message: " << result << endl;
-            clientStream.str("");
+
         } else {
             for (auto byte : data){
                 clientStream << (unsigned char) byte;
             }
+            clientStream << end_delim;
             client->transmit();
         }
 
     }
-
-    /*client.setOnReceive([](){
-        unsigned char index0;
-        while(clientStream >> index0){
-            inData.push_back(index0);
-        }
-        string result(inData.begin(), inData.end());
-        cout << "Received message: " << result << endl;
-    });*/
 
     return 0;
 }
