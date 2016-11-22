@@ -217,3 +217,7 @@ void StopAndWait::setOnAckReceiveTime(std::function<void(void)> callback) {
 int StopAndWait::getMaxFrameSize() {
     return frameSize + 3;
 }
+
+void StopAndWait::frameTransmitted() {
+
+}

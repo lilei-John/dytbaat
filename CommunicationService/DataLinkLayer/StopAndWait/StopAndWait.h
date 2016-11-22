@@ -24,7 +24,7 @@ public:
     void timer();                                               // starts a timer, so that if no ACK has been returned the frame is resend
     void getNextFrame();                                        // getData, makeFrame, storeFrame, timer, return frame
     void incomingACK(std::vector<unsigned char> aFrame);        // handles an incoming ACK, if true call getNextFrame
-
+    virtual void frameTransmitted();
     int getMaxFrameSize();
 
     //RECEIVER
