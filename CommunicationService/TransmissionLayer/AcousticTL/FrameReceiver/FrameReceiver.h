@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <vector>
+#include <climits>
 #include "../FrameProtocol/FrameProtocol.h"
 #include "../DtmfAnalysis/DtmfAnalysis.h"
 

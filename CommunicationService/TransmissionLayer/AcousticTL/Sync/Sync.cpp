@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "Sync.h"
 
 using namespace std;

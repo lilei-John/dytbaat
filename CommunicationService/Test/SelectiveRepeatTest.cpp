@@ -1,9 +1,9 @@
 #include <iostream>
 #include "../CommunicationService.h"
-#include "../DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
 #include "../Logger/Logger.h"
 #include "../DataLinkLayer/SelectiveRepeat/SelectiveRepeat.h"
+#include "../Media/RealAudio/RealAudio.h"
 
 using namespace std;
 
@@ -20,10 +20,25 @@ int main(){
     stringstream outStream(ios::in|ios::out|ios::app);
     stringstream inStream(ios::in|ios::out|ios::app);
 
+    for (auto byte : outData){
+        outStream << byte;
+    }
+
+    int sampleRate = 44100;
+    float toneTime = 30; //ms
+    int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
+
+    cout << "Samples per tone: " << samplesPerTone << endl;
+
     SelectiveRepeat outDLL(outStream);
     SelectiveRepeat inDLL(inStream);
-    AcousticTL outTL;
-    AcousticTL inTL;
+    AcousticTL outTL(sampleRate, samplesPerTone);
+    AcousticTL inTL(sampleRate, samplesPerTone);
+    RealAudio outRA(sampleRate);
+    RealAudio inRA(sampleRate);
+
+    CommunicationService sender(outDLL, outTL, outRA);
+    CommunicationService receiver(inDLL, inTL, inRA);
 
 /*    outDLL.setOnTimeout([&](){
        logger.log("TIMEOUT");
@@ -56,12 +71,8 @@ int main(){
         logger.log("Frame travel time: " + to_string(millisec));
     });
 */
-    CommunicationService sender(outDLL, outTL);
-    CommunicationService receiver(inDLL, inTL);
 
-    for (auto byte : outData){
-        outStream << byte;
-    }
+
 
  //   std::this_thread::sleep_for(std::chrono::seconds(2));
     sender.transmit();
@@ -69,15 +80,15 @@ int main(){
     cout << "Press enter when the sounds stop for more than 5 seconds..." << endl;
     cin.get();
 
-    cout << "Received text: ";
     unsigned char index0;
     while(inStream >> index0){
         inData.push_back(index0);
-        cout << index0;
     }
 
     cout << boolalpha << endl;
     cout << "Test succeeded: " << (inData == outData) << endl;
+    string result(inData.begin(), inData.end());
+    cout << "Received text: " << result << endl;
 
     return 0;
 }

@@ -9,7 +9,7 @@
 #endif
 
 inline double hammingWindow(int N, int n) {
-    return 0.54+0.46*cos((2*M_PI*n)/(N-1));
+    return 0.54-0.46*cos((2*M_PI*n)/(N-1));
 }
 
 inline std::vector<std::pair<int, float>> goertzelFilter(const float *samples, int N, const std::vector<int> &freqs, const int sampleRate) {

@@ -14,7 +14,7 @@ CommunicationService::CommunicationService(
                 if (onReceive) onReceive();
             }
     );
-    transmissionLayer.setOnFrameTransmittedCallback(
+    transmissionLayer.setOnFrameTransmitted(
             [&](void){
                 dataLinkLayer.frameTransmitted();
             }

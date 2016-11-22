@@ -17,6 +17,7 @@ public:
     void transmit();
     void frameTransmitted();
     void receiveFrame(std::vector<unsigned char>);
+    int getMaxFrameSize();
 
 private:
     std::stringstream *stream;                  // pointer to a stream

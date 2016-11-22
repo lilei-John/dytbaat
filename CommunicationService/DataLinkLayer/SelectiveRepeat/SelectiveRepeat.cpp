@@ -107,7 +107,7 @@ void SelectiveRepeat::storeFrame() {
 }
 
 void SelectiveRepeat::sendFrame() {
-    onFrameSendCallback(frame);
+    onFrameSendReq(frame);
 //  onFrameSendTime();
 }
 
@@ -170,7 +170,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
                 frame.clear();
                 frame.push_back(0b10000000);
                 addCRC();
-                onFrameSendCallback(frame);
+                onFrameSendReq(frame);
                 clearAll();
             }
         }
@@ -280,7 +280,7 @@ void SelectiveRepeat::incomingFrame() {
          }
 
         addCRC();
-        onFrameSendCallback(frame);
+        onFrameSendReq(frame);
 
         cout << "NAK:";
         for(int i = 0; i < frame.size()-2;i++)
@@ -307,6 +307,10 @@ void SelectiveRepeat::clearAll() {
     isSender = false;
 
     framesToResend = 0;
+}
+
+int SelectiveRepeat::getMaxFrameSize() {
+    return frameSize;
 }
 
 

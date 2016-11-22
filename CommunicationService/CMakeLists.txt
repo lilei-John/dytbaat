@@ -14,4 +14,4 @@ add_executable(transmitAndOnReceiveCallback Test/transmitAndOnReceiveCallback.cp
 target_link_libraries(transmitAndOnReceiveCallback CommunicationService StopAndWait AcousticTL IdealAudio)
 
 add_executable(SelectiveRepeatTest Test/SelectiveRepeatTest.cpp)
-target_link_libraries(SelectiveRepeatTest CommunicationService SelectiveRepeat AcousticTL)
+target_link_libraries(SelectiveRepeatTest CommunicationService SelectiveRepeat AcousticTL RealAudio)
