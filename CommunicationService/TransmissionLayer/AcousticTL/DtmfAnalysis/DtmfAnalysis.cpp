@@ -15,8 +15,8 @@ float calcCertainty(vector<pair<int, float>> v){
 }
 
 DtmfAnalysis::DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sampleRate) {
-    rowFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqRow(), sampleRate);
-    colFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqCol(), sampleRate);
+    auto rowFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqRow(), sampleRate);
+    auto colFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqCol(), sampleRate);
 
     sort(rowFreqAmp.begin(), rowFreqAmp.end(), freqAmpSort);
     sort(colFreqAmp.begin(), colFreqAmp.end(), freqAmpSort);
@@ -25,10 +25,10 @@ DtmfAnalysis::DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sa
     certainty = min(calcCertainty(rowFreqAmp), calcCertainty(colFreqAmp));
 }
 
-unsigned char DtmfAnalysis::getNipple() {
+unsigned char DtmfAnalysis::getNipple() const {
     return nipple;
 }
 
-float DtmfAnalysis::getCertainty(){
+float DtmfAnalysis::getCertainty() const {
     return certainty;
 }

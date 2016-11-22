@@ -49,7 +49,7 @@ bool Sync::doesMatch(){
             if (recSyncNibbles[index] == syncNibbles[index])
                 matches++;
         }
-        if (matches < tonesPerMatchRegion * matchPercentage)
+        if (matches < tonesPerMatchRegion * reqMatchPercentage)
             return false;
     }
     return true;
@@ -83,18 +83,27 @@ int Sync::confirmAndAlign(){
         }
         alignScores.push_back(score);
     }
-    sort(alignScores.begin(), alignScores.end(), [](AlignScore &a, AlignScore &b) -> bool{
+    sort(alignScores.begin(), alignScores.end(), [](AlignScore &a, AlignScore &b){
         if (a.confNibCount != b.confNibCount) return a.confNibCount > b.confNibCount;
         return a.certainty > b.certainty;
     });
-    if (alignScores[0].confNibCount != confNibs.size()) {
-        //cout << "Failed sync! Mathced: " << alignScores[0].confNibCount << " of " << confNibs.size() << endl;
+    auto bestAlign = alignScores[0];
+    if (bestAlign.confNibCount != confNibs.size()) {
+        if(onSyncFail) onSyncFail((float)bestAlign.confNibCount / confNibs.size());
         return -1;
     }
-    //cout << "Succeeded sync!" << alignScores[0].certainty << endl;
-    return (int)(alignScores[0].startIndex + (confNibs.size() + tonesPerMatchRegion) * samplesPerTone);
+    if(onSyncSuccess) onSyncSuccess(bestAlign.certainty);
+    return (int)(bestAlign.startIndex + (confNibs.size() + tonesPerMatchRegion) * samplesPerTone);
 }
 
 const vector<unsigned char> &Sync::getSyncNibbles() const {
     return syncNibbles;
+}
+
+void Sync::setOnSyncFail(const function<void(float)> &onSyncFail) {
+    Sync::onSyncFail = onSyncFail;
+}
+
+void Sync::setOnSyncSuccess(const function<void(float)> &onSyncSuccess) {
+    Sync::onSyncSuccess = onSyncSuccess;
 }

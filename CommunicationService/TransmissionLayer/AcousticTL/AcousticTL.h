@@ -7,7 +7,7 @@
 #include "DtmfAnalysis/DtmfAnalysis.h"
 #include <queue>
 
-enum ATLState{
+enum class ATLState{
     idle,
     transmitting,
     receiving
@@ -20,6 +20,7 @@ public:
     bool sendFrame(const std::vector<unsigned char> &);
     void processInput(const std::vector<float> &);
     void setOutput(std::vector<float> &);
+    void setMaxFrameSize(int size);
 
     Sync &getSync();
 

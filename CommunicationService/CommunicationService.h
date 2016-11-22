@@ -8,8 +8,11 @@ class CommunicationService{
 public:
     CommunicationService(DataLinkLayer&, TransmissionLayer&, Media&);
     void transmit();
+    void setOnReceive(const std::function<void()> &onReceive);
+    ~CommunicationService();
 private:
     DataLinkLayer &dataLinkLayer;
     TransmissionLayer &transmissionLayer;
     Media &media;
+    std::function<void()> onReceive;
 };

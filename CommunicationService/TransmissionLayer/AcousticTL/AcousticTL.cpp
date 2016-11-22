@@ -13,23 +13,31 @@ AcousticTL::AcousticTL(
 {}
 
 void AcousticTL::processInput(const std::vector<float> &in) {
-    if (state != ATLState::transmitting) {
-        for (auto sample : in) incomingSamples.push(sample);
-    }
-    if (state == ATLState::idle) {
-        if (sync.trySync(incomingSamples)){
-            state = ATLState::receiving;
-            if(onStartSeqReceived) onStartSeqReceived();
+    if (state == ATLState::transmitting) return;
+
+    for (auto sample : in) incomingSamples.push(sample);
+
+    while (true){
+        if (state == ATLState::idle) {
+            if (sync.trySync(incomingSamples)){
+                state = ATLState::receiving;
+                if(onStartSeqReceived) onStartSeqReceived();
+            }
         }
-    }
-    if (state == ATLState::receiving){
-        frameReceiver.processInput(incomingSamples);
-        if (frameReceiver.isWholeFrameReceived()){
-            state = ATLState::idle;
-            auto frame = frameReceiver.getFrame();
-            frameReceiver.reset();
-            onFrameReceived(frame);
+        if (state == ATLState::receiving){
+            frameReceiver.processInput(incomingSamples);
+            if (frameReceiver.getFrameReceiverStatus() == FrameReceiverStatus::frameReceived){
+                state = ATLState::idle;
+                auto frame = frameReceiver.getFrame();
+                frameReceiver.reset();
+                onFrameReceived(frame);
+            }else if(frameReceiver.getFrameReceiverStatus() == FrameReceiverStatus::frameError){
+                state = ATLState::idle;
+                frameReceiver.reset();
+                continue;
+            }
         }
+        break;
     }
 }
 
@@ -72,4 +80,8 @@ void AcousticTL::setOnStartSeqReceived(const function<void()> &onStartSeqReceive
 
 Sync &AcousticTL::getSync(){
     return sync;
+}
+
+void AcousticTL::setMaxFrameSize(int size) {
+    frameReceiver.setMaxFrameSize(size);
 }
