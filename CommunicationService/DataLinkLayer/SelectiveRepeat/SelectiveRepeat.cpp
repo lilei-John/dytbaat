@@ -310,7 +310,7 @@ void SelectiveRepeat::clearAll() {
 }
 
 int SelectiveRepeat::getMaxFrameSize() {
-    return frameSize;
+    return frameSize + 3;
 }
 
 

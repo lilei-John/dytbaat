@@ -39,6 +39,7 @@ void FrameReceiver::receiveNipple(unsigned char nipple) {
 void FrameReceiver::receiveByte(unsigned char byte) {
     if (frame.size() > maxFrameSize){
         frameReceiverStatus = FrameReceiverStatus::frameError;
+        cout << "frameError: frame.size() (" << frame.size() << ") > maxFrameSize (" << maxFrameSize << ")" << endl;
     }else if (shouldEscapeNexByte){
         frame.push_back(byte);
         shouldEscapeNexByte = false;
