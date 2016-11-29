@@ -224,7 +224,8 @@ void SelectiveRepeat::incomingFrame() {
         // Check for sender time-out (MSB is set)
         if(incomingSeqNo & (1<<7) ){    // If MSB (bit 7) is set
             incomingSeqNo &= ~(1<<7);   // Clear MSB
-            lastInBlock = incomingSeqNo;
+        //    lastInBlock = incomingSeqNo;
+            isNackNeeded = true;
         }
         // NACK is needed when lastInBlock is received
         if (incomingSeqNo == lastInBlock) { // If received frame equals lastInBlock
@@ -245,6 +246,9 @@ void SelectiveRepeat::incomingFrame() {
                     }
                     acknowledgedFrames[(firstOutstanding + totalSeqNo - 1) %
                                        totalSeqNo] = false;             //this is weird because of the expetion: if very last frame's ACK is lost.
+                    if(firstOutstanding == lastInBlock){
+                        lastInBlock = (++lastInBlock) % totalSeqNo;        // Increment lastInBlock
+                    }
                     firstOutstanding = (++firstOutstanding) % totalSeqNo; // Increment firstOutstanding
                 }
             }
@@ -256,15 +260,16 @@ void SelectiveRepeat::incomingFrame() {
 
         // Create NAK-frame
         frame.clear();                  // Clear frame
+
         for (uint8_t i = firstOutstanding;
-             i != (lastInBlock + 1) % totalSeqNo&&i != (lastInBlock + 2) % totalSeqNo; i = (++i) % totalSeqNo) { // Make NACK frame
+             i != (lastInBlock + 1) % totalSeqNo; i = (++i) % totalSeqNo) { // Make NACK frame
             if (!acknowledgedFrames[i]) {  // If i'th frame is corrupted
                 frame.push_back(i); // Add seqNo to NACK frame
             }
         }
-        if (frame.size() == 0) {    // If no NACK's have been added (resulting in NACK frame still empty)
+     /*   if (frame.size() == 0) {    // If no NACK's have been added (resulting in NACK frame still empty)
             frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
-        }
+        }*/
 
         // Adjust receive window
         lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding

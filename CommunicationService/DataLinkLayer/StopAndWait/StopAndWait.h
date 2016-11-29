@@ -48,7 +48,7 @@ private:
     unsigned int index = 0;                     // used to index where in the incoming stream we are
     unsigned int timerLength = 3;               // timer value in seconds
     unsigned int timerCount = 0;                // if more than one timer is active the timeout wont be called
-    unsigned int frameSize = 20;                // defines the number of bytes taken from the stream
+    unsigned int frameSize = 10;                // defines the number of bytes taken from the stream
     std::vector<unsigned char> frame;           // the current frame we are working on
     std::vector<unsigned char> storedFrame;     // when the current frame is send, it is saved in the storedFrame if needed to be resend
 
