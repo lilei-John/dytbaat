@@ -26,8 +26,8 @@ private:
     unsigned int frameSize = 20;                // defines the number of bytes taken from the stream
     unsigned int static const totalSeqNo = 126;
     unsigned int const windowSize = totalSeqNo/uint8_t(2);
-    unsigned int seqNo = 0;
-    unsigned int firstOutstanding = 0;
+    uint8_t seqNo = 0;
+    uint8_t firstOutstanding = 0;
     unsigned int const frameBlocksize = 10;
     unsigned int lastInBlock = firstOutstanding + frameBlocksize-1;
     unsigned int timerLength = 1500;               //in milliseconds
