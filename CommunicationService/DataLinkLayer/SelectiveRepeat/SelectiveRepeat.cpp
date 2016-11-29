@@ -68,10 +68,6 @@ bool SelectiveRepeat::isCrcValid() {
 
 void SelectiveRepeat::frameTransmitted() {
     if (isSender) {
-        cout << "Sender: " << int(frame[0]) << endl;
-
-        for(int i = 0; i < window.size(); i++)
-            cout << int(window[i][0]) << endl;
         transmit();
     }
 }
@@ -83,7 +79,6 @@ void SelectiveRepeat::transmit() {
         frame = window[window.size()-framesToResend];
         sendFrame();
         framesToResend--;
-        cout << "resend" << endl;
     }else{
         if(!isStreamEmpty() && window.size() < frameBlocksize && !isWindowFull(firstOutstanding, seqNo)){
             getData();
@@ -93,7 +88,6 @@ void SelectiveRepeat::transmit() {
             seqNo = (++seqNo)%totalSeqNo;
         }
         else{
-            cout << seqNo << ": window full" << endl;
             expectingACK = true;
             startTimer();
         }
@@ -110,9 +104,7 @@ void SelectiveRepeat::storeFrame() {
 }
 
 void SelectiveRepeat::sendFrame() {
-    cout << "(" << int(frame[0]) << ")" << endl;
-    cout << onFrameSendReq(frame) << endl;
-    cout << "..." << endl;
+    onFrameSendReq(frame);
 //  onFrameSendTime();
 }
 
@@ -220,12 +212,7 @@ bool SelectiveRepeat::isWindowFull(int firstInWindow, int lastInWindow) {
 }
 
 void SelectiveRepeat::incomingFrame() {
-/*    for (auto i : frame) {
-        cout << i;
-    }
-    cout << endl;*/
         unsigned int incomingSeqNo = frame[0];
-    cout << "SeqNo: " << int(incomingSeqNo) << endl;
         // Check for sender time-out (MSB is set)
         if(incomingSeqNo & (1<<7) ){    // If MSB (bit 7) is set
             incomingSeqNo &= ~(1<<7);   // Clear MSB
@@ -272,9 +259,6 @@ void SelectiveRepeat::incomingFrame() {
                 frame.push_back(i); // Add seqNo to NACK frame
             }
         }
-     /*   if (frame.size() == 0) {    // If no NACK's have been added (resulting in NACK frame still empty)
-            frame.push_back(firstOutstanding);  // Add the new window's firstOutstanding to frame
-        }*/
 
         // Adjust receive window
         lastInBlock = firstOutstanding; // Worst case: lastInBlock = firstOutstanding
@@ -291,11 +275,6 @@ void SelectiveRepeat::incomingFrame() {
 
         addCRC();
         onFrameSendReq(frame);
-
-        cout << "NAK:";
-        for(int i = 0; i < frame.size()-2;i++)
-            cout << " " << int(frame[i]);
-        cout << endl;
 
         //  onFrameSendTime();
         }
