@@ -4,6 +4,7 @@
 #include "../CommunicationService/TransmissionLayer/AcousticTL/AcousticTL.h"
 #include "../CommunicationService/Logger/Logger.h"
 #include "../CommunicationService/Media/RealAudio/RealAudio.h"
+#include "../CommunicationService/DataLinkLayer/SelectiveRepeat/SelectiveRepeat.h"
 
 using namespace std;
 
@@ -19,10 +20,11 @@ int main(){
     AcousticTL* clientTL = new AcousticTL(sampleRate, samplesPerTone);
     stringstream clientStream(ios::in|ios::out|ios::app);
     RealAudio* clientRA = new RealAudio(sampleRate);
-    StopAndWait* clientDLL = new StopAndWait(clientStream);
+    SelectiveRepeat* clientDLL = new SelectiveRepeat(clientStream);
+    //StopAndWait* clientDLL = new StopAndWait(clientStream);
     CommunicationService* client = new CommunicationService(*clientDLL, *clientTL, *clientRA);
 
-    clientDLL->setOnTimeout([&](){
+    /*clientDLL->setOnTimeout([&](){
         logger.log("TIMEOUT");
     });
     clientDLL->setOnCrcFail([&](){
@@ -51,7 +53,7 @@ int main(){
         );
         millisec = ms.count() - millisec;
         logger.log("Frame travel time: " + to_string(millisec));
-    });
+    });*/
 
     unsigned char end_delim = 3;
     string enterMessage = "Enter your message: ";

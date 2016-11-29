@@ -3,4 +3,4 @@ add_library(Applications messenger.cpp)
 target_link_libraries(Applications CommunicationService)
 
 add_executable(Messenger Messenger.cpp)
-target_link_libraries(Messenger CommunicationService StopAndWait AcousticTL RealAudio)
+target_link_libraries(Messenger CommunicationService StopAndWait SelectiveRepeat AcousticTL RealAudio)

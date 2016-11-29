@@ -243,6 +243,7 @@ void SelectiveRepeat::incomingFrame() {
                     }
                     firstOutstanding = (++firstOutstanding) % totalSeqNo; // Increment firstOutstanding
                 }
+                onReceive();
             }
         }
 
