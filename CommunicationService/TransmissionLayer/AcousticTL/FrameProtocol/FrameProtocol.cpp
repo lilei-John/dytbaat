@@ -13,10 +13,6 @@ bool FrameProtocol::isEscapeByte(unsigned char byte) {
     return byte == escapeByte;
 }
 
-const std::vector<unsigned char> &FrameProtocol::getStartBytes() const {
-    return startBytes;
-}
-
 unsigned char FrameProtocol::getStopByte() const {
     return stopByte;
 }
@@ -33,7 +29,7 @@ void FrameProtocol::escapeByteFrame(std::vector<unsigned char> &byteFrame) {
     for (int i = 0; i < byteFrame.size(); i++){
         if (shouldEscape(byteFrame[i])){
             byteFrame.insert(byteFrame.begin() + i, escapeByte);
+            i++;
         }
     }
-    byteFrame.insert(byteFrame.begin(), startBytes.begin(), startBytes.end());
 }

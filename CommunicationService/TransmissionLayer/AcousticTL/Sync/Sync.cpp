@@ -84,7 +84,7 @@ int Sync::confirmAndAlign(){
         }
         alignScores.push_back(score);
     }
-    sort(alignScores.begin(), alignScores.end(), [](AlignScore &a, AlignScore &b){
+    sort(alignScores.begin(), alignScores.end(), [](const AlignScore &a, const AlignScore &b){
         if (a.confNibCount != b.confNibCount) return a.confNibCount > b.confNibCount;
         return a.certainty > b.certainty;
     });
