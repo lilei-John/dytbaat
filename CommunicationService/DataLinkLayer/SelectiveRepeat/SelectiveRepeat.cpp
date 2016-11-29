@@ -78,10 +78,12 @@ void SelectiveRepeat::frameTransmitted() {
 
 void SelectiveRepeat::transmit() {
     isSender = true;
+
     if(framesToResend > 0){
         frame = window[window.size()-framesToResend];
         sendFrame();
         framesToResend--;
+        cout << "resend" << endl;
     }else{
         if(!isStreamEmpty() && window.size() < frameBlocksize && !isWindowFull(firstOutstanding, seqNo)){
             getData();
@@ -91,6 +93,7 @@ void SelectiveRepeat::transmit() {
             seqNo = (++seqNo)%totalSeqNo;
         }
         else{
+            cout << seqNo << ": window full" << endl;
             expectingACK = true;
             startTimer();
         }
@@ -107,7 +110,9 @@ void SelectiveRepeat::storeFrame() {
 }
 
 void SelectiveRepeat::sendFrame() {
-    onFrameSendReq(frame);
+    cout << "(" << int(frame[0]) << ")" << endl;
+    cout << onFrameSendReq(frame) << endl;
+    cout << "..." << endl;
 //  onFrameSendTime();
 }
 

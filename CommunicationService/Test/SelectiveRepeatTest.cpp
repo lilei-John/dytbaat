@@ -110,7 +110,7 @@ int main(){
     Logger logger("FrameTravelTimeTest");
     vector<unsigned char> outData;
     vector<unsigned char> inData;
-    string data = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet .";
+    string data = "Ascorbic acid is a naturally occurring organic compound with antioxidant properties. It is a white solid, but impure samples can appear yellowish. It dissolves well in water to give mildly acidic solutions. Ascorbic acid is one form (\"vitamer\") of vitamin C. It was originally called L-hexuronic acid, but, when it was found to have vitamin C activity in animals (\"vitamin C\" being defined as a vitamin activity, not then a specific substance), the suggestion was made to rename it. The new name, ascorbic acid, is derived from a- (meaning \"no\") and scorbutus (scurvy), ";
     for(int i = 0; i < data.size(); i++)
         outData.push_back((unsigned char)data[i]);
 
