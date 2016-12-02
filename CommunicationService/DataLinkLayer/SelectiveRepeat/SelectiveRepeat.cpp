@@ -169,6 +169,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
                 addCRC();
                 onFrameSendReq(frame);
                 clearAll();
+                //###############################################################################################
             }
         }
     } else {
