@@ -8,6 +8,13 @@ Sync::Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec)
         : samplesPerTone(samplesPerTone),
           sampleRate(sampleRate),
           dtmfSpec(dtmfSpec){
+    auto d = [&](int r, int c){
+        return dtmfSpec.getDTMFNibble(r, c);
+    };
+    matchRegions = {d(0,3), d(0,2), d(0,1)};
+    confNibs = {d(0,2), d(0,3), d(0,2)};
+    paddingNibble = d(0,0);
+
     for (auto nibble : matchRegions)
         for (int i = 0; i < tonesPerMatchRegion; i++)
             syncNibbles.push_back(nibble);

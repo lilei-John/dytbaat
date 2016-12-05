@@ -21,7 +21,7 @@ private:
     std::vector<float> recSyncSamples;
 
     //match - efficient searching
-    const std::vector<unsigned char> matchRegions = {0x3, 0x2, 0x1};
+    std::vector<unsigned char> matchRegions;
     std::vector<unsigned char> recSyncNibbles;
     const int tonesPerMatchRegion = 2;
     const float reqMatchPercentage = .5;
@@ -29,11 +29,11 @@ private:
 
     //confim and align - processor heavy alignment
     //load depends linearly on samplerate, confNibs.size() and alignResolution
-    const std::vector<unsigned char> confNibs = {0x2, 0x3, 0x2};
+    std::vector<unsigned char> confNibs;
     const int alignResolution = 5;
     int confirmAndAlign();
 
-    const unsigned char paddingNibble = 0x0;
+    unsigned char paddingNibble;
     std::vector<unsigned char> syncNibbles;
 
     std::function<void(float confNibPercentage)> onSyncFail;

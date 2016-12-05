@@ -11,6 +11,7 @@ public:
     const std::vector<int> &getFreqRow() const;
     const std::vector<int> &getFreqCol() const;
 
+    unsigned char getDTMFNibble(int r, int c);
 private:
     unsigned char DTMFValues[4][4] = {
             {0b0000, 0b0001, 0b0011, 0b0010},
