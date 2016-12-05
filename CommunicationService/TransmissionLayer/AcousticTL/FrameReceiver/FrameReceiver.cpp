@@ -37,9 +37,21 @@ void FrameReceiver::receiveNipple(unsigned char nipple) {
 }
 
 void FrameReceiver::receiveByte(unsigned char byte) {
-    if (frame.size() > maxFrameSize){
+    if (frame.size() == maxFrameSize && !frameProtocol.isStopByte(byte)){
         frameReceiverStatus = FrameReceiverStatus::frameError;
-        cout << "frameError: frame.size() (" << frame.size() << ") > maxFrameSize (" << maxFrameSize << ")" << endl;
+        if (onFrameError){
+            int rln = byte & 0xF;
+            int rhn = byte >> 4;
+            auto sb = frameProtocol.getStopByte();
+            int sln = sb & 0xF;
+            int shn = sb >> 4;
+            onFrameError(
+                    "FrameError: StopByte expected. Received: " +
+                    to_string(rhn) + ":" + to_string(rln) +
+                    ", StopByte: " +
+                    to_string(shn) + ":" + to_string(sln) + "."
+            );
+        }
     }else if (shouldEscapeNexByte){
         frame.push_back(byte);
         shouldEscapeNexByte = false;
@@ -65,4 +77,8 @@ void FrameReceiver::setMaxFrameSize(int maxFrameSize) {
 
 FrameReceiverStatus FrameReceiver::getFrameReceiverStatus() const {
     return frameReceiverStatus;
+}
+
+void FrameReceiver::setOnFrameError(const function<void(string)> &onFrameError) {
+    FrameReceiver::onFrameError = onFrameError;
 }

@@ -44,6 +44,18 @@ int main(){
     CommunicationService sender(outDLL, outTL, outRA);
     CommunicationService receiver(inDLL, inTL, inRA);
 
+    inTL.getSync().setOnSyncFail([](float confNibPercentage){
+        cout << "Receiver SyncFail: " << confNibPercentage << endl;
+    });
+    inTL.getSync().setOnSyncSuccess([](float certainty){
+        cout << "Receiver SyncSuccess: " << certainty << endl;
+    });
+    outTL.getSync().setOnSyncFail([](float confNibPercentage){
+        cout << "Transmitter SyncFail: " << confNibPercentage << endl;
+    });
+    outTL.getSync().setOnSyncSuccess([](float certainty){
+        cout << "Transmitter SyncSuccess: " << certainty << endl;
+    });
 
     if (isReceiver){
         inDLL.setOnCrcFail([&](){
@@ -61,7 +73,7 @@ int main(){
         for (auto byte : outData)
             outStream << byte;
         outDLL.setOnTimeout([&](){
-            logger.log("TIMEOUT");
+            logger.log("SENDER TIMEOUT");
         });
         outDLL.setOnCrcFail([&](){
             logger.log("SENDER CRC FAIL");

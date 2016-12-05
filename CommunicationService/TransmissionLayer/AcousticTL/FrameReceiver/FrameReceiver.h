@@ -3,6 +3,7 @@
 #include <queue>
 #include <vector>
 #include <climits>
+#include <functional>
 #include "../FrameProtocol/FrameProtocol.h"
 #include "../DtmfAnalysis/DtmfAnalysis.h"
 
@@ -27,10 +28,13 @@ public:
     void setMaxFrameSize(int maxFrameSize);
     void reset();
 
+    void setOnFrameError(const std::function<void(std::string)> &onFrameError);
 private:
     FrameProtocol frameProtocol;
     DtmfSpec dtmfSpec;
     FrameReceiverStatus frameReceiverStatus = FrameReceiverStatus::receiving;
+
+    std::function<void(std::string)> onFrameError;
 
     const int samplesPerTone;
     const int sampleRate;
