@@ -28,9 +28,10 @@ public:
 
     //Test functions
     void setOnTimeout(std::function<void(void)> callback);
-    void setOnCrcFail(std::function<void(void)> callback);
-    void setOnFrameSendTime(std::function<void(void)> callback);
+    void setOnCrcFail(std::function<void(std::vector<unsigned char>)> callback);
+    void setOnFrameSendTime(std::function<void(std::vector<unsigned char>)> callback);
     void setOnAckReceiveTime(std::function<void(void)> callback);
+    void setOnFrameReceive(std::function<void(int)> callback);
 
 private:
     // Variables
@@ -75,8 +76,9 @@ private:
     bool isSender = false;
     // TEST callbacks
     std::function<void(void)> onTimeout;
-    std::function<void(void)> onCrcFail;
-    std::function<void(void)> onFrameSend;
+    std::function<void(std::vector<unsigned char>)> onCrcFail;
+    std::function<void(std::vector<unsigned char>)> onFrameSend;
     std::function<void(void)> onAckReceiveTime;
+    std::function<void(int)> onFrameReceive;
 
 };

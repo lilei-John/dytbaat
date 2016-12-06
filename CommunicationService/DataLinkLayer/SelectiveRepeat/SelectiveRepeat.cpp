@@ -77,6 +77,13 @@ void SelectiveRepeat::transmit() {
 
     if(framesToResend > 0){
         frame = window[window.size()-framesToResend];
+        if(isStreamEmpty() && framesToResend==1){
+            uint8_t tempSeqNo = seqNo;
+            seqNo = (uint8_t)(frame[0] | (1<<7));
+            frameSplit();
+            makeFrame();
+            seqNo = tempSeqNo;
+        }
         sendFrame();
         framesToResend--;
     }else{
@@ -104,8 +111,8 @@ void SelectiveRepeat::storeFrame() {
 }
 
 void SelectiveRepeat::sendFrame() {
+    if (onFrameSend) onFrameSend(frame);
     onFrameSendReq(frame);
-    if (onFrameSend) onFrameSend();
 }
 
 void SelectiveRepeat::frameSplit() {
@@ -175,7 +182,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
             }
         }
     } else {
-        if(onCrcFail) onCrcFail();
+        if(onCrcFail) onCrcFail(frame);
     }
 }
 
@@ -184,15 +191,8 @@ void SelectiveRepeat::incomingACK() {
     firstOutstanding = frame[0];
     if (firstOutstanding==seqNo){
         window.clear();
-        if(!isStreamEmpty()) {
-            transmit();
-        } else{
-            frame.clear();
-            makeFrame();
-            storeFrame();
-            sendFrame();
-        }
-    }else {
+    }
+    else {
         for(int i = 0, j = 0; j < window.size(); ){         // Continue through all NAK's in frame
             if(frame[i]!=(window[j][0]&~(1<<7))){           // If i'th NAK != j'th frame-seqNo in window, (&~(1<<7)) to ignore piggyback saved
                 window.erase(window.begin()+j);             // Delete j'th element in window (no need to resend)
@@ -205,6 +205,13 @@ void SelectiveRepeat::incomingACK() {
         }
 
         framesToResend = window.size();
+    }
+    if(isStreamEmpty() && window.size()==0) {
+        frame.clear();
+        makeFrame();
+        storeFrame();
+        sendFrame();
+    } else {
         transmit();
     }
 }
@@ -227,6 +234,7 @@ void SelectiveRepeat::incomingFrame() {
         }
 
         if (!acknowledgedFrames[incomingSeqNo]) {
+            onFrameReceive(incomingSeqNo);
             // Save new frame to incomingFrames array
             acknowledgedFrames[incomingSeqNo] = true;       // Mark frame as received
             frameSplit();
@@ -263,7 +271,7 @@ void SelectiveRepeat::makeNak() {
 // Create NAK-frame
     frame.clear();                                          // Clear frame
 
-    for (uint8_t i = firstOutstanding; i != (lastInBlock + 1) % TOTAL_SEQ_NO; i = (++i) % TOTAL_SEQ_NO) {
+    for (uint8_t i = firstOutstanding; (i != (lastInBlock + 1) % TOTAL_SEQ_NO) || frame.size() == 0; i = (++i) % TOTAL_SEQ_NO) {
         if (!acknowledgedFrames[i]) {                       // If i'th frame is corrupted
             frame.push_back(i);                             // Add seqNo to NACK frame
         }
@@ -295,8 +303,9 @@ void SelectiveRepeat::clearAll() {
     frame.clear();
     window.clear();
     incomingFrames->clear();
-    acknowledgedFrames[TOTAL_SEQ_NO] = {false};
-
+    for (int i = 0; i < TOTAL_SEQ_NO; ++i) {
+        acknowledgedFrames[i] = false;
+    }
     expectingACK = false;
     isNackNeeded = false;
     isSender = false;
@@ -312,14 +321,18 @@ void SelectiveRepeat::setOnTimeout(std::function<void(void)> callback) {
     onTimeout = callback;
 }
 
-void SelectiveRepeat::setOnCrcFail(std::function<void(void)> callback) {
+void SelectiveRepeat::setOnCrcFail(std::function<void(vector<unsigned char>)> callback) {
     onCrcFail = callback;
 }
 
-void SelectiveRepeat::setOnFrameSendTime(std::function<void(void)> callback) {
+void SelectiveRepeat::setOnFrameSendTime(std::function<void(vector<unsigned char>)> callback) {
     onFrameSend = callback;
 }
 
 void SelectiveRepeat::setOnAckReceiveTime(std::function<void(void)> callback) {
     onAckReceiveTime = callback;
+}
+
+void SelectiveRepeat::setOnFrameReceive(std::function<void(int)> callback) {
+    onFrameReceive = callback;
 }

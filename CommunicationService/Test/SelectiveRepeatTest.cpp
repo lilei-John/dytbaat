@@ -115,6 +115,7 @@ int main(){
         outData.push_back((unsigned char)data[i]);
     cout << "Choose a Logger ID, the ID is supposed to be the same on the transmitter and receiver side: " << endl;
     string response;
+    getline(cin, response);
     logger.log("ID: " + response);
     cout << "(r)eceiver, (t)ransmitter or (b)oth ?" << endl;
     getline(cin, response);
@@ -149,12 +150,17 @@ int main(){
 
 
     if (isReceiver){
-    /*    inDLL.setOnCrcFail([&](){
-            logger.log("RECEIVER CRC FAIL");
+        inDLL.setOnCrcFail([&](vector<unsigned char> frame){
+            string sFrame = "";
+            for(auto c : frame) {
+                bitset<8> my_bset=bitset<8>(c);
+                sFrame += my_bset.to_string() + " ";
+            }
+            logger.log("RECEIVER CRC FAIL\n" + sFrame);
         });
-        inDLL.setOnFlowFail([&](){
-            logger.log("RECEIVER FLOW FAIL");
-        });*/
+        inDLL.setOnFrameReceive([&](int seqNo){
+            logger.log("FRAME RECEIVED  |  " + to_string(seqNo));
+        });
     }else{
         receiver.disable();
     }
@@ -163,24 +169,32 @@ int main(){
     if (isTransmitter){
         for (auto byte : outData)
             outStream << byte;
-   /*     outDLL.setOnTimeout([&](){
+         outDLL.setOnTimeout([&](){
             logger.log("TIMEOUT");
         });
-        outDLL.setOnCrcFail([&](){
-            logger.log("SENDER CRC FAIL");
+        outDLL.setOnCrcFail([&](vector<unsigned char> frame){
+            string sFrame = "";
+            for(auto c : frame) {
+                bitset<8> my_bset=bitset<8>(c);
+                sFrame += my_bset.to_string() + " ";
+            }
+            logger.log("SENDER CRC FAIL\n" + sFrame);
         });
-        outDLL.setOnFlowFail([&](){
-            logger.log("SENDER FLOW FAIL");
-        });
-        outDLL.setOnFrameSendTime([&](){
-            millisec = logger.getTimeNow();
+        outDLL.setOnFrameSendTime([&](vector<unsigned char> frame){
+            string sFrame = "";
+            int seqNo = (frame[0]&~(1<<7));
+            for(auto c : frame) {
+                bitset<8> my_bset=bitset<8>(c);
+                sFrame += my_bset.to_string() + " ";
+            }
+            logger.log("Frame Sent  |  " + to_string(seqNo) + "\n" + sFrame);
         });
         outDLL.setOnAckReceiveTime([&](){
-            millisec = logger.getTimeNow() - millisec;
-            logger.log("Frame travel time: " + to_string(millisec));
-        });*/
-        sender.transmit();
+            logger.log("NAK Received");
+            cout << "NAK Received" << endl;
+        });
         logger.startTimer();
+        sender.transmit();
     }else{
         sender.disable();
     }
