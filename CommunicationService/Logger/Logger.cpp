@@ -10,6 +10,7 @@ using namespace std;
 Logger::Logger(string fileName) {
     fs.open(fileName + "-" + getDateTime() + ".txt");
     fwriter.setStream(&fs);
+    initMs = getTimeNow();
 }
 
 Logger::~Logger() {
@@ -17,8 +18,9 @@ Logger::~Logger() {
 }
 
 void Logger::log(std::string logString) {
+    long ms = getTimeNow() - initMs;
     if (fs.is_open()) {
-        fwriter << logString << "\n";
+        fwriter << ms << ";" << logString << "\n";
     }
 }
 
@@ -37,4 +39,14 @@ void Logger::close() {
     if (fs.is_open()) {
         fs.close();
     }
+}
+
+long Logger::getTimeNow() {
+    return std::chrono::duration_cast< chrono::milliseconds >(
+            chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+void Logger::startTimer() {
+    initMs = getTimeNow();
 }
