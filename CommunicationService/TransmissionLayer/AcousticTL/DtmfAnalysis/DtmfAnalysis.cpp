@@ -14,7 +14,7 @@ float calcCertainty(vector<pair<int, float>> &v){
     return (v[0].second - v[1].second) / v[0].second;
 }
 
-DtmfAnalysis::DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sampleRate) {
+DtmfAnalysis::DtmfAnalysis(const float *its, int size, DtmfSpec &dtmfSpec, int sampleRate) {
     auto rowFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqRow(), sampleRate);
     auto colFreqAmp = goertzelFilter(its, size, dtmfSpec.getFreqCol(), sampleRate);
 
