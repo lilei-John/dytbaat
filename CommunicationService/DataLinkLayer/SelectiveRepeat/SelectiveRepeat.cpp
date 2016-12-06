@@ -120,8 +120,10 @@ void SelectiveRepeat::startTimer() {
 }
 
 void SelectiveRepeat::timer() {
+    chrono::milliseconds timerLenght = reqMaxTransmissionDuration(FRAMEBLOCK_SIZE, 4);
+    timerLenght += chrono::milliseconds(200);
     timerCount++;
-    std::this_thread::sleep_for(std::chrono::milliseconds(TIMER_LENGHT));
+    std::this_thread::sleep_for(timerLenght);
     timeOut();
     timerCount--;
 }
