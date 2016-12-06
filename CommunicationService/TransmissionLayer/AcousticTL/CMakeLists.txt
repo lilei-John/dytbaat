@@ -16,3 +16,5 @@ target_link_libraries(atlPlayFrame AcousticTL PaWrapper)
 
 add_executable(atlSendReceive Test/atlSendReceive.cpp)
 target_link_libraries(atlSendReceive AcousticTL PaWrapper)
+
+add_executable(goertzelPerformance Test/goertzelPerformance.cpp helperFunctions.h)

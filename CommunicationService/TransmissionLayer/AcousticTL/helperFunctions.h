@@ -3,21 +3,43 @@
 #include <utility>
 #include <vector>
 #include <math.h>
+#include <map>
 
 #ifndef M_PI
 #define M_PI           3.14159265358979323846
 #endif
 
-inline double hammingWindow(int N, int n) {
-    return 0.54-0.46*cos((2*M_PI*n)/(N-1));
+double PIt2 = M_PI * 2;
+
+
+inline double hammingWindow(int N, int n){
+    return 0.54 - 0.46 * cos((PIt2 * n)/(N - 1));
+}
+
+std::map<int, std::vector<double>> hammingWindows;
+
+double *getHammingWindow(int N){
+    double *h;
+    auto it = hammingWindows.find(N);
+    if (it == hammingWindows.end()){
+        std::tie(it, std::ignore) = hammingWindows.insert(std::make_pair(N, std::vector<double>(N)));
+        h = &(it->second)[0];
+        for (int i = 0; i < N; i++)
+            h[i] = hammingWindow(N, i);
+    }else{
+        h = &(it->second)[0];
+    }
+    return h;
 }
 
 inline std::vector<std::pair<int, float>> goertzelFilter(const float *samples, int N, const std::vector<int> &freqs, const int sampleRate) {
     std::vector<std::pair<int, float>> returnAmpFreq(freqs.size());
+
+    double *h = getHammingWindow(N);
+
+    double r = PIt2/sampleRate;
     for (int i = 0; i < freqs.size(); ++i) {
-        //double k = 0.5 + ((blockSize*freqs[i])/(sampleRate));
-        //double w = (2 * M_PI / blockSize) * k;
-        double w = 2 * M_PI * freqs[i] / sampleRate;
+        double w = r * freqs[i];
         double cosine = cos(w);
         double sine = sin(w);
         double coeff = 2 * cosine;
@@ -26,7 +48,7 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const float *samples, i
         double Q2 = 0;
 
         for (int j = 0; j < N; j++) {
-            Q0 = coeff * Q1 - Q2 + (samples[j] * hammingWindow(N,j));
+            Q0 = coeff * Q1 - Q2 + (samples[j] * h[j]);
             Q2 = Q1;
             Q1 = Q0;
         }
@@ -47,7 +69,6 @@ inline std::vector<std::pair<int, float>> goertzelFilter(const std::vector<float
 };
 
 inline std::vector<unsigned char> byteFrameToNibbleFrame(std::vector<unsigned char> byteFrame) {
-
     std::vector<unsigned char> nibbleFrame;
     for (int i = 0; i < byteFrame.size(); ++i) {
         unsigned char lowNibble = byteFrame[i];
