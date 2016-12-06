@@ -10,7 +10,6 @@ using namespace std;
 Logger::Logger(string fileName) {
     fs.open(fileName + "-" + getDateTime() + ".txt");
     fwriter.setStream(&fs);
-    initMs = getTimeNow();
 }
 
 Logger::~Logger() {
@@ -18,9 +17,41 @@ Logger::~Logger() {
 }
 
 void Logger::log(std::string logString) {
-    long ms = getTimeNow() - initMs;
-    if (fs.is_open()) {
-        fwriter << ms << ";" << logString << "\n";
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
+    }
+}
+
+void Logger::log(float logString) {
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
+    }
+}
+
+void Logger::log(int logString) {
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
     }
 }
 
@@ -49,4 +80,5 @@ long Logger::getTimeNow() {
 
 void Logger::startTimer() {
     initMs = getTimeNow();
+    isHeaderSection = false;
 }

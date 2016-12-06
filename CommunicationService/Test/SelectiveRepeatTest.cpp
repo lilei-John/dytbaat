@@ -107,15 +107,16 @@ int main(){
 using namespace std;
 
 int main(){
-    Logger logger("FrameTravelTimeTest");
+    Logger logger("SelectiveRepeatTest");
     vector<unsigned char> outData;
     vector<unsigned char> inData;
     string data = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet .";
     for(int i = 0; i < data.size(); i++)
         outData.push_back((unsigned char)data[i]);
-
-    cout << "(r)eceiver, (t)ransmitter or (b)oth ?" << endl;
+    cout << "Choose a Logger ID, the ID is supposed to be the same on the transmitter and receiver side: " << endl;
     string response;
+    logger.log("ID: " + response);
+    cout << "(r)eceiver, (t)ransmitter or (b)oth ?" << endl;
     getline(cin, response);
     bool isReceiver = response == "r" || response == "b";
     bool isTransmitter = response == "t" || response == "b";
@@ -127,6 +128,9 @@ int main(){
     int sampleRate = 44100;
     float toneTime = 30; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
+
+    logger.log("Sample Rate: " + to_string(sampleRate));
+    logger.log("Tone Time: " + to_string(toneTime));
 
     cout << "Samples per tone: " << samplesPerTone << endl;
 
@@ -169,19 +173,14 @@ int main(){
             logger.log("SENDER FLOW FAIL");
         });
         outDLL.setOnFrameSendTime([&](){
-            chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                    chrono::system_clock::now().time_since_epoch()
-            );
-            millisec = ms.count();
+            millisec = logger.getTimeNow();
         });
         outDLL.setOnAckReceiveTime([&](){
-            chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                    chrono::system_clock::now().time_since_epoch()
-            );
-            millisec = ms.count() - millisec;
+            millisec = logger.getTimeNow() - millisec;
             logger.log("Frame travel time: " + to_string(millisec));
         });*/
         sender.transmit();
+        logger.startTimer();
     }else{
         sender.disable();
     }

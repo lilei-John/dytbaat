@@ -18,6 +18,8 @@ public:
     ~Logger();
 
     void log(std::string logString);
+    void log(int logString);
+    void log(float logString);
     std::string getDateTime();
     long getTimeNow();
     void startTimer();
@@ -25,7 +27,8 @@ public:
 private:
     std::ofstream fs;
     FStreamWriter fwriter;
-    long initMs;
+    long initMs = 0;
+    bool isHeaderSection = true;
 };
 
 
