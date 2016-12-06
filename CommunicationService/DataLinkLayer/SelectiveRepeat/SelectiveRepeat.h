@@ -14,9 +14,8 @@ class SelectiveRepeat : public DataLinkLayer{
 private:
     // SETTINGS
     unsigned int const FRAME_SIZE = 20;                     // the number of data bytes in a frame
-    unsigned int static const TOTAL_SEQ_NO = 128;           // the size of the sequence numbering
-    unsigned int const WINDOW_SIZE = TOTAL_SEQ_NO/2;        // the window of "out of order" frames
-    unsigned int const FRAMEBLOCK_SIZE = 10;                // the number of frames transmitted before awaiting an ACK/NAK
+    unsigned int static const TOTAL_SEQ_NO = 2;           // the size of the sequence numbering
+    unsigned int const FRAMEBLOCK_SIZE = 1;                // the number of frames transmitted before awaiting an ACK/NAK
 
 public:
     SelectiveRepeat();
@@ -33,6 +32,9 @@ public:
     void setOnAckReceiveTime(std::function<void(std::vector<unsigned char>)> callback);
     void setOnFrameReceive(std::function<void(int)> callback);
 
+    int getTotalSeqNo();
+    int getFrameBlockSize();
+
 private:
     // Variables
     unsigned int index = 0;                                 // used to index where in the incoming stream we are
@@ -41,6 +43,7 @@ private:
     unsigned int lastInBlock = firstOutstanding + FRAMEBLOCK_SIZE-1;    // Last in block of transmitted frames
     int framesToResend = 0;                                 // number of  old frames need to be resend
     int timerCount = 0;                                     // number of aktive timers. a timeout occurs only if timerCount is 1
+    unsigned int const WINDOW_SIZE = TOTAL_SEQ_NO/2;        // the window of "out of order" frames
    // Vectors and arrays
     std::stringstream *stream;                              //
     std::vector<unsigned char> frame;                       //

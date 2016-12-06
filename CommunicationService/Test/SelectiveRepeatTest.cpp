@@ -110,7 +110,9 @@ int main(){
     Logger logger("SelectiveRepeatTest");
     vector<unsigned char> outData;
     vector<unsigned char> inData;
-    string data = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.";
+    //string data = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.";
+    //string data = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet . Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet .";
+    string data = "Text messaging, or texting, is the act of composing and sending electronic messages, typically consisting of alphabetic and numeric characters, between two or more users of mobile phones, fixed devices (e.g., desktop computers) or portable devices (e.g., tablet computers or smartphones). While text messages are usually sent over a phone network, due to the convergence between the telecommunication and broadcasting industries in the 2000s, text messages may also be sent via a cable network or Local Area Network. The term originally referred to messages sent using the Short Message Service (SMS). It has grown beyond alphanumeric text to include multimedia messages (known as MMS) containing digital images, videos, and sound content, as well as ideograms known as emoji (happy faces and other icons).";
     for(int i = 0; i < data.size(); i++)
         outData.push_back((unsigned char)data[i]);
     cout << "Choose a Logger ID, the ID is supposed to be the same on the transmitter and receiver side: " << endl;
@@ -148,6 +150,11 @@ int main(){
     CommunicationService sender(outDLL, outTL, outRA);
     CommunicationService receiver(inDLL, inTL, inRA);
 
+    logger.log("Frame Size: " + to_string(inDLL.getMaxFrameSize()-3));
+    logger.log("Frame Block Size: " + to_string(inDLL.getFrameBlockSize()));
+    logger.log("Total Sequence Numbers: " + to_string(inDLL.getTotalSeqNo()));
+    logger.log("Data [" + to_string(data.length()) + " bytes]: " + data );
+    logger.log("-----------------------");
 
     if (isReceiver){
         inDLL.setOnCrcFail([&](vector<unsigned char> frame){
@@ -160,6 +167,14 @@ int main(){
         });
         inDLL.setOnFrameReceive([&](int seqNo){
             logger.log("FRAME RECEIVED  |  " + to_string(seqNo));
+        });
+        inTL.getFrameReceiver().setOnFrameError([&](vector<unsigned char> frame, unsigned char byte){
+            cout << "Receiver frame size exceeded."
+                 << " Last byte: " << bitset<8>(byte)
+                 << " should be stop byte: "
+                 << bitset<8>(inTL.getFrameProtocol().getStopByte())
+                 << " if it's a full frame."
+                 << endl;
         });
     }else{
         receiver.disable();

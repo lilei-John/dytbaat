@@ -336,3 +336,11 @@ void SelectiveRepeat::setOnAckReceiveTime(std::function<void(std::vector<unsigne
 void SelectiveRepeat::setOnFrameReceive(std::function<void(int)> callback) {
     onFrameReceive = callback;
 }
+
+int SelectiveRepeat::getTotalSeqNo() {
+    return TOTAL_SEQ_NO;
+}
+
+int SelectiveRepeat::getFrameBlockSize() {
+    return FRAMEBLOCK_SIZE;
+}
