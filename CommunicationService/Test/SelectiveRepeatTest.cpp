@@ -103,6 +103,7 @@ int main(){
 #include "../TransmissionLayer/AcousticTL/AcousticTL.h"
 #include "../Logger/Logger.h"
 #include "../Media/RealAudio/RealAudio.h"
+#include <bitset>
 
 using namespace std;
 
@@ -156,6 +157,8 @@ int main(){
     logger.log("Data [" + to_string(data.length()) + " bytes]: " + data );
     logger.log("-----------------------");
 
+    bool receiveFirstByte = true;
+
     if (isReceiver){
         inDLL.setOnCrcFail([&](vector<unsigned char> frame){
             string sFrame = "";
@@ -166,6 +169,10 @@ int main(){
             logger.log("RECEIVER CRC FAIL\n" + sFrame);
         });
         inDLL.setOnFrameReceive([&](int seqNo){
+            if(receiveFirstByte) {
+                logger.startTimer();
+                receiveFirstByte = false;
+            }
             logger.log("FRAME RECEIVED  |  " + to_string(seqNo));
         });
         inTL.getFrameReceiver().setOnFrameError([&](vector<unsigned char> frame, unsigned char byte){
