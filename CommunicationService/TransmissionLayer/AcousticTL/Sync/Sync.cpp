@@ -31,7 +31,7 @@ bool Sync::trySync(std::queue<float> &samples) {
             samples.pop();
         }
         DtmfAnalysis dtmf(&recSyncSamples[recSyncSamples.size() - samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
-        recSyncNibbles.push_back(dtmf.getNipple());
+        recSyncNibbles.push_back(dtmf.getNibble());
         if (recSyncNibbles.size() < syncNibbles.size()) continue;
         if (recSyncNibbles.size() > syncNibbles.size()){
             recSyncNibbles.erase(recSyncNibbles.begin());
@@ -83,11 +83,11 @@ int Sync::confirmAndAlign(){
         AlignScore score{0, 0, start};
         for (int i = 0; i < confNibs.size(); i++){
             DtmfAnalysis dtmf(&recSyncSamples[start + i * samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
-            if (dtmf.getNipple() == confNibs[i]){
+            if (dtmf.getNibble() == confNibs[i]){
                 score.confNibCount++;
                 score.certainty += dtmf.getCertainty() / confNibs.size();
             }
-            score.received.push_back(dtmf.getNipple());
+            score.received.push_back(dtmf.getNibble());
         }
         alignScores.push_back(score);
     }

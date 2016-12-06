@@ -5,11 +5,11 @@
 class DtmfAnalysis {
 public:
     DtmfAnalysis(const float *its, int size, DtmfSpec dtmfSpec, int sampleRate);
-    unsigned char getNipple() const;
+    unsigned char getNibble() const;
     float getCertainty() const;
 
 private:
-    unsigned char nipple;
+    unsigned char nibble;
     float certainty;
 };
 

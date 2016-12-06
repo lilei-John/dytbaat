@@ -22,7 +22,7 @@ void FrameReceiver::processInput(std::queue<float> &samples) {
             samples.pop();
         }
         DtmfAnalysis dtmf(&toneSamples[0], samplesPerTone, dtmfSpec, sampleRate);
-        receiveNipple(dtmf.getNipple());
+        receiveNipple(dtmf.getNibble());
     }
 }
 

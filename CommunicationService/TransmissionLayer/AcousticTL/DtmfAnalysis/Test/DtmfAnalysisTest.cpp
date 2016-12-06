@@ -26,8 +26,8 @@ int main(){
 
     DtmfAnalysis dtmfAnalysis(samples, dtmfSpec, sampleRate);
 
-    cout << (int) dtmfAnalysis.getNipple() << endl;
-    cout << (dtmfAnalysis.getNipple() == 0 ? "Korrekt" : "Forkert") << endl;
+    cout << (int) dtmfAnalysis.getNibble() << endl;
+    cout << (dtmfAnalysis.getNibble() == 0 ? "Korrekt" : "Forkert") << endl;
     cout << dtmfAnalysis.getCertainty() << endl;
     return 0;
 }
