@@ -4,6 +4,7 @@
 #include <vector>
 #include <queue>
 #include <functional>
+#include <chrono>
 
 class TransmissionLayer{
 public:
@@ -11,6 +12,7 @@ public:
     virtual void processInput(const std::vector<float> &) = 0;
     virtual void setOutput(std::vector<float> &) = 0;
     virtual void setMaxFrameSize(int) = 0;
+    virtual std::chrono::milliseconds getMaxTransmissionDuration(unsigned int frameSize, int maxEscapableBytes) = 0;
 
     void setOnFrameReceived(const std::function<void(std::vector<unsigned char>)> &cb);
     void setOnFrameTransmitted(const std::function<void()> &cb);

@@ -108,3 +108,7 @@ void Sync::setOnSyncFail(const function<void(float)> &onSyncFail) {
 void Sync::setOnSyncSuccess(const function<void(float)> &onSyncSuccess) {
     Sync::onSyncSuccess = onSyncSuccess;
 }
+
+const unsigned char Sync::getPaddingNibble() const {
+    return paddingNibble;
+}

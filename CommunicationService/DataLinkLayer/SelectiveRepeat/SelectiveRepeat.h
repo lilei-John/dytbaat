@@ -17,7 +17,6 @@ private:
     unsigned int static const TOTAL_SEQ_NO = 128;           // the size of the sequence numbering
     unsigned int const WINDOW_SIZE = TOTAL_SEQ_NO/2;        // the window of "out of order" frames
     unsigned int const FRAMEBLOCK_SIZE = 10;                // the number of frames transmitted before awaiting an ACK/NAK
-    unsigned int const TIMER_LENGHT = 1500;                 // in milliseconds
 
 public:
     SelectiveRepeat();
@@ -30,7 +29,6 @@ public:
     //Test functions
     void setOnTimeout(std::function<void(void)> callback);
     void setOnCrcFail(std::function<void(void)> callback);
-    void setOnFlowFail(std::function<void(void)> callback);
     void setOnFrameSendTime(std::function<void(void)> callback);
     void setOnAckReceiveTime(std::function<void(void)> callback);
 
@@ -42,7 +40,7 @@ private:
     unsigned int lastInBlock = firstOutstanding + FRAMEBLOCK_SIZE-1;    // Last in block of transmitted frames
     int framesToResend = 0;                                 // number of  old frames need to be resend
     int timerCount = 0;                                     // number of aktive timers. a timeout occurs only if timerCount is 1
-    // Vectors and arrays
+   // Vectors and arrays
     std::stringstream *stream;                              //
     std::vector<unsigned char> frame;                       //
     std::vector<std::vector<unsigned char>> window;         //
