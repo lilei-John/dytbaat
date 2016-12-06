@@ -189,8 +189,12 @@ int main(){
             }
             logger.log("Frame Sent  |  " + to_string(seqNo) + "\n" + sFrame);
         });
-        outDLL.setOnAckReceiveTime([&](){
-            logger.log("NAK Received");
+        outDLL.setOnAckReceiveTime([&](std::vector<unsigned char> frame){
+            string sFrame = "";
+            for(int i = 0; i < frame.size()-2; i++) {
+                sFrame += to_string((int)frame[i]) + " ";
+            }
+            logger.log("NAK Received  |  " + sFrame);
             cout << "NAK Received" << endl;
         });
         logger.startTimer();

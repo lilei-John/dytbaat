@@ -137,6 +137,7 @@ void SelectiveRepeat::timer() {
 
 void SelectiveRepeat::timeOut() {
     if(expectingACK && timerCount == 1) {
+        if(onTimeout) onTimeout();
         if(window[window.size()-1][0] & (1<<7)){            // If MSB is set in header, it is the 2. (or later) timeout in a row
             frame = window[window.size()-1];                //
             sendFrame();                                    // resend last frame
@@ -155,7 +156,6 @@ void SelectiveRepeat::timeOut() {
                 sendFrame();
             }
         }
-        if(onTimeout) onTimeout();
     }
 }
 
@@ -164,7 +164,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
     if (isCrcValid()) {
         if (isSender) {
             if (!(frame[0] & (1 << 7))) {                   // if MSB is set it is an ACK for stop frame! transmission complete
-                onAckReceiveTime();
+                onAckReceiveTime(frame);
                 incomingACK();
             } else {
                 clearAll();                                 // all VAR's are cleared, ready to receive or send new msg.
@@ -271,7 +271,7 @@ void SelectiveRepeat::makeNak() {
 // Create NAK-frame
     frame.clear();                                          // Clear frame
 
-    for (uint8_t i = firstOutstanding; (i != (lastInBlock + 1) % TOTAL_SEQ_NO) || frame.size() == 0; i = (++i) % TOTAL_SEQ_NO) {
+    for (uint8_t i = firstOutstanding; (i != (lastInBlock + 1) % TOTAL_SEQ_NO); i = (++i) % TOTAL_SEQ_NO) {
         if (!acknowledgedFrames[i]) {                       // If i'th frame is corrupted
             frame.push_back(i);                             // Add seqNo to NACK frame
         }
@@ -329,7 +329,7 @@ void SelectiveRepeat::setOnFrameSendTime(std::function<void(vector<unsigned char
     onFrameSend = callback;
 }
 
-void SelectiveRepeat::setOnAckReceiveTime(std::function<void(void)> callback) {
+void SelectiveRepeat::setOnAckReceiveTime(std::function<void(std::vector<unsigned char>)> callback) {
     onAckReceiveTime = callback;
 }
 

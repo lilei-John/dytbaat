@@ -30,7 +30,7 @@ public:
     void setOnTimeout(std::function<void(void)> callback);
     void setOnCrcFail(std::function<void(std::vector<unsigned char>)> callback);
     void setOnFrameSendTime(std::function<void(std::vector<unsigned char>)> callback);
-    void setOnAckReceiveTime(std::function<void(void)> callback);
+    void setOnAckReceiveTime(std::function<void(std::vector<unsigned char>)> callback);
     void setOnFrameReceive(std::function<void(int)> callback);
 
 private:
@@ -78,7 +78,7 @@ private:
     std::function<void(void)> onTimeout;
     std::function<void(std::vector<unsigned char>)> onCrcFail;
     std::function<void(std::vector<unsigned char>)> onFrameSend;
-    std::function<void(void)> onAckReceiveTime;
+    std::function<void(std::vector<unsigned char>)> onAckReceiveTime;
     std::function<void(int)> onFrameReceive;
 
 };
