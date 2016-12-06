@@ -82,6 +82,15 @@ Sync &AcousticTL::getSync(){
     return sync;
 }
 
+FrameReceiver &AcousticTL::getFrameReceiver(){
+    return frameReceiver;
+}
+
 void AcousticTL::setMaxFrameSize(int size) {
     frameReceiver.setMaxFrameSize(size);
 }
+
+const FrameProtocol &AcousticTL::getFrameProtocol() const {
+    return frameProtocol;
+}
+

@@ -28,13 +28,13 @@ public:
     void setMaxFrameSize(int maxFrameSize);
     void reset();
 
-    void setOnFrameError(const std::function<void(std::string)> &onFrameError);
+    void setOnFrameError(const std::function<void(std::vector<unsigned char>, unsigned char)> &onFrameError);
 private:
     FrameProtocol frameProtocol;
     DtmfSpec dtmfSpec;
     FrameReceiverStatus frameReceiverStatus = FrameReceiverStatus::receiving;
 
-    std::function<void(std::string)> onFrameError;
+    std::function<void(std::vector<unsigned char>, unsigned char)> onFrameError;
 
     const int samplesPerTone;
     const int sampleRate;

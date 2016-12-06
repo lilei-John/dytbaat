@@ -45,12 +45,7 @@ void FrameReceiver::receiveByte(unsigned char byte) {
             auto sb = frameProtocol.getStopByte();
             int sln = sb & 0xF;
             int shn = sb >> 4;
-            onFrameError(
-                    "FrameError: StopByte expected. Received: " +
-                    to_string(rhn) + ":" + to_string(rln) +
-                    ", StopByte: " +
-                    to_string(shn) + ":" + to_string(sln) + "."
-            );
+            onFrameError(frame, byte);
         }
     }else if (shouldEscapeNexByte){
         frame.push_back(byte);
@@ -79,6 +74,6 @@ FrameReceiverStatus FrameReceiver::getFrameReceiverStatus() const {
     return frameReceiverStatus;
 }
 
-void FrameReceiver::setOnFrameError(const function<void(string)> &onFrameError) {
+void FrameReceiver::setOnFrameError(const function<void(vector<unsigned char>, unsigned char)> &onFrameError) {
     FrameReceiver::onFrameError = onFrameError;
 }

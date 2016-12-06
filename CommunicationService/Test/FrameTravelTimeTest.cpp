@@ -44,20 +44,21 @@ int main(){
     CommunicationService sender(outDLL, outTL, outRA);
     CommunicationService receiver(inDLL, inTL, inRA);
 
-    inTL.getSync().setOnSyncFail([](float confNibPercentage){
-        cout << "Receiver SyncFail: " << confNibPercentage << endl;
-    });
-    inTL.getSync().setOnSyncSuccess([](float certainty){
-        cout << "Receiver SyncSuccess: " << certainty << endl;
-    });
-    outTL.getSync().setOnSyncFail([](float confNibPercentage){
-        cout << "Transmitter SyncFail: " << confNibPercentage << endl;
-    });
-    outTL.getSync().setOnSyncSuccess([](float certainty){
-        cout << "Transmitter SyncSuccess: " << certainty << endl;
-    });
-
     if (isReceiver){
+        inTL.getSync().setOnSyncFail([](float p){
+            cout << "Receiver sync fail. Match percentage: " << p << endl;
+        });
+        inTL.getSync().setOnSyncSuccess([](float c){
+            cout << "Receiver sync success. Certainty: " << c << endl;
+        });
+        inTL.getFrameReceiver().setOnFrameError([&](vector<unsigned char> frame, unsigned char byte){
+            cout << "Receiver frame size exceeded."
+                 << " Last byte: " << bitset<8>(byte)
+                 << " should be stop byte: "
+                 << bitset<8>(inTL.getFrameProtocol().getStopByte())
+                 << " if it's a full frame."
+                 << endl;
+        });
         inDLL.setOnCrcFail([&](){
             logger.log("RECEIVER CRC FAIL");
         });

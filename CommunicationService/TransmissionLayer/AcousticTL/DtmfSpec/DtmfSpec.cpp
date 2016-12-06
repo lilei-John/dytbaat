@@ -37,6 +37,3 @@ unsigned char DtmfSpec::getDTMFNibble(int r, int c) {
     if (r < 0 || 3 < r || c < 0 || 3 < c) throw("No such nibble");
     return DTMFValues[r][c];
 }
-
-
-

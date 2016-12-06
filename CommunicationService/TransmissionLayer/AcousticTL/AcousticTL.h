@@ -23,6 +23,8 @@ public:
     void setMaxFrameSize(int size);
 
     Sync &getSync();
+    FrameReceiver &getFrameReceiver();
+    const FrameProtocol &getFrameProtocol() const;
 
     const int sampleRate;
     const int samplesPerTone;
