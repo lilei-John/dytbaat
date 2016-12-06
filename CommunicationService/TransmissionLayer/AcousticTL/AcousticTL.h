@@ -30,7 +30,7 @@ public:
     const int samplesPerTone;
 
     void setOnStartSeqReceived(const std::function<void()> &onStartSeqReceived);
-
+    std::chrono::milliseconds getMaxTransmissionDuration(unsigned int frameSize, int maxEscapableBytes);
 private:
     ATLState state = ATLState::idle;
     std::queue<float> incomingSamples;

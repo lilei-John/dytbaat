@@ -65,7 +65,7 @@ int main(){
                 cout << endl << "Received message: " << data << endl << enterMessage;
                 clientStream.str("");
                 data = "";
-            }else{
+            } else{
                 data += in;
             }
         }

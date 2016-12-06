@@ -9,6 +9,7 @@
 #include <fstream>
 #include "FsWriter.h"
 #include <ctime>
+#include <chrono>
 
 
 class Logger {
@@ -17,11 +18,17 @@ public:
     ~Logger();
 
     void log(std::string logString);
+    void log(int logString);
+    void log(float logString);
     std::string getDateTime();
+    long getTimeNow();
+    void startTimer();
     void close();
 private:
     std::ofstream fs;
     FStreamWriter fwriter;
+    long initMs = 0;
+    bool isHeaderSection = true;
 };
 
 

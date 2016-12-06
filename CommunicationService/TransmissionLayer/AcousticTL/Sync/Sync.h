@@ -12,6 +12,7 @@ public:
 
     void setOnSyncFail(const std::function<void(float)> &onSyncFail);
     void setOnSyncSuccess(const std::function<void(float)> &onSyncSuccess);
+    const unsigned char getPaddingNibble() const;
 
 private:
     const DtmfSpec dtmfSpec;

@@ -17,8 +17,41 @@ Logger::~Logger() {
 }
 
 void Logger::log(std::string logString) {
-    if (fs.is_open()) {
-        fwriter << logString << "\n";
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
+    }
+}
+
+void Logger::log(float logString) {
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
+    }
+}
+
+void Logger::log(int logString) {
+    if(isHeaderSection) {
+        if (fs.is_open()) {
+            fwriter << logString << "\n";
+        }
+    } else {
+        long ms = getTimeNow() - initMs;
+        if (fs.is_open()) {
+            fwriter << ms << ";" << logString << "\n";
+        }
     }
 }
 
@@ -37,4 +70,15 @@ void Logger::close() {
     if (fs.is_open()) {
         fs.close();
     }
+}
+
+long Logger::getTimeNow() {
+    return std::chrono::duration_cast< chrono::milliseconds >(
+            chrono::system_clock::now().time_since_epoch()
+    ).count();
+}
+
+void Logger::startTimer() {
+    initMs = getTimeNow();
+    isHeaderSection = false;
 }

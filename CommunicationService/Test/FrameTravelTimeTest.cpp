@@ -96,6 +96,7 @@ int main(){
             logger.log("Frame travel time: " + to_string(millisec));
         });
         sender.transmit();
+        logger.startTimer();
     }else{
         sender.disable();
     }

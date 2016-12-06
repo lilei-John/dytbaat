@@ -66,8 +66,8 @@ bool AcousticTL::sendFrame(const std::vector<unsigned char> &bytes) {
     byteFrame.push_back(frameProtocol.getStopByte());
     auto nibbleFrame = byteFrameToNibbleFrame(byteFrame);
     nibbleFrame.insert(nibbleFrame.begin(), sync.getSyncNibbles().begin(), sync.getSyncNibbles().end());
-    nibbleFrame.insert(nibbleFrame.begin(), 0x0);
-    nibbleFrame.push_back(0x0);
+    nibbleFrame.insert(nibbleFrame.begin(), sync.getPaddingNibble());
+    nibbleFrame.push_back(sync.getPaddingNibble());
     auto samples = freqGeneration.nibbleFrameToSamples(nibbleFrame, sampleRate, samplesPerTone);
     for (auto sample : samples) outgoingSamples.push(sample);
     state = ATLState::transmitting;
@@ -94,3 +94,13 @@ const FrameProtocol &AcousticTL::getFrameProtocol() const {
     return frameProtocol;
 }
 
+
+chrono::milliseconds AcousticTL::getMaxTransmissionDuration(unsigned int frameSize, int maxEscapableBytes = -1) {
+    if (maxEscapableBytes == -1) maxEscapableBytes = frameSize;
+    frameSize += maxEscapableBytes;
+    frameSize += 1; //stopByte
+    int toneCount = frameSize * 2;
+    toneCount += sync.getSyncNibbles().size();
+    toneCount += 2; //paddingNibbles
+    return chrono::milliseconds((toneCount * samplesPerTone * 1000) / sampleRate);
+}

@@ -24,6 +24,11 @@ CommunicationService::CommunicationService(
                 return transmissionLayer.sendFrame(frame);
             }
     );
+    dataLinkLayer.setReqMaxTransmissionDuration(
+            [&](unsigned int frameSize, int maxEscapableBytes){
+                return transmissionLayer.getMaxTransmissionDuration(frameSize, maxEscapableBytes);
+            }
+    );
     transmissionLayer.setOnFrameReceived(
             [&](std::vector<unsigned char> frame) {
                 dataLinkLayer.receiveFrame(frame);
