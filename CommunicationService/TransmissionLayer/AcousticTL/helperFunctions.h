@@ -9,16 +9,15 @@
 #define M_PI           3.14159265358979323846
 #endif
 
-double PIt2 = M_PI * 2;
-
+static double PIt2 = M_PI * 2;
 
 inline double hammingWindow(int N, int n){
     return 0.54 - 0.46 * cos((PIt2 * n)/(N - 1));
 }
 
-std::map<int, std::vector<double>> hammingWindows;
+static std::map<int, std::vector<double>> hammingWindows;
 
-double *getHammingWindow(int N){
+inline double *getHammingWindow(int N){
     double *h;
     auto it = hammingWindows.find(N);
     if (it == hammingWindows.end()){

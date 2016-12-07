@@ -5,13 +5,13 @@
 
 class DtmfSpec {
 public:
-    std::pair<int, int> nibbleToFreqs(unsigned char);
-    unsigned char freqsToNibble(std::pair<int, int>);
+    std::pair<int, int> nibbleToFreqs(unsigned char) const;
+    unsigned char freqsToNibble(std::pair<int, int>) const;
 
     const std::vector<int> &getFreqRow() const;
     const std::vector<int> &getFreqCol() const;
 
-    unsigned char getDTMFNibble(int r, int c);
+    unsigned char getDTMFNibble(int r, int c) const;
 private:
     unsigned char DTMFValues[4][4] = {
             {0b0000, 0b0001, 0b0011, 0b0010},
