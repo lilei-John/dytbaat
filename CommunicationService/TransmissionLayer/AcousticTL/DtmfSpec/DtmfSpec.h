@@ -6,7 +6,7 @@
 class DtmfSpec {
 public:
     std::pair<int, int> nibbleToFreqs(unsigned char);
-    unsigned char freqsToNibble(std::pair<int, int>);
+    unsigned char freqsToNibble(std::pair<int, int>) const;
 
     const std::vector<int> &getFreqRow() const;
     const std::vector<int> &getFreqCol() const;

@@ -11,7 +11,7 @@ std::pair<int, int> DtmfSpec::nibbleToFreqs(unsigned char nibble) {
     throw("No such dtmf tone");
 }
 
-unsigned char DtmfSpec::freqsToNibble(std::pair<int, int> freqs) {
+unsigned char DtmfSpec::freqsToNibble(std::pair<int, int> freqs) const{
     int col = -1, row = -1;
     for (int i = 0; i < 4; ++i) {
         if (freqs.first == FreqRow[i]) {
