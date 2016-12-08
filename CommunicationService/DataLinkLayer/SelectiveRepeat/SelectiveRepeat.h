@@ -13,7 +13,7 @@
 class SelectiveRepeat : public DataLinkLayer{
 private:
     // SETTINGS
-    unsigned int const FRAME_SIZE = 40;                     // the number of data bytes in a frame
+    unsigned int const FRAME_SIZE = 20;                     // the number of data bytes in a frame
     unsigned int static const TOTAL_SEQ_NO = 128;           // the size of the sequence numbering
     unsigned int const FRAMEBLOCK_SIZE = 10;                // the number of frames transmitted before awaiting an ACK/NAK
 
