@@ -5,8 +5,13 @@
 using namespace std;
 
 int main(){
-    unsigned int blockSize = 120;
+    unsigned int ms = 30;
     unsigned int samplerate = 4000;
+    unsigned int blockSize = (unsigned int)(samplerate * (double)ms/1000);
+    cout << "Samplerate: " << samplerate << endl;
+    cout << "toneLength: " << ms << endl;
+    double tonesPrSecond = 1000./ms;
+    cout << "Tones pr. second: " << tonesPrSecond << endl;
     float f = 400;
     vector<float> samples(blockSize);
     for (int i = 0; i < blockSize; i++)
@@ -20,6 +25,8 @@ int main(){
         if(chrono::system_clock::now() - start >= testDuration) break;
         count++;
     }
-    cout << count/testDuration.count() << " dtmf analysis pr second." <<  endl;
+    auto analysisPerSecond = (double)count/testDuration.count();
+    cout << analysisPerSecond << " dtmf analysis pr second." <<  endl;
+    cout << "Max align resolution: " << analysisPerSecond / tonesPrSecond << endl;
     return 0;
 }

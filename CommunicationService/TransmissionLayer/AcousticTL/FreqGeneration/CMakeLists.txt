@@ -1,5 +1,0 @@
-add_library(FreqGeneration FreqGeneration.cpp FreqGeneration.h)
-target_link_libraries(FreqGeneration DtmfSpec)
-
-add_executable(FreqGenerationTest Test/FreqGenerationTest.cpp)
-target_link_libraries(FreqGenerationTest FreqGeneration)

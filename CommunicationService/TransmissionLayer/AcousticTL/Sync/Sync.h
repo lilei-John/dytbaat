@@ -4,11 +4,16 @@
 #include <queue>
 #include "../DtmfAnalysis/DtmfAnalysis.h"
 
+struct SyncMatchScore{
+    int matchedNibbles = 0;
+    float certainty = 0;
+};
+
 class Sync {
 public:
     Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec);
     bool trySync(std::queue<float> &);
-    const std::vector<unsigned char> &getSyncNibbles() const;
+    const std::vector<unsigned char> &getStartNibbles() const;
 
     void setOnSyncFail(const std::function<void(float)> &onSyncFail);
     void setOnSyncSuccess(const std::function<void(float)> &onSyncSuccess);
@@ -19,23 +24,25 @@ private:
     const int sampleRate;
     const int samplesPerTone;
 
-    std::vector<float> recSyncSamples;
+    const unsigned char paddingNibble = dtmfSpec.getDTMFNibble(0,0);
+    const std::vector<unsigned char> syncNibbles = {
+            dtmfSpec.getDTMFNibble(0,1),
+            dtmfSpec.getDTMFNibble(0,2),
+            dtmfSpec.getDTMFNibble(0,3),
+            dtmfSpec.getDTMFNibble(0,2),
+            dtmfSpec.getDTMFNibble(0,1)
+    };
+    const unsigned int alignResolution = 10;
 
-    //match - efficient searching
-    std::vector<unsigned char> matchRegions;
-    std::vector<unsigned char> recSyncNibbles;
-    const int tonesPerMatchRegion = 2;
-    const float reqMatchPercentage = .5;
-    bool doesMatch();
+    std::vector<unsigned char> startNibbles;
+    const double idealAnalysisSpacing = samplesPerTone / alignResolution;
+    const unsigned int realAnalysisSpacing = (unsigned int)ceil(idealAnalysisSpacing);
+    const unsigned int requiredAnalysisSize = (unsigned int) ceil(((double)samplesPerTone * syncNibbles.size())/realAnalysisSpacing);
 
-    //confim and align - processor heavy alignment
-    //load depends linearly on samplerate, confNibs.size() and alignResolution
-    std::vector<unsigned char> confNibs;
-    const int alignResolution = 5;
-    int confirmAndAlign();
+    std::vector<float> samples;
+    std::vector<DtmfAnalysis> analysis;
 
-    unsigned char paddingNibble;
-    std::vector<unsigned char> syncNibbles;
+    SyncMatchScore match();
 
     std::function<void(float confNibPercentage)> onSyncFail;
     std::function<void(float certainty)> onSyncSuccess;

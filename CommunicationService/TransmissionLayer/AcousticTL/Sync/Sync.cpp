@@ -8,104 +8,65 @@ Sync::Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec)
         : samplesPerTone(samplesPerTone),
           sampleRate(sampleRate),
           dtmfSpec(dtmfSpec){
-    auto d = [&](int r, int c){
-        return dtmfSpec.getDTMFNibble(r, c);
-    };
-    matchRegions = {d(0,3), d(0,2), d(0,1)};
-    confNibs = {d(0,2), d(0,3), d(0,2)};
-    paddingNibble = d(0,0);
-
-    for (auto nibble : matchRegions)
-        for (int i = 0; i < tonesPerMatchRegion; i++)
-            syncNibbles.push_back(nibble);
-    for (auto nibble : confNibs)
-        syncNibbles.push_back(nibble);
-    for (int i = 0; i < tonesPerMatchRegion; i++)
-        syncNibbles.push_back(paddingNibble);
+    for (auto nibble : syncNibbles)
+        startNibbles.push_back(nibble);
+    startNibbles.push_back(paddingNibble);
 }
 
-bool Sync::trySync(std::queue<float> &samples) {
-    while(samples.size() >= samplesPerTone * (tonesPerMatchRegion + 1)){
-        for (int i = 0; i < samplesPerTone; i++){
-            recSyncSamples.push_back(samples.front());
-            samples.pop();
+bool Sync::trySync(std::queue<float> &q) {
+    while(q.size() >= realAnalysisSpacing * alignResolution){ //TODO: should be able to pull out
+        for (int i = 0; i < realAnalysisSpacing; i++){
+            samples.push_back(q.front());
+            q.pop();
         }
-        DtmfAnalysis dtmf(&recSyncSamples[recSyncSamples.size() - samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
-        recSyncNibbles.push_back(dtmf.getNibble());
-        if (recSyncNibbles.size() < syncNibbles.size()) continue;
-        if (recSyncNibbles.size() > syncNibbles.size()){
-            recSyncNibbles.erase(recSyncNibbles.begin());
-            recSyncSamples.erase(recSyncSamples.begin(), recSyncSamples.begin() + samplesPerTone);
+        if (samples.size() < samplesPerTone) continue;
+        analysis.push_back(DtmfAnalysis(&samples[0], samplesPerTone, dtmfSpec, sampleRate));
+        samples.erase(samples.begin(), samples.begin() + realAnalysisSpacing);
+        if(analysis.size() < requiredAnalysisSize) continue;
+        auto m = match();
+        analysis.erase(analysis.begin());
+        if (m.matchedNibbles == syncNibbles.size()){
+            int maxCertaintyIndex = 0;
+            float maxCertainty = m.certainty;
+            for (int i = 1; i < alignResolution; i++){
+                auto score = match();
+                analysis.erase(analysis.begin());
+                if (score.matchedNibbles == syncNibbles.size() && score.certainty > maxCertainty){
+                    maxCertainty = score.certainty;
+                    maxCertaintyIndex = i;
+                }
+            }
+            unsigned int paddingAnalysisLeft = alignResolution - (maxCertaintyIndex + 1);
+            unsigned int paddingSamplesLeft = paddingAnalysisLeft * realAnalysisSpacing;
+            unsigned int paddingSamplesLeftInSampleVector = (unsigned int) (samples.size() - (samplesPerTone - realAnalysisSpacing));
+            paddingSamplesLeft -= paddingSamplesLeftInSampleVector;
+            for (int i = 0; i < paddingSamplesLeft; i++)
+                q.pop();
+            samples.clear();
+            analysis.clear();
+            cout << "Sync success! Certainty: " << maxCertainty << " index: " << maxCertaintyIndex << " of " << alignResolution << endl;
+            return true;
         }
-        if(!doesMatch()) continue;
-        int firstSampleInMessage = confirmAndAlign();
-        if (firstSampleInMessage == -1) continue;
-        int paddingToBeRemoved = firstSampleInMessage - (int)recSyncSamples.size();
-        for (int i = 0; i < paddingToBeRemoved; i++) samples.pop();
-        recSyncSamples.clear();
-        recSyncNibbles.clear();
-        return true;
     }
     return false;
 }
 
-bool Sync::doesMatch(){
-    for (int m = 0; m < matchRegions.size(); m++){
-        int matches = 0;
-        for (int i = 0; i < tonesPerMatchRegion; i++){
-            int index = m * tonesPerMatchRegion + i;
-            if (recSyncNibbles[index] == syncNibbles[index])
-                matches++;
+SyncMatchScore Sync::match() {
+    SyncMatchScore s{};
+    for (int nibbleIndex = 0; nibbleIndex < syncNibbles.size(); nibbleIndex++){
+        int analysisIndex = (nibbleIndex * samplesPerTone)/realAnalysisSpacing;
+        auto &a = analysis[analysisIndex];
+        if (a.getNibble() == syncNibbles[nibbleIndex]){
+            s.matchedNibbles++;
+            s.certainty += a.getCertainty();
         }
-        if (matches < tonesPerMatchRegion * reqMatchPercentage)
-            return false;
     }
-    return true;
+    s.certainty /= syncNibbles.size();
+    return s;
 }
 
-float lerp(float a, float b, float t){
-    return a + (b - a) * t;
-}
-
-struct AlignScore{
-    int confNibCount;
-    float certainty;
-    int startIndex;
-    vector<int> received;
-};
-
-int Sync::confirmAndAlign(){
-    int first = (int) matchRegions.size() * tonesPerMatchRegion * samplesPerTone;
-    int last = (int) (matchRegions.size() + 1) * tonesPerMatchRegion * samplesPerTone;
-    vector<AlignScore> alignScores;
-    for (int alignIndex = 0; alignIndex < alignResolution; alignIndex++){
-        int start = (int) roundf(lerp(first, last, (float) alignIndex / (alignResolution - 1)));
-        AlignScore score{0, 0, start};
-        for (int i = 0; i < confNibs.size(); i++){
-            DtmfAnalysis dtmf(&recSyncSamples[start + i * samplesPerTone], samplesPerTone, dtmfSpec, sampleRate);
-            if (dtmf.getNibble() == confNibs[i]){
-                score.confNibCount++;
-                score.certainty += dtmf.getCertainty() / confNibs.size();
-            }
-            score.received.push_back(dtmf.getNibble());
-        }
-        alignScores.push_back(score);
-    }
-    sort(alignScores.begin(), alignScores.end(), [](const AlignScore &a, const AlignScore &b){
-        if (a.confNibCount != b.confNibCount) return a.confNibCount > b.confNibCount;
-        return a.certainty > b.certainty;
-    });
-    auto bestAlign = alignScores[0];
-    if (bestAlign.confNibCount != confNibs.size()) {
-        if(onSyncFail) onSyncFail((float)bestAlign.confNibCount / confNibs.size());
-        return -1;
-    }
-    if(onSyncSuccess) onSyncSuccess(bestAlign.certainty);
-    return (int)(bestAlign.startIndex + (confNibs.size() + tonesPerMatchRegion) * samplesPerTone);
-}
-
-const vector<unsigned char> &Sync::getSyncNibbles() const {
-    return syncNibbles;
+const vector<unsigned char> &Sync::getStartNibbles() const {
+    return startNibbles;
 }
 
 void Sync::setOnSyncFail(const function<void(float)> &onSyncFail) {

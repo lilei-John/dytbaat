@@ -11,7 +11,6 @@
 
 static double PIt2 = M_PI * 2;
 
-
 inline double hammingWindow(int N, int n){
     return 0.54 - 0.46 * cos((PIt2 * n)/(N - 1));
 }

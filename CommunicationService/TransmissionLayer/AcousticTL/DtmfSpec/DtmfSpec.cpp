@@ -1,6 +1,6 @@
 #include "DtmfSpec.h"
 
-std::pair<int, int> DtmfSpec::nibbleToFreqs(unsigned char nibble) {
+std::pair<int, int> DtmfSpec::nibbleToFreqs(unsigned char nibble) const{
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             if(DTMFValues[i][j] == nibble) {
@@ -33,7 +33,7 @@ const std::vector<int> &DtmfSpec::getFreqCol() const {
     return FreqCol;
 }
 
-unsigned char DtmfSpec::getDTMFNibble(int r, int c) {
+unsigned char DtmfSpec::getDTMFNibble(int r, int c) const{
     if (r < 0 || 3 < r || c < 0 || 3 < c) throw("No such nibble");
     return DTMFValues[r][c];
 }
