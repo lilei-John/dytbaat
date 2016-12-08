@@ -26,13 +26,13 @@ private:
 
     const unsigned char paddingNibble = dtmfSpec.getDTMFNibble(0,0);
     const std::vector<unsigned char> syncNibbles = {
-            dtmfSpec.getDTMFNibble(0,1),
-            dtmfSpec.getDTMFNibble(0,2),
-            dtmfSpec.getDTMFNibble(0,3),
-            dtmfSpec.getDTMFNibble(0,2),
-            dtmfSpec.getDTMFNibble(0,1)
+            dtmfSpec.getDTMFNibble(1,1),
+            dtmfSpec.getDTMFNibble(2,2),
+            dtmfSpec.getDTMFNibble(3,3),
+            dtmfSpec.getDTMFNibble(2,2),
+            dtmfSpec.getDTMFNibble(1,1)
     };
-    const unsigned int alignResolution = 10;
+    const unsigned int alignResolution = 20;
 
     std::vector<unsigned char> startNibbles;
     const double idealAnalysisSpacing = samplesPerTone / alignResolution;
