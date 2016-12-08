@@ -137,7 +137,11 @@ void SelectiveRepeat::timer() {
 
 void SelectiveRepeat::timeOut() {
     if(expectingACK && timerCount == 1) {
-        if(onTimeout) onTimeout();
+        if (onTimeout) onTimeout();
+        frame = window[window.size()-1];
+        sendFrame();
+    }
+    /*
         if(window[window.size()-1][0] & (1<<7)){            // If MSB is set in header, it is the 2. (or later) timeout in a row
             frame = window[window.size()-1];                //
             sendFrame();                                    // resend last frame
@@ -156,7 +160,7 @@ void SelectiveRepeat::timeOut() {
                 sendFrame();
             }
         }
-    }
+    }*/
 }
 
 void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
@@ -224,14 +228,15 @@ bool SelectiveRepeat::isWindowFull(int firstInWindow, int lastInWindow) {
 void SelectiveRepeat::incomingFrame() {
         unsigned int incomingSeqNo = frame[0];
         // Check for sender time-out (MSB is set)
+
         if(incomingSeqNo & (1<<7) ){                        // If MSB (bit 7) is set
             incomingSeqNo &= ~(1<<7);                       // Clear MSB
             isNackNeeded = true;
-        }
+        }/*
         // NAK is needed when lastInBlock is received
         if (incomingSeqNo == lastInBlock) {                 // If received frame equals lastInBlock
-            isNackNeeded = true;                            // NACK is needed
-        }
+         */   isNackNeeded = true;                            // NACK is needed
+        //}
 
         if (!acknowledgedFrames[incomingSeqNo]) {
             onFrameReceive(incomingSeqNo);
