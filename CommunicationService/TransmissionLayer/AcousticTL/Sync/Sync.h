@@ -25,9 +25,9 @@ private:
     const int samplesPerTone;
 
     const unsigned char paddingNibble = dtmfSpec.getDTMFNibble(0,0);
-    const std::vector<unsigned char> syncNibbles = { //TODO: Vælg en sekvens, der ikke ville kunne høres inde i et frame pga. escaping
+    const std::vector<unsigned char> syncNibbles = {
             dtmfSpec.getDTMFNibble(0,1),
-            dtmfSpec.getDTMFNibble(0,3),
+            dtmfSpec.getDTMFNibble(0,2),
             dtmfSpec.getDTMFNibble(0,3),
             dtmfSpec.getDTMFNibble(0,2),
             dtmfSpec.getDTMFNibble(0,1)
@@ -38,7 +38,6 @@ private:
     const double idealAnalysisSpacing = samplesPerTone / alignResolution;
     const unsigned int realAnalysisSpacing = (unsigned int)ceil(idealAnalysisSpacing);
     const unsigned int requiredAnalysisSize = (unsigned int) ceil(((double)samplesPerTone * syncNibbles.size())/realAnalysisSpacing);
-    const double realAlignResolution = samplesPerTone / realAnalysisSpacing;
 
     std::vector<float> samples;
     std::vector<DtmfAnalysis> analysis;
