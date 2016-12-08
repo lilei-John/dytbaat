@@ -3,7 +3,7 @@
 #include "../TransmissionLayer.h"
 #include "FrameReceiver/FrameReceiver.h"
 #include "Sync/Sync.h"
-#include "FreqGeneration/FreqGeneration.h"
+#include "DtmfTone/DtmfTone.h"
 #include "DtmfAnalysis/DtmfAnalysis.h"
 #include <queue>
 
@@ -34,11 +34,11 @@ public:
 private:
     ATLState state = ATLState::idle;
     std::queue<float> incomingSamples;
-    std::queue<float> outgoingSamples;
+    std::queue<unsigned char> outgoingNibbles;
+    DtmfTone currentDtmfTone;
 
     DtmfSpec dtmfSpec;
     Sync sync = Sync(samplesPerTone, sampleRate, dtmfSpec);
-    FreqGeneration freqGeneration = FreqGeneration(dtmfSpec);
 
     FrameProtocol frameProtocol;
     FrameReceiver frameReceiver;

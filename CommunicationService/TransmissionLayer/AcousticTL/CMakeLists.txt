@@ -6,10 +6,10 @@ add_subdirectory(FrameProtocol)
 add_subdirectory(Sync)
 add_subdirectory(FrameReceiver)
 add_subdirectory(DtmfSpec)
-add_subdirectory(FreqGeneration)
+add_subdirectory(DtmfTone)
 add_subdirectory(DtmfAnalysis)
 
-target_link_libraries(AcousticTL FrameProtocol Sync FrameReceiver DtmfSpec FreqGeneration DtmfAnalysis)
+target_link_libraries(AcousticTL FrameProtocol Sync FrameReceiver DtmfSpec DtmfTone DtmfAnalysis)
 
 add_executable(atlPlayFrame Test/atlPlayFrame.cpp)
 target_link_libraries(atlPlayFrame AcousticTL PaWrapper)

@@ -45,22 +45,34 @@ void AcousticTL::setOutput(std::vector<float> &out) {
     int i = 0;
     if (state == ATLState::transmitting){
         while (i < out.size()){
-            if (outgoingSamples.size() == 0){
-                state = ATLState::idle;
-                if(onFrameTransmitted) onFrameTransmitted();
-                if (state != ATLState::transmitting) break;
+            out[i++] = currentDtmfTone.next();
+            if (currentDtmfTone.isDone()){
+                if (outgoingNibbles.size() == 0){
+                    state = ATLState::idle;
+                    if(onFrameTransmitted) onFrameTransmitted();
+                    if (state != ATLState::transmitting)
+                        break;
+                    else
+                        continue;
+                }else{
+                    auto nibble = outgoingNibbles.front();
+                    outgoingNibbles.pop();
+                    Fade fade = outgoingNibbles.size() == 0 ? Fade::fadeOut : Fade::noFade;
+                    auto f = dtmfSpec.nibbleToFreqs(nibble);
+                    currentDtmfTone = DtmfTone(f.first, f.second,
+                                               currentDtmfTone.getP1(),
+                                               currentDtmfTone.getP2(),
+                                               fade, sampleRate, samplesPerTone);
+                }
             }
-            out[i++] = outgoingSamples.front();
-            outgoingSamples.pop();
         }
     }
-    while (i < out.size()){
+    while (i < out.size())
         out[i++] = 0;
-    }
 }
 
 bool AcousticTL::sendFrame(const std::vector<unsigned char> &bytes) {
-    if (outgoingSamples.size() != 0) return false;
+    if (outgoingNibbles.size() != 0 || !currentDtmfTone.isDone()) return false;
     auto byteFrame = bytes;
     frameProtocol.escapeByteFrame(byteFrame);
     byteFrame.push_back(frameProtocol.getStopByte());
@@ -68,8 +80,12 @@ bool AcousticTL::sendFrame(const std::vector<unsigned char> &bytes) {
     nibbleFrame.insert(nibbleFrame.begin(), sync.getStartNibbles().begin(), sync.getStartNibbles().end());
     nibbleFrame.insert(nibbleFrame.begin(), sync.getPaddingNibble());
     nibbleFrame.push_back(sync.getPaddingNibble());
-    auto samples = freqGeneration.nibbleFrameToSamples(nibbleFrame, sampleRate, samplesPerTone);
-    for (auto sample : samples) outgoingSamples.push(sample);
+    for (auto nibble : nibbleFrame)
+        outgoingNibbles.push(nibble);
+    auto nibble = outgoingNibbles.front();
+    outgoingNibbles.pop();
+    auto f = dtmfSpec.nibbleToFreqs(nibble);
+    currentDtmfTone = DtmfTone(f.first, f.second, 0, 0, Fade::fadeIn, sampleRate, samplesPerTone);
     state = ATLState::transmitting;
     return true;
 }
