@@ -164,7 +164,7 @@ void SelectiveRepeat::receiveFrame(std::vector<unsigned char> aFrame) {
     if (isCrcValid()) {
         if (isSender) {
             if (!(frame[0] & (1 << 7))) {                   // if MSB is set it is an ACK for stop frame! transmission complete
-                onAckReceiveTime(frame);
+                if(onAckReceiveTime) onAckReceiveTime(frame);
                 incomingACK();
             } else {
                 clearAll();                                 // all VAR's are cleared, ready to receive or send new msg.
