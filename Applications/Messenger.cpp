@@ -2,7 +2,6 @@
 #include "../CommunicationService/CommunicationService.h"
 #include "../CommunicationService/DataLinkLayer/StopAndWait/StopAndWait.h"
 #include "../CommunicationService/TransmissionLayer/AcousticTL/AcousticTL.h"
-#include "../CommunicationService/Logger/Logger.h"
 #include "../CommunicationService/Media/RealAudio/RealAudio.h"
 #include "../CommunicationService/DataLinkLayer/SelectiveRepeat/SelectiveRepeat.h"
 
@@ -16,9 +15,9 @@ int main(){
     AcousticTL clientTL(sampleRate, samplesPerTone);
     stringstream clientStream(ios::in|ios::out|ios::app);
     RealAudio clientRA(sampleRate);
-    SelectiveRepeat clientDLL(clientStream);
+    //SelectiveRepeat clientDLL(clientStream);
     // Uncomment to use StopAndWait instead
-    // StopAndWait clientDLL(clientStream);
+    StopAndWait clientDLL(clientStream);
     CommunicationService client(clientDLL, clientTL, clientRA);
 
     unsigned char end_delim = 3;

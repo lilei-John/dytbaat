@@ -124,7 +124,7 @@ void StopAndWait::incomingACK(std::vector<unsigned char> aFrame) {
     frame = aFrame;
     if(isCrcValid()){
         if(isHeaderValid()){
-            onAckReceiveTime();
+            if (onAckReceiveTime) onAckReceiveTime();
             seqNoSwap();
             ackFrameCount++;
             if (!isStreamEmpty()) {
