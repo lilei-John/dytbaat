@@ -15,14 +15,12 @@ int main(){
     float toneTime = 30; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
-    cout << "Samples per tone: " << samplesPerTone << endl;
-
-    AcousticTL* clientTL = new AcousticTL(sampleRate, samplesPerTone);
+    AcousticTL clientTL(sampleRate, samplesPerTone);
     stringstream clientStream(ios::in|ios::out|ios::app);
-    RealAudio* clientRA = new RealAudio(sampleRate);
-    SelectiveRepeat* clientDLL = new SelectiveRepeat(clientStream);
+    RealAudio clientRA(sampleRate);
+    SelectiveRepeat clientDLL(clientStream);
     //StopAndWait* clientDLL = new StopAndWait(clientStream);
-    CommunicationService* client = new CommunicationService(*clientDLL, *clientTL, *clientRA);
+    CommunicationService client(clientDLL, clientTL, clientRA);
 
     /*clientDLL->setOnTimeout([&](){
         logger.log("TIMEOUT");
@@ -58,7 +56,7 @@ int main(){
     unsigned char end_delim = 3;
     string enterMessage = "Enter your message: ";
     string data = "";
-    client->setOnReceive([&](){
+    client.setOnReceive([&](){
         unsigned char in;
         while (clientStream >> in){
             if (in == end_delim){
@@ -82,7 +80,7 @@ int main(){
             for (auto byte : data)
                 clientStream << (unsigned char) byte;
             clientStream << end_delim;
-            client->transmit();
+            client.transmit();
         }
     }
 
