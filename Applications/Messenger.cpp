@@ -9,15 +9,15 @@ using namespace std;
 
 int main(){
     int sampleRate = 4000;
-    float toneTime = 15; //ms
+    float toneTime = 100; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
     AcousticTL clientTL(sampleRate, samplesPerTone);
     stringstream clientStream(ios::in|ios::out|ios::app);
     RealAudio clientRA(sampleRate);
-    //SelectiveRepeat clientDLL(clientStream);
+    SelectiveRepeat clientDLL(clientStream);
     // Uncomment to use StopAndWait instead
-    StopAndWait clientDLL(clientStream);
+    //StopAndWait clientDLL(clientStream);
     CommunicationService client(clientDLL, clientTL, clientRA);
 
     unsigned char end_delim = 3;

@@ -234,7 +234,7 @@ void SelectiveRepeat::incomingFrame() {
         }
 
         if (!acknowledgedFrames[incomingSeqNo]) {
-            onFrameReceive(incomingSeqNo);
+            if (onFrameReceive) onFrameReceive(incomingSeqNo);
             // Save new frame to incomingFrames array
             acknowledgedFrames[incomingSeqNo] = true;       // Mark frame as received
             frameSplit();
@@ -252,7 +252,7 @@ void SelectiveRepeat::incomingFrame() {
                     }
                     firstOutstanding = (++firstOutstanding) % TOTAL_SEQ_NO;   // Increment firstOutstanding
                 }
-                onReceive();
+                if (onReceive) onReceive();
             }
         }
 
