@@ -44,7 +44,6 @@ bool Sync::trySync(std::queue<float> &q) {
                 q.pop();
             samples.clear();
             analysis.clear();
-            cout << "Sync success! Certainty: " << maxCertainty << " index: " << maxCertaintyIndex << " of " << alignResolution << endl;
             return true;
         }
     }

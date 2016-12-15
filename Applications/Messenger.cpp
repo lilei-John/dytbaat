@@ -28,6 +28,7 @@ int main(){
         while (clientStream >> in){
             if (in == end_delim){
                 cout << endl << "Received message: " << inData << endl << enterMessage;
+                cout.flush();
                 clientStream.str("");
                 inData = "";
             } else{
@@ -40,6 +41,7 @@ int main(){
     while(true) {
         string outData = "";
         cout << enterMessage;
+        cout.flush();
         getline(cin, outData);
         if(outData == "q") {
             break;
