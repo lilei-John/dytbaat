@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include "AcousticTL.h"
 #include "helperFunctions.h"
 
@@ -19,17 +21,25 @@ void AcousticTL::processInput(const std::vector<float> &in) {
 
     while (true){
         if (state == ATLState::idle) {
-            if (sync.trySync(incomingSamples)){
+            if (sync.trySync(incomingSamples, samplesToBeSaved)){
                 state = ATLState::receiving;
                 if(onStartSeqReceived) onStartSeqReceived();
             }
         }
         if (state == ATLState::receiving){
-            frameReceiver.processInput(incomingSamples);
+            frameReceiver.processInput(incomingSamples, samplesToBeSaved);
             if (frameReceiver.getFrameReceiverStatus() == FrameReceiverStatus::frameReceived){
                 state = ATLState::idle;
                 auto frame = frameReceiver.getFrame();
                 frameReceiver.reset();
+                ofstream sf("savedfile" + to_string(saveCount++) + ".csv");
+                sf << sampleRate << endl;
+                sf << samplesPerTone << endl;
+                while (samplesToBeSaved.size() > 0){
+                    sf << samplesToBeSaved.front() << endl;
+                    samplesToBeSaved.pop();
+                }
+                sf.close();
                 onFrameReceived(frame);
             }else if(frameReceiver.getFrameReceiverStatus() == FrameReceiverStatus::frameError){
                 state = ATLState::idle;

@@ -12,7 +12,7 @@ struct SyncMatchScore{
 class Sync {
 public:
     Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec);
-    bool trySync(std::queue<float> &);
+    bool trySync(std::queue<float> &in, std::queue<float> &save);
     const std::vector<unsigned char> &getStartNibbles() const;
 
     void setOnSyncFail(const std::function<void(float)> &onSyncFail);

@@ -19,7 +19,7 @@ class FrameReceiver {
 public:
     FrameReceiver(FrameProtocol, DtmfSpec, int samplesPerTone, int sampleRate);
 
-    void processInput(std::queue<float> &);
+    void processInput(std::queue<float> &in, std::queue<float> &save);
     void receiveNipple(unsigned char);
     std::vector<unsigned char> getFrame();
 

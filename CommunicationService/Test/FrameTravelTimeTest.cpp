@@ -26,7 +26,7 @@ int main(){
     }
 
     int sampleRate = 4000;
-    float toneTime = 7; //ms
+    float toneTime = 50; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
     cout << "Samples per tone: " << samplesPerTone << endl;

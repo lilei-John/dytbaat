@@ -34,6 +34,8 @@ public:
 private:
     ATLState state = ATLState::idle;
     std::queue<float> incomingSamples;
+    std::queue<float> samplesToBeSaved;
+    int saveCount = 0;
     std::queue<unsigned char> outgoingNibbles;
     DtmfTone currentDtmfTone;
 

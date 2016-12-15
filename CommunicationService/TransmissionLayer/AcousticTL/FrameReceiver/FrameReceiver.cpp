@@ -14,11 +14,12 @@ vector<unsigned char> FrameReceiver::getFrame() {
     return frame;
 }
 
-void FrameReceiver::processInput(std::queue<float> &samples) {
+void FrameReceiver::processInput(std::queue<float> &samples, std::queue<float> &save) {
     while(samples.size() >= samplesPerTone && frameReceiverStatus == FrameReceiverStatus::receiving){
         vector<float> toneSamples((unsigned long)samplesPerTone);
         for (int i = 0; i < samplesPerTone; i++){
             toneSamples[i] = samples.front();
+            save.push(samples.front());
             samples.pop();
         }
         DtmfAnalysis dtmf(&toneSamples[0], samplesPerTone, dtmfSpec, sampleRate);
@@ -39,14 +40,7 @@ void FrameReceiver::receiveNipple(unsigned char nipple) {
 void FrameReceiver::receiveByte(unsigned char byte) {
     if (frame.size() == maxFrameSize && !frameProtocol.isStopByte(byte)){
         frameReceiverStatus = FrameReceiverStatus::frameError;
-        if (onFrameError){
-            int rln = byte & 0xF;
-            int rhn = byte >> 4;
-            auto sb = frameProtocol.getStopByte();
-            int sln = sb & 0xF;
-            int shn = sb >> 4;
-            onFrameError(frame, byte);
-        }
+        if (onFrameError) onFrameError(frame, byte);
     }else if (shouldEscapeNexByte){
         frame.push_back(byte);
         shouldEscapeNexByte = false;

@@ -13,12 +13,14 @@ Sync::Sync(int samplesPerTone, int sampleRate, DtmfSpec dtmfSpec)
     startNibbles.push_back(paddingNibble);
 }
 
-bool Sync::trySync(std::queue<float> &q) {
-    while(q.size() >= realAnalysisSpacing * alignResolution){ //TODO: should be able to pull out
+bool Sync::trySync(std::queue<float> &q, std::queue<float> &save) {
+    while(q.size() >= realAnalysisSpacing * alignResolution){
         for (int i = 0; i < realAnalysisSpacing; i++){
             samples.push_back(q.front());
+            save.push(q.front());
             q.pop();
         }
+        while(save.size() > (syncNibbles.size() + 2) * samplesPerTone) save.pop();
         if (samples.size() < samplesPerTone) continue;
         analysis.push_back(DtmfAnalysis(&samples[0], samplesPerTone, dtmfSpec, sampleRate));
         samples.erase(samples.begin(), samples.begin() + realAnalysisSpacing);
@@ -40,11 +42,14 @@ bool Sync::trySync(std::queue<float> &q) {
             unsigned int paddingSamplesLeft = paddingAnalysisLeft * realAnalysisSpacing;
             unsigned int paddingSamplesLeftInSampleVector = (unsigned int) (samples.size() - (samplesPerTone - realAnalysisSpacing));
             paddingSamplesLeft -= paddingSamplesLeftInSampleVector;
-            for (int i = 0; i < paddingSamplesLeft; i++)
+            for (int i = 0; i < paddingSamplesLeft; i++){
+                save.push(q.front());
+                save.pop();
                 q.pop();
+            }
             samples.clear();
             analysis.clear();
-            cout << "Sync success! Certainty: " << maxCertainty << " index: " << maxCertaintyIndex << " of " << alignResolution << endl;
+            if(onSyncSuccess) onSyncSuccess(maxCertainty);
             return true;
         }
     }
