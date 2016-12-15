@@ -26,7 +26,9 @@ void SelectiveRepeat::getData() {
 
 bool SelectiveRepeat::isStreamEmpty() {
     unsigned char index0;
-    return !(bool)(*stream >> index0);
+    bool empty = !(bool)(*stream >> index0);
+    stream->clear();
+    return empty;
 }
 
 void SelectiveRepeat::addHeader() {
@@ -138,6 +140,7 @@ void SelectiveRepeat::timer() {
 void SelectiveRepeat::timeOut() {
     if(expectingACK && timerCount == 1) {
         if(onTimeout) onTimeout();
+        cout << window.size() << endl;
         if(window[window.size()-1][0] & (1<<7)){            // If MSB is set in header, it is the 2. (or later) timeout in a row
             frame = window[window.size()-1];                //
             sendFrame();                                    // resend last frame

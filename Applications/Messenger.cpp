@@ -9,7 +9,7 @@ using namespace std;
 
 int main(){
     int sampleRate = 4000;
-    float toneTime = 100; //ms
+    float toneTime = 15; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
     AcousticTL clientTL(sampleRate, samplesPerTone);
