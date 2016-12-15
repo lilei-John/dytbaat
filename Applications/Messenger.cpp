@@ -9,10 +9,8 @@
 using namespace std;
 
 int main(){
-    Logger logger("FrameTravelTimeTest");
-
-    int sampleRate = 44100;
-    float toneTime = 30; //ms
+    int sampleRate = 4000;
+    float toneTime = 15; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
     cout << "Samples per tone: " << samplesPerTone << endl;
@@ -21,39 +19,9 @@ int main(){
     stringstream clientStream(ios::in|ios::out|ios::app);
     RealAudio* clientRA = new RealAudio(sampleRate);
     SelectiveRepeat* clientDLL = new SelectiveRepeat(clientStream);
+    // Uncomment to use StopAndWait instead
     //StopAndWait* clientDLL = new StopAndWait(clientStream);
     CommunicationService* client = new CommunicationService(*clientDLL, *clientTL, *clientRA);
-
-    /*clientDLL->setOnTimeout([&](){
-        logger.log("TIMEOUT");
-    });
-    clientDLL->setOnCrcFail([&](){
-        logger.log("SENDER CRC FAIL");
-    });
-    clientDLL->setOnFlowFail([&](){
-        logger.log("SENDER FLOW FAIL");
-    });
-    clientDLL->setOnCrcFail([&](){
-        logger.log("RECEIVER CRC FAIL");
-    });
-    clientDLL->setOnFlowFail([&](){
-        logger.log("RECEIVER FLOW FAIL");
-    });
-
-    long millisec;
-    clientDLL->setOnFrameSendTime([&](){
-        chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                chrono::system_clock::now().time_since_epoch()
-        );
-        millisec = ms.count();
-    });
-    clientDLL->setOnAckReceiveTime([&](){
-        chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                chrono::system_clock::now().time_since_epoch()
-        );
-        millisec = ms.count() - millisec;
-        logger.log("Frame travel time: " + to_string(millisec));
-    });*/
 
     unsigned char end_delim = 3;
     string enterMessage = "Enter your message: ";
