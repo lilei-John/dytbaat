@@ -9,75 +9,43 @@
 using namespace std;
 
 int main(){
-    Logger logger("FrameTravelTimeTest");
-
-    int sampleRate = 44100;
-    float toneTime = 30; //ms
+    int sampleRate = 4000;
+    float toneTime = 15; //ms
     int samplesPerTone = (int)((float)sampleRate / 1000 * toneTime);
 
     AcousticTL clientTL(sampleRate, samplesPerTone);
     stringstream clientStream(ios::in|ios::out|ios::app);
     RealAudio clientRA(sampleRate);
     SelectiveRepeat clientDLL(clientStream);
+    // Uncomment to use StopAndWait instead
     //StopAndWait* clientDLL = new StopAndWait(clientStream);
     CommunicationService client(clientDLL, clientTL, clientRA);
 
-    /*clientDLL->setOnTimeout([&](){
-        logger.log("TIMEOUT");
-    });
-    clientDLL->setOnCrcFail([&](){
-        logger.log("SENDER CRC FAIL");
-    });
-    clientDLL->setOnFlowFail([&](){
-        logger.log("SENDER FLOW FAIL");
-    });
-    clientDLL->setOnCrcFail([&](){
-        logger.log("RECEIVER CRC FAIL");
-    });
-    clientDLL->setOnFlowFail([&](){
-        logger.log("RECEIVER FLOW FAIL");
-    });
-
-    long millisec;
-    clientDLL->setOnFrameSendTime([&](){
-        chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                chrono::system_clock::now().time_since_epoch()
-        );
-        millisec = ms.count();
-    });
-    clientDLL->setOnAckReceiveTime([&](){
-        chrono::milliseconds ms = chrono::duration_cast< chrono::milliseconds >(
-                chrono::system_clock::now().time_since_epoch()
-        );
-        millisec = ms.count() - millisec;
-        logger.log("Frame travel time: " + to_string(millisec));
-    });*/
-
     unsigned char end_delim = 3;
     string enterMessage = "Enter your message: ";
-    string data = "";
+    string inData = "";
     client.setOnReceive([&](){
         unsigned char in;
         while (clientStream >> in){
             if (in == end_delim){
-                cout << endl << "Received message: " << data << endl << enterMessage;
+                cout << endl << "Received message: " << inData << endl << enterMessage;
                 clientStream.str("");
-                data = "";
+                inData = "";
             } else{
-                data += in;
+                inData += in;
             }
         }
         clientStream.clear();
     });
 
     while(true) {
-        string data = "";
+        string outData = "";
         cout << enterMessage;
-        getline(cin, data);
-        if(data == "q") {
+        getline(cin, outData);
+        if(outData == "q") {
             break;
         } else {
-            for (auto byte : data)
+            for (auto byte : outData)
                 clientStream << (unsigned char) byte;
             clientStream << end_delim;
             client.transmit();
