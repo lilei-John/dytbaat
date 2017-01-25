@@ -313,6 +313,7 @@ void SelectiveRepeat::clearAll() {
     isSender = false;
 
     framesToResend = 0;
+    stream->str("");
 }
 
 int SelectiveRepeat::getMaxFrameSize() {
